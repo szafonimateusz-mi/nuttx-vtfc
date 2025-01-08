@@ -1,0 +1,70 @@
+############################################################################
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.  The
+# ASF licenses this file to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance with the
+# License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+############################################################################
+
+from ntfc.envconfig import EnvConfig
+
+
+def test_envconfig_check():
+
+    env = EnvConfig("./tests/resources/nuttx/sim/config.yaml")
+
+    # check device options
+    assert env.device["device"] == "sim"
+    assert env.device["cwd"] == "./"
+
+    assert env.core()["conf_path"] == "./tests/resources/nuttx/sim/kv_config"
+    assert env.core()["elf_path"] == "./tests/resources/nuttx/sim/nuttx"
+
+    assert (
+        env.core(cpu=0)["conf_path"] == "./tests/resources/nuttx/sim/kv_config"
+    )
+    assert (
+        env.core(cpu=1)["conf_path"] == "./tests/resources/nuttx/sim/kv_config"
+    )
+    assert env.core(cpu=2)["conf_path"] == ""
+    assert env.core(cpu=3)["conf_path"] == ""
+
+    assert env.core(cpu=0)["elf_path"] == "./tests/resources/nuttx/sim/nuttx"
+    assert env.core(cpu=1)["elf_path"] == "./tests/resources/nuttx/sim/nuttx"
+    assert env.core(cpu=2)["elf_path"] == ""
+    assert env.core(cpu=3)["elf_path"] == ""
+
+    assert env.core(cpu=0)["name"] == "main"
+    assert env.core(cpu=1)["name"] == "core1"
+    assert env.core(cpu=2)["name"] == ""
+    assert env.core(cpu=3)["name"] == ""
+
+    # check kconfig options
+    assert env.kv_check("dummy") is False
+    assert env.kv_check("CONFIG_ALLOW_BSD_COMPONENTS") is False
+    assert env.kv_check("CONFIG_DEFAULT_SMALL") is False
+    assert env.kv_check("CONFIG_HOST_LINUX") is True
+    assert env.kv_check("CONFIG_APPS_DIR") == "../apps"
+    assert env.kv_check("CONFIG_BASE_DEFCONFIG") == "sim/nsh"
+    assert env.kv_check("CONFIG_BUILD_FLAT") is True
+
+    # check available commands in elf
+    assert env.cmd_check("dummy") is False
+    assert env.cmd_check("dummy_main") is False
+    assert env.cmd_check("dummy2_main") is False
+    assert env.cmd_check("hello") is False
+    assert env.cmd_check("hello_main") is True
+    assert env.cmd_check("ostest") is False
+    assert env.cmd_check("ostest_main") is True

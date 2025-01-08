@@ -1,0 +1,33 @@
+device:
+  device: ''                      # Choose a device: sim, qemu
+  cwd: ''                         # path of work directory. eg: /home/work
+  conf_path: ''                   # Path of .config file. eg: path/of/nuttx/.config
+  elf_path: ''                    # Path of NuttX file. eg: path/of/nuttx.elf
+  qemu_path: ''                   # Path of qumu execution. eg: path/of/qemu
+  qemu_args: ''                   # Args for qemu execution.
+
+cores:                            # cores configuration, for know only main_core is used
+  main_core:                      # main core (core 0)
+    name: ''                      # core name
+    conf_path: ''                 # configuration path for this core firmware
+    elf_path: ''                  # NuttX ELF path for this core firmware
+  core1:
+    name: ''
+    conf_path: ''
+    elf_path: ''
+  core2:
+    name: ''
+    conf_path: ''
+    elf_path: ''
+  core3:
+    name: ''
+    conf_path: ''
+    elf_path: ''
+  core4:
+    name: ''
+    conf_path: ''
+    elf_path: ''
+  core5:
+    name: ''
+    conf_path: ''
+    elf_path: ''
