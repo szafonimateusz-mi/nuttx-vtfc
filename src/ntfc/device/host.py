@@ -359,8 +359,8 @@ class DeviceHost(DeviceCommon):
 
     def send_ctrl_cmd(self, ctrl_char: str):
         """Send control command to the device."""
-        if not self._open:
-            raise IOError("Device is not open")
+        if not self._child:
+            raise IOError("Host device is not open")
 
         self._write_ctrl(ctrl_char)
 
