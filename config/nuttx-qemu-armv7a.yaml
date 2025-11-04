@@ -1,0 +1,34 @@
+device:
+  device: 'qemu'
+  cwd: './external'
+  qemu_path: 'qemu-system-arm'
+  qemu_args: '-cpu cortex-a7 -nographic
+  -machine virt,highmem=off,virtualization=off,gic-version=2
+  -chardev stdio,id=con,mux=on -serial chardev:con
+  -mon chardev=con,mode=readline'
+
+cores:
+  main_core:
+    name: 'main'
+    conf_path: './external/nuttx/.config'
+    elf_path: './external/nuttx/nuttx'
+  core1:
+    name: ''
+    conf_path: ''
+    elf_path: ''
+  core2:
+    name: ''
+    conf_path: ''
+    elf_path: ''
+  core3:
+    name: ''
+    conf_path: ''
+    elf_path: ''
+  core4:
+    name: ''
+    conf_path: ''
+    elf_path: ''
+  core5:
+    name: ''
+    conf_path: ''
+    elf_path: ''

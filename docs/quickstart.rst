@@ -24,7 +24,7 @@ Quick start
 
 5. Configure and build NuttX in ``external/nuttx``.
 
-   A sample configuration for ``SIMULATOR`` and ``QEMU-X86_64`` can
+   A sample configuration for ``SIMULATOR``, QEMU targets can
    be found at ``docs/boards``.
 
    For ``SIMULATOR``::
@@ -44,6 +44,38 @@ Quick start
      make -j
      cd ../..
 
+   For ``QEMU-ARMV7A``::
+
+     mkdir boards/arm/qemu/qemu-armv7a/configs/ntfc
+     cp ../../docs/boards/qemu-armv7a/defconfig boards/arm/qemu/qemu-armv7a/configs/ntfc
+     ./tools/configure.sh qemu-armv7a/ntfc
+     make -j
+     cd ../..
+
+   For ``QEMU-ARMV7R``::
+
+     mkdir boards/arm/qemu/qemu-armv7r/configs/ntfc
+     cp ../../docs/boards/qemu-armv7r/defconfig boards/arm/qemu/qemu-armv7r/configs/ntfc
+     ./tools/configure.sh qemu-armv7r/ntfc
+     make -j
+     cd ../..
+
+   For ``QEMU-ARMV8A``::
+
+     mkdir boards/arm64/qemu/qemu-armv8a/configs/ntfc
+     cp ../../docs/boards/qemu-armv8a/defconfig boards/arm64/qemu/qemu-armv8a/configs/ntfc
+     ./tools/configure.sh qemu-armv8a/ntfc
+     make -j
+     cd ../..
+
+   For ``QEMU-RISCV64``::
+
+     mkdir boards/risc-v/qemu-rv/rv-virt/configs/ntfc64
+     cp ../../docs/boards/qemu-riscv-rv-virt-64/defconfig boards/risc-v/qemu-rv/rv-virt/configs/ntfc64
+     ./tools/configure.sh rv-virt/ntfc64
+     make -j
+     cd ../..
+
 6. Collect test cases without running tests.
 
    For ``SIMULATOR``::
@@ -53,6 +85,22 @@ Quick start
    For ``QEMU-X86_64``::
 
      python -m ntfc --confpath config/nuttx-qemu-x86_64.yaml collect
+
+   For ``QEMU-ARMV7A``::
+
+     python -m ntfc --confpath config/nuttx-qemu-armv7a.yaml collect
+
+   For ``QEMU-ARMV7R``::
+
+     python -m ntfc --confpath config/nuttx-qemu-armv7r.yaml collect
+
+   For ``QEMU-ARMV8A``::
+
+     python -m ntfc --confpath config/nuttx-qemu-armv8a.yaml collect
+
+   For ``QEMU-RISCV64``::
+
+     python -m ntfc --confpath config/nuttx-qemu-riscv-rv-virt-64.yaml collect
 
    When you run NTFC with ``--debug`` option, tests that were detected but
    the conditions for running them are not met will also be listed.
@@ -66,3 +114,19 @@ Quick start
    For ``QEMU-X86_64``::
 
      python -m ntfc --confpath config/nuttx-qemu-x86_64.yaml test
+
+   For ``QEMU-ARMV7A``::
+
+     python -m ntfc --confpath config/nuttx-qemu-armv7a.yaml test
+
+   For ``QEMU-ARMV7R``::
+
+     python -m ntfc --confpath config/nuttx-qemu-armv7r.yaml test
+
+   For ``QEMU-ARMV8A``::
+
+     python -m ntfc --confpath config/nuttx-qemu-armv8a.yaml test
+
+   For ``QEMU-RISCV64``::
+
+     python -m ntfc --confpath config/nuttx-qemu-riscv-rv-virt-64.yaml test

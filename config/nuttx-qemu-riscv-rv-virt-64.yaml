@@ -1,0 +1,31 @@
+device:
+  device: 'qemu'
+  cwd: './external'
+  qemu_path: 'qemu-system-riscv64'
+  qemu_args: '-semihosting -M virt,aclint=on -cpu rv64 -smp 1 -bios none -nographic'
+
+cores:
+  main_core:
+    name: 'main'
+    conf_path: './external/nuttx/.config'
+    elf_path: './external/nuttx/nuttx'
+  core1:
+    name: ''
+    conf_path: ''
+    elf_path: ''
+  core2:
+    name: ''
+    conf_path: ''
+    elf_path: ''
+  core3:
+    name: ''
+    conf_path: ''
+    elf_path: ''
+  core4:
+    name: ''
+    conf_path: ''
+    elf_path: ''
+  core5:
+    name: ''
+    conf_path: ''
+    elf_path: ''
