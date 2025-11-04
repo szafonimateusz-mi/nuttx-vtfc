@@ -128,8 +128,8 @@ class ProcessPerfData:
                         writer.writerow(head)
                         writer.writerows(csvdatalist)
                         logger.info(
-                            f"Write performance data to csv file Successfully. "
-                            f"Csv fp: {csvfp}"
+                            f"Write performance data to csv file Successfully."
+                            f" Csv fp: {csvfp}"
                         )
                     return True
                 else:
