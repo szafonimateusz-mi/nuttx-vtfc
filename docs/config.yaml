@@ -1,8 +1,8 @@
 device:
   device: ''                      # Choose a device: sim, qemu
   cwd: ''                         # path of work directory. eg: /home/work
-  qemu_path: ''                   # Path of qumu execution. eg: path/of/qemu
-  qemu_args: ''                   # Args for qemu execution.
+  exec_path: ''                   # Path of emulator execution. eg: path/of/qemu. Empty for simulator.
+  exec_args: ''                   # Args for emulator execution. Empty for simulator.
 
 cores:                            # cores configuration, for know only main_core is used
   main_core:                      # main core (core 0)

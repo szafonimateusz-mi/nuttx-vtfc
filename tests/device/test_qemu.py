@@ -33,6 +33,6 @@ def test_device_qemu_open():
         with pytest.raises(KeyError):
             _ = DeviceQemu(config)
 
-        config.device = {"qemu_path": "dummy"}
+        config.device = {"exec_path": "dummy"}
         qemu = DeviceQemu(config)
         assert qemu.name == "qemu"

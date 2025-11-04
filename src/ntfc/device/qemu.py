@@ -32,8 +32,8 @@ class DeviceQemu(DeviceHost):
 
     def __init__(self, conf):
         """Initialize QEMU emulator device."""
-        if "qemu_path" not in conf.device or not conf.device["qemu_path"]:
-            raise KeyError("no qemu_path in configuration file!")
+        if "exec_path" not in conf.device or not conf.device["exec_path"]:
+            raise KeyError("no exec_path in configuration file!")
 
         DeviceHost.__init__(self, conf)
 
@@ -49,9 +49,9 @@ class DeviceQemu(DeviceHost):
         uptime = self._conf.device.get("uptime", 3)
         kernel_param = "-kernel " + elf
 
-        cmd.append(self._conf.device["qemu_path"])
+        cmd.append(self._conf.device["exec_path"])
         cmd.append(" ")
-        cmd.append(self._conf.device["qemu_args"])
+        cmd.append(self._conf.device["exec_args"])
         cmd.append(" ")
         cmd.append(kernel_param)
 
