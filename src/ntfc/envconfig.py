@@ -47,7 +47,7 @@ class EnvConfig:
 
         self._print_config()
 
-        if self.cores:
+        if self.cores_get(product=0):
             self._load_elf()
 
     def _load_core_config(self, core: int) -> None:
@@ -82,8 +82,8 @@ class EnvConfig:
         with open(yaml_path, "r") as f:
             self._cfg_values = yaml.safe_load(f)
 
-        for core in range(len(self.cores)):
-            if self.core(cpu=core)["conf_path"]:
+        for core in range(len(self.cores_get(product=0))):
+            if self.core(product=0, cpu=core)["conf_path"]:
                 # add entry in dict
                 self._kv_values.append({})
                 # load config values
@@ -98,12 +98,12 @@ class EnvConfig:
         pp = pprint.PrettyPrinter()
         if self.device:
             pp.pprint(self.device)
-        if self.cores:
-            pp.pprint(self.cores)
+        if self.cores_get(product=0):
+            pp.pprint(self.cores_get(product=0))
 
     def _load_elf(self) -> None:
         """Load ELF symbols."""
-        for core in range(len(self.cores)):
+        for core in range(len(self.cores_get(product=0))):
             path = self.core(cpu=core)["elf_path"]
             if path:
                 elf = ElfParser(path)
@@ -117,19 +117,39 @@ class EnvConfig:
         """Return device parameters."""
         return self._cfg_values.get("device", None)
 
-    @property
-    def cores(self) -> Dict:
+    def cores_get(self, product: int = 0) -> Dict:
         """Return cores."""
-        return self._cfg_values.get("cores", None)
+        product = self.product_get(product)
+        if not product:
+            return None
 
-    def core(self, cpu: int = 0) -> Dict:
-        """Return device parameters."""
+        return product.get("cores", None)
+
+    def product_get(self, product: int = 0) -> dict:
+        """Return product parameters."""
+        if product == 0:
+            name = "product"
+        else:
+            name = "product" + str(product)
+
+        return self._cfg_values.get(name, None)
+
+    def core(self, product: int = 0, cpu: int = 0) -> Dict:
+        """Return core parameters."""
         if cpu == 0:
             cpuname = "main_core"
         else:
             cpuname = "core" + str(cpu)
 
-        return self.cores[cpuname]
+        product = self.product_get(product)
+        if not product:
+            return ""
+
+        cores = product.get("cores", None)
+        if not cores:
+            return ""
+
+        return cores.get(cpuname, "")
 
     @property
     def config(self) -> Dict:

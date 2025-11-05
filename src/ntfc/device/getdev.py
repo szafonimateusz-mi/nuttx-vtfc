@@ -34,9 +34,11 @@ if TYPE_CHECKING:
 ###############################################################################
 
 
-def get_device(conf: "EnvConfig", cpu: int = 0) -> "DeviceCommon":
+def get_device(
+    conf: "EnvConfig", product: int = 0, cpu: int = 0
+) -> "DeviceCommon":
     """Get device from a given name."""
-    devname = conf.core(cpu=cpu).get("device", None)
+    devname = conf.core(product=product, cpu=cpu).get("device", None)
 
     if not devname:
         raise ValueError("Unspecified device")

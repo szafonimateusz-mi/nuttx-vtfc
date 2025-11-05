@@ -43,7 +43,7 @@ class DeviceSim(DeviceHost):
             raise IOError
 
         cmd = [elf]
-        uptime = self._conf.device.get("uptime", 3)
+        uptime = self._conf.core(cpu=0).get("uptime", 3)
 
         # open host-based emulation
         self.host_open(cmd, uptime)

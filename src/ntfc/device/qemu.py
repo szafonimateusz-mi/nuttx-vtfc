@@ -46,7 +46,7 @@ class DeviceQemu(DeviceHost):
             raise IOError
 
         cmd = []
-        uptime = self._conf.device.get("uptime", 3)
+        uptime = self._conf.core(cpu=0).get("uptime", 3)
         kernel_param = "-kernel " + elf
 
         cmd.append(self._conf.core(cpu=0)["exec_path"])

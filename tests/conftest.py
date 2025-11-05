@@ -27,13 +27,15 @@ from ntfc.envconfig import EnvConfig
 @pytest.fixture
 def config_dummy():
     conf_dir = {
-        "device": {},
-        "cores": {
-            "main_core": {
-                "name": "dummy",
-                "device": "sim",
-                "elf_path": "",
-                "uptime": 1,
+        "config": {},
+        "product": {
+            "cores": {
+                "main_core": {
+                    "name": "dummy",
+                    "device": "sim",
+                    "elf_path": "",
+                    "uptime": 1,
+                }
             }
         },
     }

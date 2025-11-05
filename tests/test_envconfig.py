@@ -55,6 +55,28 @@ def test_envconfig_check():
     assert env.core(cpu=2)["device"] == ""
     assert env.core(cpu=3)["device"] == ""
 
+    assert env.core(product=1)["name"] == "product1-main"
+    assert env.core(product=1, cpu=0)["name"] == "product1-main"
+    assert env.core(product=1, cpu=1)["name"] == "product1-core1"
+    assert env.core(product=1, cpu=2) == ""
+    assert env.core(product=1, cpu=3) == ""
+
+    assert env.core(product=2)["name"] == "product2-main"
+    assert env.core(product=2, cpu=0)["name"] == "product2-main"
+    assert env.core(product=2, cpu=1)["name"] == ""
+    assert env.core(product=2, cpu=2) == ""
+    assert env.core(product=2, cpu=3) == ""
+
+    assert env.core(product=3, cpu=0) == ""
+    assert env.core(product=3, cpu=1) == ""
+    assert env.core(product=3, cpu=2) == ""
+    assert env.core(product=3, cpu=3) == ""
+
+    assert env.core(product=4, cpu=0) == ""
+    assert env.core(product=4, cpu=1) == ""
+    assert env.core(product=4, cpu=2) == ""
+    assert env.core(product=4, cpu=3) == ""
+
     # check kconfig options
     assert env.kv_check("dummy") is False
     assert env.kv_check("CONFIG_ALLOW_BSD_COMPONENTS") is False

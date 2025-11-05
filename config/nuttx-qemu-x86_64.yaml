@@ -1,41 +1,44 @@
 config:
   cwd: './external'
 
-cores:
-  main_core:
-    name: 'main'
-    device: 'qemu'
-    exec_path: 'qemu-system-x86_64'
-    exec_args: '-m 2G -smp 4 -cpu host -enable-kvm -nographic -serial mon:stdio'
-    conf_path: './external/nuttx/.config'
-    elf_path: './external/nuttx/nuttx'
+product:
 
-  core1:
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+  name: "product"
+  cores:
+    main_core:
+      name: 'main'
+      device: 'qemu'
+      exec_path: 'qemu-system-x86_64'
+      exec_args: '-m 2G -smp 4 -cpu host -enable-kvm -nographic -serial mon:stdio'
+      conf_path: './external/nuttx/.config'
+      elf_path: './external/nuttx/nuttx'
 
-  core2:
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+    core1:
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
 
-  core3:
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+    core2:
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
 
-  core4:
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+    core3:
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
 
-  core5:
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+    core4:
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
+
+    core5:
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''

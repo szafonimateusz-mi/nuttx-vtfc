@@ -1,41 +1,84 @@
 config:                           # common, global configuration options
   cwd: ''                         # path of work directory. eg: /home/work
 
-cores:                            # Cores configuration, for know only main_core is used
-  main_core:                      # Main core (core 0)
-    name: ''                      # Core name
-    device: ''                    # Choose a device: sim, qemu
-    exec_path: ''                 # Path of emulator execution. eg: path/of/qemu. Empty for simulator.
-    exec_args: ''                 # Args for emulator execution. Empty for simulator.
-    conf_path: ''                 # configuration path for this core firmware
-    elf_path: ''                  # NuttX ELF path for this core firmware
+product:                          # many products can be supported in tests (product == product0)
 
-  core1:                          # Aux core 1 (for AMP test cases)
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+  name: "product"                 # product name
+  cores:                          # Cores configuration, for know only main_core is used
+    main_core:                    # Main core (core 0)
+      name: ''                    # Core name
+      device: ''                  # Choose a device: sim, qemu
+      exec_path: ''               # Path of emulator execution. eg: path/of/qemu. Empty for simulator.
+      exec_args: ''               # Args for emulator execution. Empty for simulator.
+      conf_path: ''               # configuration path for this core firmware
+      elf_path: ''                # NuttX ELF path for this core firmware
 
-  core2:                          # Aux core 2
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+    core1:                        # Aux core 1 (for AMP test cases)
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
 
-  core3:                          # Aux core 2
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+    core2:                        # Aux core 2
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
 
-  core4:                          # Aux core 2
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+    core3:                        # Aux core 2
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
 
-  core5:                          # Aux core 2
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+    core4:                        # Aux core 2
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
+
+    core5:                        # Aux core 2
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
+
+  name: "product1"                # product name
+  cores:                          # Cores configuration, for know only main_core is used
+    main_core:                    # Main core (core 0)
+      name: ''                    # Core name
+      device: ''                  # Choose a device: sim, qemu
+      exec_path: ''               # Path of emulator execution. eg: path/of/qemu. Empty for simulator.
+      exec_args: ''               # Args for emulator execution. Empty for simulator.
+      conf_path: ''               # configuration path for this core firmware
+      elf_path: ''                # NuttX ELF path for this core firmware
+
+    core1:                        # Aux core 1 (for AMP test cases)
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
+
+    core2:                        # Aux core 2
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
+
+    core3:                        # Aux core 2
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
+
+    core4:                        # Aux core 2
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
+
+    core5:                        # Aux core 2
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''

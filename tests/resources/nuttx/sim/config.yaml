@@ -1,39 +1,74 @@
 device:
   cwd: './'
 
-cores:
-  main_core:
-    name: 'main'
-    device: 'sim'
-    conf_path: './tests/resources/nuttx/sim/kv_config'
-    elf_path: './tests/resources/nuttx/sim/nuttx'
+product:
 
-  core1:
-    name: 'core1'
-    device: 'sim'
-    conf_path: './tests/resources/nuttx/sim/kv_config'
-    elf_path: './tests/resources/nuttx/sim/nuttx'
+  name: "product"
+  cores:
+    main_core:
+      name: 'main'
+      device: 'sim'
+      conf_path: './tests/resources/nuttx/sim/kv_config'
+      elf_path: './tests/resources/nuttx/sim/nuttx'
 
-  core2:
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+    core1:
+      name: 'core1'
+      device: 'sim'
+      conf_path: './tests/resources/nuttx/sim/kv_config'
+      elf_path: './tests/resources/nuttx/sim/nuttx'
 
-  core3:
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+    core2:
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
 
-  core4:
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+    core3:
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
 
-  core5:
-    name: ''
-    device: ''
-    conf_path: ''
-    elf_path: ''
+    core4:
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
+
+    core5:
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''
+
+product1:
+
+  name: "product1"
+  cores:
+    main_core:
+      name: 'product1-main'
+      device: 'sim'
+      conf_path: './tests/resources/nuttx/sim/kv_config'
+      elf_path: './tests/resources/nuttx/sim/nuttx'
+
+    core1:
+      name: 'product1-core1'
+      device: 'sim'
+      conf_path: './tests/resources/nuttx/sim/kv_config'
+      elf_path: './tests/resources/nuttx/sim/nuttx'
+
+product2:
+
+  name: "product2"
+  cores:
+    main_core:
+      name: 'product2-main'
+      device: 'sim'
+      conf_path: './tests/resources/nuttx/sim/kv_config'
+      elf_path: './tests/resources/nuttx/sim/nuttx'
+
+    core1:
+      name: ''
+      device: ''
+      conf_path: ''
+      elf_path: ''

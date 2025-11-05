@@ -441,13 +441,30 @@ class MyPytest:
 
         # inject objects into pytest module
         # REVISIT: we can access device from product, dont need device here ?
+        # REVISTI: fix this mess!!
+
         pytest.config = config
-        pytest.task = config.config
+
         if device:
             pytest.device = device
         else:
             pytest.device = get_device(config)
-        pytest.product = Product(pytest.device, config)
+
+        self._products = self._create_products(config)
+        pytest.product = self._get_product(product=0)
+        pytest.task = config.product_get(product=0)
+
+    def _create_products(self, config):
+        """Create products according to configuration."""
+        # REVISIT: support many products at once
+        tmp = []
+        p1 = Product(pytest.device, config)
+        tmp.append(p1)
+        return tmp
+
+    def _get_product(self, product: int = 0) -> dict:
+        """Get product configuration."""
+        return self._products[product]
 
     def _run(self, extra_opt: list, extra_plugins: list) -> int:
         """Run pytest.
