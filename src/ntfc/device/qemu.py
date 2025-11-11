@@ -38,7 +38,6 @@ class DeviceQemu(DeviceHost):
     def __init__(self, conf: "ProductConfig"):
         """Initialize QEMU emulator device."""
         DeviceHost.__init__(self, conf)
-        self._conf = conf
 
     def start(self) -> None:
         """Start QEMU emulator."""

@@ -28,43 +28,33 @@ class DeviceMock(DeviceCommon):
     def __init__(self, _):
         """Mock."""
 
-    def start():
+        DeviceCommon.__init__(self, _)
+
+    def _read():
         """Mock."""
 
-    def send_cmd_read_until_pattern():
+    def _write():
+        """Mock."""
+
+    def _write_ctrl():
+        """Mock."""
+
+    def _dev_is_health_priv():
+        """Mock."""
+
+    def start():
         """Mock."""
 
     def name():
         """Mock."""
 
-    def prompt():
-        """Mock."""
-
-    def no_cmd():
-        """Mock."""
-
-    def busyloop():
-        """Mock."""
-
-    def crash():
-        """Mock."""
-
     def notalive():
-        """Mock."""
-
-    def send_ctrl_cmd():
         """Mock."""
 
     def poweroff():
         """Mock."""
 
     def reboot():
-        """Mock."""
-
-    def start_log_collect(self, logs):
-        """Mock."""
-
-    def stop_log_collect(self):
         """Mock."""
 
 
@@ -90,3 +80,9 @@ def test_device_common_init():
 
         d = DeviceMock(config)
         assert d is not None
+
+        assert d.crash is False
+        assert d.busyloop is False
+
+
+# TODO: missing tests

@@ -21,19 +21,16 @@
 """Host-based emulated devices."""
 
 import os
-import re
 import signal
 import time
-from threading import Event
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 import pexpect
 import psutil
 
 from ntfc.logger import logger
 
-from .common import CmdReturn, CmdStatus, DeviceCommon
-from .getos import get_os
+from .common import DeviceCommon
 
 if TYPE_CHECKING:
     from ntfc.envconfig import ProductConfig
@@ -46,36 +43,22 @@ if TYPE_CHECKING:
 class DeviceHost(DeviceCommon):
     """This class implements common interface for host emulated devices."""
 
-    _BUSY_LOOP_TIMEOUT = 180  # 180 sec with no data read from target
-
     def __init__(self, conf: "ProductConfig"):
         """Initialize host based device.
 
         :param conf: configuration handler
         """
+        DeviceCommon.__init__(self, conf)
         self._child = None
         self._cwd = None
         self._cmd: Optional[List[str]] = None
-        self._logs: Optional[Dict[str, Any]] = None
-        self._crash = Event()
-        self._busy_loop = Event()
-        self._busy_loop_last = 0
 
-        # get OS abstraction
-        self._dev = get_os(conf)
-
-    def _dev_is_health(self) -> bool:
+    def _dev_is_health_priv(self) -> bool:
         """Check if the host device is OK."""
         if not self._child:
             return False
 
         if not self._child.isalive():
-            return False
-
-        if self._crash.is_set():
-            return False
-
-        if self._busy_loop.is_set():
             return False
 
         return True
@@ -88,17 +71,9 @@ class DeviceHost(DeviceCommon):
 
         return self.host_open(self._cmd)
 
-    def _console_log(self, data: bytes) -> None:
-        """Log console output."""
-        if self._logs is not None:
-            self._logs["console"].write(data.decode("utf-8"))
-
     def _write(self, data: bytes) -> None:
         """Write to the host device."""
-        if not self._child:
-            raise IOError("Host device is not open")
-
-        if not self._dev_is_health():
+        if not self.dev_is_health():
             return
 
         # send char by char to avoid line length full
@@ -115,40 +90,14 @@ class DeviceHost(DeviceCommon):
 
     def _write_ctrl(self, c: str) -> None:
         """Write a control character to the host device."""
-        if not self._child:
-            raise IOError("Host device is not open")
-
-        if not self._dev_is_health():
+        if not self.dev_is_health():
             return
 
         self._child.sendcontrol(c)
 
-    def _readline(self) -> bytes:
-        """Read line from the host device."""
-        if not self._child:
-            raise IOError("Host device is not open")
-
-        if not self._dev_is_health():
-            return b""
-
-        try:
-            data = self._child.readline()
-            return data
-
-        except pexpect.TIMEOUT:
-            self._write(b"\n")
-            logger.debug("Timeout while reading from device")
-            return b""
-
-        except BaseException:
-            raise
-
     def _read(self) -> bytes:
         """Read data from the host device."""
-        if not self._child:
-            raise IOError("Host device is not open")
-
-        if not self._dev_is_health():
+        if not self.dev_is_health():
             return b""
 
         try:
@@ -162,64 +111,6 @@ class DeviceHost(DeviceCommon):
 
         except BaseException:
             raise
-
-    def _read_all(self, timeout: int = 1) -> bytes:
-        """Read data from the host device."""
-        if not self._child:
-            raise IOError("Host device is not open")
-
-        if not self._dev_is_health():
-            return b""
-
-        output = b""
-        end_time = time.time() + timeout
-
-        while True:
-            chunk = self._read()
-            output += chunk
-            time_now = time.time()
-
-            # check for any sign of system crash
-            if any(key in output for key in self._dev.crash_keys):
-                logger.info("Assertion detected! Set crash flag")
-                self._crash.set()
-                break
-
-            # check for busy loop
-            # trigger an error if there was no data to read for a long time
-            if not chunk:
-                if self._busy_loop_last and (
-                    time_now - self._busy_loop_last > self._BUSY_LOOP_TIMEOUT
-                ):
-                    self._busy_loop_last = 0
-                    self._busy_loop.set()
-                    break
-            else:
-                self._busy_loop_last = time_now
-
-            # check for timeout
-            if time_now > end_time:
-                break
-
-        # regex pattern to match ANSI escape sequences
-        ansi_escape = re.compile(rb"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
-        # clean output from garbage
-        clean = ansi_escape.sub(b"", output)
-
-        return clean
-
-    def _wait_for_boot(self, timeout: int = 10) -> bool:
-        """Wait for device booted."""
-        end_time = time.time() + timeout
-        while time.time() < end_time:
-            # send new line and expect prompt in returned data
-            ret = self.send_command(b"\n", 1)
-            if self._dev.prompt in ret:
-                return True
-
-            time.sleep(1)
-
-        return False
 
     def _kill_process_group(self, process: pexpect.spawn) -> None:
         """Kill process group."""
@@ -242,16 +133,6 @@ class DeviceHost(DeviceCommon):
             # force termination
             os.killpg(pid, signal.SIGKILL)
             logger.info(f"Sent SIGKILL to process group {pid}")
-
-    @property
-    def prompt(self) -> bytes:
-        """Return target device prompt."""
-        return self._dev.prompt
-
-    @property
-    def no_cmd(self) -> str:
-        """Return command not found string."""
-        return self._dev.no_cmd
 
     def host_open(self, cmd: List[str], uptime: int = 0) -> pexpect.spawn:
         """Open host-based target device."""
@@ -297,112 +178,10 @@ class DeviceHost(DeviceCommon):
 
         logger.info("host device closed")
 
-    def send_command(self, cmd: bytes | str, timeout: int = 1) -> bytes:
-        """Send command to the host device and get the response."""
-        if not self._child:
-            raise IOError("Host device not ready")
-
-        # convert string to bytes
-        if not isinstance(cmd, bytes):
-            cmd = cmd.encode("utf-8")
-
-        # update timeout for pexpect
-        self._child.timeout = timeout
-
-        # read any pending output and drop
-        _ = self._read_all(timeout=0)
-        self._console_log(_)
-
-        # write command and get response
-        self._write(cmd)
-        rsp = self._read_all(timeout=timeout)
-
-        logger.debug("Sent command: %s", cmd)
-
-        # console log
-        self._console_log(rsp)
-        return rsp
-
-    def send_cmd_read_until_pattern(
-        self, cmd: bytes, pattern: bytes, timeout: int
-    ) -> CmdReturn:
-        """Send command to device and read until the specified pattern.
-
-        :param cmd: (bytes) command to send to device
-        :param pattern: (bytes, or list of (bytes), optional)
-         String or regex pattern to look for. If a list,
-         patterns will be concatenated with '.*'.
-         The pattern will be converted to bytes for matching.
-         Default is None.
-        :param timeout: (int) timeout value in seconds
-
-        :return: CmdReturn : command return data
-        """
-        if not isinstance(cmd, bytes):
-            raise TypeError("Command must by bytes")
-
-        if not isinstance(pattern, bytes):
-            raise TypeError("Pattern must by bytes")
-
-        # clear buffer for reading data after command
-        self._readline()
-
-        output = self.send_command(cmd, 0)
-        end_time = time.time() + timeout
-        _match = None
-        while True:
-            output += self._read_all()
-
-            # REVISIT: limit output to last 10000 characters, otherwise
-            # re.search can stack
-            if len(output) > 10000:
-                output = output[-10000:]
-
-            # check output for pattern match
-            _match = re.search(pattern, output)
-            if _match:
-                logger.debug(f">>match: {output}, search: {pattern}<<")
-                ret = CmdStatus.SUCCESS
-                break
-
-            # check for timeout
-            if time.time() > end_time:
-                ret = CmdStatus.TIMEOUT
-                break
-
-            # exit before timeout if dev crashed
-            if not self._dev_is_health():
-                break
-
-        # log console output and return
-        self._console_log(output)
-        return CmdReturn(ret, _match, output.decode("utf-8"))
-
-    def send_ctrl_cmd(self, ctrl_char: str) -> CmdStatus:
-        """Send control command to the device."""
-        if not self._child:
-            raise IOError("Host device is not open")
-
-        self._write_ctrl(ctrl_char)
-
-        logger.info(f"Sent Ctrl+{ctrl_char}.")
-
-        return CmdStatus.SUCCESS
-
     @property
     def name(self) -> str:
         """Get device name."""
         return "host_unknown"
-
-    @property
-    def busyloop(self) -> bool:
-        """Check if the device is in busy loop."""
-        return True if self._busy_loop.is_set() else False
-
-    @property
-    def crash(self) -> bool:
-        """Check if the device is crashed."""
-        return True if self._crash.is_set() else False
 
     @property
     def notalive(self) -> bool:
@@ -418,11 +197,3 @@ class DeviceHost(DeviceCommon):
     def reboot(self, timeout: int) -> bool:
         """Reboot the device."""
         return True if self._dev_reopen() else False
-
-    def start_log_collect(self, logs: Dict[str, Any]) -> None:
-        """Start device log collector."""
-        self._logs = logs
-
-    def stop_log_collect(self) -> None:
-        """Stop device log collector."""
-        self._logs = None

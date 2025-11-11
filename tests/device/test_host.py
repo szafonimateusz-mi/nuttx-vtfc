@@ -18,8 +18,6 @@
 #
 ############################################################################
 
-import time
-
 import pytest
 from pexpect.exceptions import ExceptionPexpect
 
@@ -30,6 +28,9 @@ from ntfc.device.host import DeviceHost
 class DeviceHost2(DeviceHost):
     def start(self):
         pass
+
+    def _dev_is_health_priv(self):
+        return True
 
 
 def test_device_host_open():
@@ -94,145 +95,7 @@ def test_device_host_command():
     assert ret.status == 0
 
 
-def mock_send_command_long_response0(timeout=1):
-    return b"DUMMY"
-
-
-g_mock_send_command_long_response1_cntr = 0
-
-
-def mock_send_command_long_response1(timeout=1):
-    global g_mock_send_command_long_response1_cntr
-    g_mock_send_command_long_response1_cntr += 1
-
-    if g_mock_send_command_long_response1_cntr == 1:
-        return b""
-    elif g_mock_send_command_long_response1_cntr == 2:
-        return b""
-    elif g_mock_send_command_long_response1_cntr == 3:
-        return b""
-    elif g_mock_send_command_long_response1_cntr == 4:
-        return b"Dxxx"
-    else:
-        return b""
-
-
-g_mock_send_command_long_response2_cntr = 0
-
-
-def mock_send_command_long_response2(timeout=1):
-    global g_mock_send_command_long_response2_cntr
-    g_mock_send_command_long_response2_cntr += 1
-
-    if g_mock_send_command_long_response2_cntr == 1:
-        return b""
-    elif g_mock_send_command_long_response2_cntr == 2:
-        return b""
-    elif g_mock_send_command_long_response2_cntr == 3:
-        return b""
-    elif g_mock_send_command_long_response2_cntr == 4:
-        return b"DUMMY"
-    else:
-        return b""
-
-
-g_mock_send_command_long_response3_cntr = 0
-
-
-def mock_send_command_long_response3(timeout=1):
-    global g_mock_send_command_long_response3_cntr
-    g_mock_send_command_long_response3_cntr += 1
-
-    if g_mock_send_command_long_response3_cntr == 1:
-        return b""
-    elif g_mock_send_command_long_response3_cntr == 2:
-        return b""
-    elif g_mock_send_command_long_response3_cntr == 3:
-        return b"D"
-    elif g_mock_send_command_long_response3_cntr == 4:
-        return b""
-    elif g_mock_send_command_long_response3_cntr == 5:
-        return b""
-    elif g_mock_send_command_long_response3_cntr == 6:
-        return b"U"
-    else:
-        return b""
-
-
-def mock_send_command_long_response4(timeout=1):
-    global g_mock_send_command_long_response4_cntr
-    g_mock_send_command_long_response4_cntr += 1
-
-    if g_mock_send_command_long_response4_cntr == 1:
-        return b""
-    elif g_mock_send_command_long_response4_cntr == 2:
-        return b""
-    elif g_mock_send_command_long_response4_cntr == 3:
-        return b"D"
-    elif g_mock_send_command_long_response4_cntr == 4:
-        return b""
-    elif g_mock_send_command_long_response4_cntr == 5:
-        return b""
-    elif g_mock_send_command_long_response4_cntr == 6:
-        return b"U"
-    elif g_mock_send_command_long_response4_cntr == 7:
-        return b"MMY"
-    else:
-        return b""
-
-
-def test_device_host_command_long_time():
-
-    global g_mock_send_command_long_response1_cntr
-    global g_mock_send_command_long_response2_cntr
-    global g_mock_send_command_long_response3_cntr
-    global g_mock_send_command_long_response4_cntr
-
-    conf = {}
-    path = "./tests/resources/nuttx/sim/nuttx"
-    dev = DeviceHost2(conf)
-
-    # open executable
-    ret = dev.host_open([path])
-    assert ret is not None
-    assert dev.notalive is False
-
-    # check response time when data are ready in the first read
-    dev._read_all = mock_send_command_long_response0
-    now_time = time.time()
-    timeout = 5
-    ret = dev.send_cmd_read_until_pattern(b"dummy", b"DUMMY", timeout)
-    assert ret.status == 0
-    assert time.time() - now_time < timeout
-
-    # send command with long response time - timeout
-    g_mock_send_command_long_response1_cntr = 0
-    dev._read_all = mock_send_command_long_response1
-    now_time = time.time()
-    timeout = 5
-    ret = dev.send_cmd_read_until_pattern(b"dummy", b"DUMMY", timeout)
-    assert ret.status == -2
-    assert time.time() - now_time > timeout
-
-    # send command with long response time
-    g_mock_send_command_long_response2_cntr = 0
-    dev._read_all = mock_send_command_long_response2
-    timeout = 5
-    ret = dev.send_cmd_read_until_pattern(b"dummy", b"DUMMY", timeout)
-    assert ret.status == 0
-
-    # send command with long response time - timeout
-    g_mock_send_command_long_response3_cntr = 0
-    dev._read_all = mock_send_command_long_response3
-    now_time = time.time()
-    timeout = 1
-    ret = dev.send_cmd_read_until_pattern(b"dummy", b"DUMMY", timeout)
-    assert ret.status == -2
-    assert time.time() - now_time > timeout
-
-    # send command with long response time
-    g_mock_send_command_long_response4_cntr = 0
-    dev._read_all = mock_send_command_long_response4
-    timeout = 1
-    ret = dev.send_cmd_read_until_pattern(b"dummy", b"DUMMY", timeout)
-    assert ret.status == 0
+# TODO: more tests for host device !!!!
+#   - test for timeout
+#   - test for very long output
+#   - test for

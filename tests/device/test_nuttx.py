@@ -30,3 +30,11 @@ def test_device_nuttx_init():
 
         d = DeviceNuttx(config)
         assert d is not None
+
+        assert d.prompt is not None
+        assert d.no_cmd is not None
+        assert d.help_cmd is not None
+        assert d.poweroff_cmd is not None
+        assert d.reboot_cmd is not None
+        assert d.uname_cmd is not None
+        assert d.crash_keys is not None

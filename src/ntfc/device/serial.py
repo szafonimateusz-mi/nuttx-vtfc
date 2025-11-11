@@ -20,22 +20,13 @@
 
 """Serial-based device implementation."""
 
-import re
-import time
-from threading import Event
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Optional,
-)
+from typing import TYPE_CHECKING
 
 import serial
 
 from ntfc.logger import logger
 
-from .common import CmdReturn, CmdStatus, DeviceCommon
-from .getos import get_os
+from .common import DeviceCommon
 
 if TYPE_CHECKING:
     from ntfc.envconfig import ProductConfig
@@ -48,19 +39,10 @@ if TYPE_CHECKING:
 class DeviceSerial(DeviceCommon):
     """This class implements host-based sim emulator."""
 
-    _BUSY_LOOP_TIMEOUT = 180  # 180 sec with no data read from target
-
     def __init__(self, conf: "ProductConfig"):
         """Initialize sim emulator device."""
-        self._conf = conf
+        DeviceCommon.__init__(self, conf)
         self._ser = None
-        self._logs: Optional[Dict[str, Any]] = None
-        self._crash = Event()
-        self._busy_loop = Event()
-        self._busy_loop_last = 0
-
-        # get OS abstraction
-        self._dev = get_os(conf)
 
     def _decode_exec_args(self, args: str):
         """Decode a serial port configuration string."""
@@ -105,30 +87,16 @@ class DeviceSerial(DeviceCommon):
         except Exception as e:
             raise ValueError(f"Invalid format '{args}': {e}")
 
-    def _dev_is_health(self) -> bool:
+    def _dev_is_health_priv(self) -> bool:
         """Check if the serial device is OK."""
         if not self._ser:
             return False
 
-        if self._crash.is_set():
-            return False
-
-        if self._busy_loop.is_set():
-            return False
-
         return True
-
-    def _console_log(self, data: bytes) -> None:
-        """Log console output."""
-        if self._logs is not None:
-            self._logs["console"].write(data.decode("utf-8"))
 
     def _write(self, data: bytes) -> None:
         """Write to the serial device."""
-        if not self._ser:
-            raise IOError("Host device is not open")
-
-        if not self._dev_is_health():
+        if not self.dev_is_health():
             return
 
         # send char by char to avoid line length full
@@ -145,84 +113,17 @@ class DeviceSerial(DeviceCommon):
 
     def _write_ctrl(self, c: str) -> None:
         """Write a control character to the serial device."""
-        if not self._ser:
-            raise IOError("serial device is not open")
-
-        if not self._dev_is_health():
+        if not self.dev_is_health():
             return
 
         self._ser.write(bytes([c]))
 
     def _read(self) -> bytes:
         """Read data from the serial device."""
-        if not self._ser:
-            raise IOError("serial device is not open")
-
-        if not self._dev_is_health():
+        if not self.dev_is_health():
             return b""
 
         return self._ser.read(size=1024)
-
-    def _read_all(self, timeout: int = 1) -> bytes:
-        """Read data from the serial device."""
-        if not self._ser:
-            raise IOError("serial device is not open")
-
-        if not self._dev_is_health():
-            return b""
-
-        output = b""
-        end_time = time.time() + timeout
-
-        while True:
-            chunk = self._read()
-            output += chunk
-            time_now = time.time()
-
-            # check for any sign of system crash
-            if any(key in output for key in self._dev.crash_keys):
-                logger.info("Assertion detected! Set crash flag")
-                self._crash.set()
-                break
-
-            # check for busy loop
-            # trigger an error if there was no data to read for a long time
-            if not chunk:
-                if self._busy_loop_last and (
-                    time_now - self._busy_loop_last > self._BUSY_LOOP_TIMEOUT
-                ):
-                    self._busy_loop_last = 0
-                    self._busy_loop.set()
-                    break
-            else:
-                self._busy_loop_last = time_now
-
-            # check for timeout
-            if time_now > end_time:
-                break
-
-            # need to sleep for a while, otherwise host CPU load jumps to 100%
-            time.sleep(0.1)
-
-        # regex pattern to match ANSI escape sequences
-        ansi_escape = re.compile(rb"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
-        # clean output from garbage
-        clean = ansi_escape.sub(b"", output)
-
-        return clean
-
-    def _wait_for_boot(self, timeout: int = 5) -> bool:
-        """Wait for device booted."""
-        end_time = time.time() + timeout
-        while time.time() < end_time:
-            # send new line and expect prompt in returned data
-            ret = self.send_command(b"\n", 1)
-            if self._dev.prompt in ret:
-                return True
-
-            time.sleep(1)
-
-        return False
 
     def start(self) -> None:
         """Start serial communication."""
@@ -247,108 +148,10 @@ class DeviceSerial(DeviceCommon):
         if ret is False:
             raise TimeoutError("device boot timeout")
 
-    def send_command(self, cmd: bytes | str, timeout: int = 1) -> bytes:
-        """Send command to the serial device and get the response."""
-        if not self._ser:
-            raise IOError("Serial device not ready")
-
-        # convert string to bytes
-        if not isinstance(cmd, bytes):
-            cmd = cmd.encode("utf-8")
-
-        # read any pending output and drop
-        _ = self._read_all(timeout=0)
-        self._console_log(_)
-
-        # write command and get response
-        self._write(cmd)
-        rsp = self._read_all(timeout=timeout)
-
-        logger.debug("Sent command: %s", cmd)
-
-        # console log
-        self._console_log(rsp)
-        return rsp
-
-    def send_cmd_read_until_pattern(
-        self, cmd: bytes, pattern: bytes, timeout: int
-    ) -> CmdReturn:
-        """Send command to device and read until the specified pattern."""
-        if not isinstance(cmd, bytes):
-            raise TypeError("Command must by bytes")
-
-        if not isinstance(pattern, bytes):
-            raise TypeError("Pattern must by bytes")
-
-        # clear buffer for reading data after command
-        _ = self._read_all()
-
-        output = self.send_command(cmd, 0)
-        end_time = time.time() + timeout
-        _match = None
-        while True:
-            output += self._read_all()
-
-            # REVISIT: limit output to last 10000 characters, otherwise
-            # re.search can stack
-            if len(output) > 10000:
-                output = output[-10000:]
-
-            # check output for pattern match
-            _match = re.search(pattern, output)
-            if _match:
-                logger.debug(f">>match: {output}, search: {pattern}<<")
-                ret = CmdStatus.SUCCESS
-                break
-
-            # check for timeout
-            if time.time() > end_time:
-                ret = CmdStatus.TIMEOUT
-                break
-
-            # exit before timeout if dev crashed
-            if not self._dev_is_health():
-                break
-
-        # log console output and return
-        self._console_log(output)
-        return CmdReturn(ret, _match, output.decode("utf-8"))
-
-    def send_ctrl_cmd(self, ctrl_char: str) -> CmdStatus:
-        """Send control command to the device."""
-        if not self._ser:
-            raise IOError("Serial device is not open")
-
-        self._write_ctrl(ctrl_char)
-
-        logger.info(f"Sent Ctrl+{ctrl_char}.")
-
-        return CmdStatus.SUCCESS
-
     @property
     def name(self) -> str:
         """Get device name."""
         return "serial"
-
-    @property
-    def prompt(self) -> bytes:
-        """Return target device prompt."""
-        return self._dev.prompt
-
-    @property
-    def no_cmd(self) -> str:
-        """Return command not found string."""
-        return self._dev.no_cmd
-
-    @property
-    def busyloop(self) -> bool:
-        """Check if the device is in busy loop."""
-        return True if self._busy_loop.is_set() else False
-
-    @property
-    def crash(self) -> bool:
-        """Check if the device is crashed."""
-        return True if self._crash.is_set() else False
 
     @property
     def notalive(self) -> bool:
@@ -364,11 +167,3 @@ class DeviceSerial(DeviceCommon):
     def reboot(self, timeout: int = 1) -> bool:
         """Reboot the device."""
         print("TODO: reboot")
-
-    def start_log_collect(self, logs: dict[str, Any]) -> None:
-        """Start device log collector."""
-        self._logs = logs
-
-    def stop_log_collect(self) -> None:
-        """Stop device log collector."""
-        self._logs = None
