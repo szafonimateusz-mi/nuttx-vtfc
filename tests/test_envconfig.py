@@ -26,7 +26,7 @@ def test_product_config():
     conf = {
         "name": "product",
         "cores": {
-            "main_core": {
+            "core0": {
                 "name": "dummy",
                 "device": "sim",
                 "elf_path": "./tests/resources/nuttx/sim/config.yaml",

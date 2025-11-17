@@ -5,7 +5,7 @@ product:
 
   name: "product"
   cores:
-    main_core:
+    core0:
       name: 'main'
       device: 'serial'
       exec_path: '/dev/ttyACM0'

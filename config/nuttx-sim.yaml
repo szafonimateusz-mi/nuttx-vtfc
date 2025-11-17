@@ -5,7 +5,7 @@ product:
 
   name: "product"
   cores:
-    main_core:
+    core0:
       name: 'main'
       device: 'sim'
       conf_path: './external/nuttx/.config'

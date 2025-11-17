@@ -5,7 +5,7 @@ product:
 
   name: "product"
   cores:
-    main_core:
+    core0:
       name: 'main'
       device: 'sim'
       conf_path: './tests/resources/nuttx/sim/kv_config'
@@ -45,7 +45,7 @@ product1:
 
   name: "product1"
   cores:
-    main_core:
+    core0:
       name: 'product1-main'
       device: 'sim'
       conf_path: './tests/resources/nuttx/sim/kv_config'
@@ -61,7 +61,7 @@ product2:
 
   name: "product2"
   cores:
-    main_core:
+    core0:
       name: 'product2-main'
       device: 'sim'
       conf_path: './tests/resources/nuttx/sim/kv_config'

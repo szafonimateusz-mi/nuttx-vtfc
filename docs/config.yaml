@@ -4,8 +4,8 @@ config:                           # common, global configuration options
 product:                          # many products can be supported in tests (product == product0)
 
   name: "product"                 # product name
-  cores:                          # Cores configuration, for know only main_core is used
-    main_core:                    # Main core (core 0)
+  cores:                          # Cores configuration, for know only core0 is used
+    core0:                    # Main core (core 0)
       name: ''                    # Core name
       device: ''                  # Choose a device: sim, qemu
       exec_path: ''               # Path of emulator execution for QEMU targets eg: `qemu-system-x86_64`
@@ -49,8 +49,8 @@ product:                          # many products can be supported in tests (pro
       elf_path: ''
 
   name: "product1"                # product name
-  cores:                          # Cores configuration, for know only main_core is used
-    main_core:                    # Main core (core 0)
+  cores:                          # Cores configuration, for know only core0 is used
+    core0:                    # Main core (core 0)
       name: ''                    # Core name
       device: ''                  # Choose a device: sim, qemu
       exec_path: ''               # Path of emulator execution. eg: path/of/qemu. Empty for simulator.

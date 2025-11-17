@@ -30,7 +30,7 @@ def config_dummy():
         "config": {},
         "product": {
             "cores": {
-                "main_core": {
+                "core0": {
                     "name": "dummy",
                     "device": "sim",
                     "elf_path": "",

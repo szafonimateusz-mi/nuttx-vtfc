@@ -59,7 +59,7 @@ def fake_device_thread(fd, stop):
 def serial_config():
     config = {
         "cores": {
-            "main_core": {
+            "core0": {
                 "name": "main",
                 "device": "serial",
                 "exec_path": "",

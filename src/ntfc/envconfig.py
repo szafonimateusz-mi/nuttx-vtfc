@@ -115,7 +115,7 @@ class ProductConfig:
     def core(self, cpu: int = 0) -> Dict:
         """Return core parameters."""
         if cpu == 0:
-            cpuname = "main_core"
+            cpuname = "core0"
         else:
             cpuname = "core" + str(cpu)
 

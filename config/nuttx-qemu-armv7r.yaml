@@ -5,7 +5,7 @@ product:
 
   name: "product"
   cores:
-    main_core:
+    core0:
       name: 'main'
       device: 'qemu'
       exec_path: 'qemu-system-arm'

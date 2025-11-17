@@ -25,24 +25,24 @@ from ntfc.device.getdev import get_device
 
 def test_getdev_get_device(config_dummy):
 
-    config_dummy.product_get(0)["cores"]["main_core"]["device"] = ""
+    config_dummy.product_get(0)["cores"]["core0"]["device"] = ""
 
     with pytest.raises(ValueError):
         get_device(config_dummy.product[0])
 
-    config_dummy.product_get(0)["cores"]["main_core"]["device"] = "dummy"
+    config_dummy.product_get(0)["cores"]["core0"]["device"] = "dummy"
 
     with pytest.raises(ValueError):
         get_device(config_dummy.product[0])
 
-    config_dummy.product_get(0)["cores"]["main_core"]["device"] = "sim"
+    config_dummy.product_get(0)["cores"]["core0"]["device"] = "sim"
 
     _ = get_device(config_dummy.product[0])
 
-    config_dummy.product_get(0)["cores"]["main_core"]["device"] = "qemu"
+    config_dummy.product_get(0)["cores"]["core0"]["device"] = "qemu"
 
     _ = get_device(config_dummy.product[0])
 
-    config_dummy.product_get(0)["cores"]["main_core"]["device"] = "serial"
+    config_dummy.product_get(0)["cores"]["core0"]["device"] = "serial"
 
     _ = get_device(config_dummy.product[0])

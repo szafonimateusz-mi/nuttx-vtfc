@@ -168,14 +168,14 @@ def test_product_switch_core(config_dummy):
 
         assert p.switch_core("") == -1
 
-        p._main_core = "AAA"
+        p._core0 = "AAA"
         assert p.switch_core("aaa") == 0
 
-        p._main_core = "bbb"
+        p._core0 = "bbb"
         p._cores = ["bbb", "ccc"]
         assert p.switch_core("aaa") == -1
 
-        p._main_core = "bbb"
+        p._core0 = "bbb"
         p._cores = ["bbb", "ccc"]
         dev.send_cmd_read_until_pattern.return_value = CmdReturn(
             CmdStatus.NOTFOUND

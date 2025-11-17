@@ -62,7 +62,7 @@ class Product:
 
         # cores info not ready yet, done in self.init() method called when
         # device is ready
-        self._main_core: Optional[str] = None
+        self._core0: Optional[str] = None
         self._cur_core: Optional[str] = None
         self._cores: Optional[Tuple[str, ...]] = None
 
@@ -163,8 +163,8 @@ class Product:
     def init(self) -> None:
         """Finish product initialization."""
         cores = self.get_core_info()
-        self._main_core = cores[0] if cores else "ap"
-        self._cur_core = self._main_core
+        self._core0 = cores[0] if cores else "ap"
+        self._cur_core = self._core0
         self._cores = cores if cores else ("ap",)
         logger.info(f"Current product support cores: {self._cores}")
 
@@ -333,7 +333,7 @@ class Product:
 
         :return: 0 on success, -1 on failure
         """
-        if not self._main_core and not self._cur_core and not self._cores:
+        if not self._core0 and not self._cur_core and not self._cores:
             raise ValueError("Product not initialized!")
 
         if not target_core:
@@ -342,7 +342,7 @@ class Product:
             )
             return CmdStatus.NOTFOUND
 
-        if target_core.lower() == self._main_core.lower():
+        if target_core.lower() == self._core0.lower():
             logger.warning(
                 "The target core is the main core, and the core"
                 " is not switched."
