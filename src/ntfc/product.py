@@ -455,3 +455,11 @@ class Product:
     def device(self) -> "DeviceCommon":
         """Get underlying device."""
         return self._device
+
+    def start_log_collect(self, logs: dict[str, Any]) -> None:
+        """Start device log collector."""
+        self._device.start_log_collect(logs)
+
+    def stop_log_collect(self) -> None:
+        """Stop device log collector."""
+        self._device.stop_log_collect()

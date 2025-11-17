@@ -243,7 +243,7 @@ class _PytestConfigPlugin:
 class _RunnerPlugin:
     def __init__(self, nologs: bool = False) -> None:
         """Initialize custom pytest test runner plugin."""
-        self._logs: Dict[str, Any] = {}
+        self._logs: Dict[Dict[str, Any]] = {}
         self._nologs = nologs
 
     def _collect_device_logs_teardown(self) -> None:
@@ -252,10 +252,13 @@ class _RunnerPlugin:
         if self._nologs:
             return
 
-        pytest.product.device.stop_log_collect()
-
-        # close files
-        self._logs["console"].close()
+        i = 0
+        for product in pytest.products:
+            name = "product" + str(i)
+            product.stop_log_collect()
+            # close files
+            self._logs[name]["console"].close()
+            i += 1
 
     def _collect_device_logs(self, request) -> None:
         """Initiate device log writing into a new test file."""
@@ -264,12 +267,21 @@ class _RunnerPlugin:
 
         testname = request.node.name
 
-        # open log files
-        tmp = os.path.join(pytest.result_dir, testname + ".console.txt")
-        self._logs["console"] = open(tmp, "a")
+        i = 0
+        for product in pytest.products:
+            name = "product" + str(i)
+            product_dir = os.path.join(pytest.result_dir, name)
 
-        # start device log collector
-        pytest.product.device.start_log_collect(self._logs)
+            if name not in self._logs:
+                os.makedirs(product_dir, exist_ok=True)
+                self._logs[name] = {}
+
+            # open log files
+            tmp = os.path.join(product_dir, testname + ".console.txt")
+            self._logs[name]["console"] = open(tmp, "a")
+            # start device log collector
+            product.start_log_collect(self._logs[name])
+            i += 1
 
     @pytest.fixture(scope="function", autouse=True)
     def prepare_test(self, request) -> None:
@@ -491,10 +503,11 @@ class MyPytest:
 
     def _device_start(self) -> None:
         """Start device to test."""
-        pytest.product.device.start()
-
-        # finish product initialization
-        pytest.product.init()
+        for product in pytest.products:
+            # start device
+            product.device.start()
+            # finish product initialization
+            product.init()
 
     def ignore_tests(self, path: str) -> None:
         """Ignore tests specified in $CWD/ignore.txt file."""
