@@ -32,6 +32,7 @@ from pluggy import HookimplMarker
 from ntfc.device.getdev import get_device
 from ntfc.logger import logger
 from ntfc.product import Product
+from ntfc.products import ProductsHandler
 
 from .collector import Collected, CollectorPlugin
 from .configure import PytestConfigPlugin
@@ -110,10 +111,6 @@ class MyPytest:
 
         return tmp
 
-    def _get_product(self, product: int = 0) -> Dict[str, str]:
-        """Get product configuration."""
-        return pytest.products[product]
-
     def _run(self, extra_opt: List[str], extra_plugins: List[Any]) -> int:
         """Run pytest.
 
@@ -146,7 +143,7 @@ class MyPytest:
         """Initialize pytest environment."""
         # inject some objects into pytest module
         pytest.products = self._create_products(self._config, self._device)
-        pytest.product = self._get_product(product=0)
+        pytest.product = ProductsHandler(pytest.products)
         pytest.task = self._config.product_get(product=0)
         pytest.testpath = testpath
 

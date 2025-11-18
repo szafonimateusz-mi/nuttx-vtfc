@@ -23,12 +23,13 @@
 import re
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
-from ntfc.device.common import CmdStatus
+from ntfc.device.common import CmdReturn, CmdStatus
 from ntfc.envconfig import ProductConfig
 from ntfc.logger import logger
 
 if TYPE_CHECKING:
     from ntfc.device.common import DeviceCommon
+
 
 ###############################################################################
 # Class: Product
@@ -219,7 +220,7 @@ class Product:
         pattern: Optional[Union[str, bytes, List[Union[str, bytes]]]] = None,
         args: Optional[Union[str, List[str]]] = None,
         timeout: int = 30,
-    ) -> Tuple[int, Optional[re.Match[Any]], str]:
+    ) -> CmdReturn:
         """Send command to device and read until a specific pattern.
 
         :param cmd: (str or list of strs) command to send to device

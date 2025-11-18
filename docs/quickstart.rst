@@ -2,6 +2,9 @@
 Quick start
 ===========
 
+Common initialization
+=====================
+
 1. Clone the NTFC repository::
 
      git clone <PATH_TO_NTFC_REPO>
@@ -22,7 +25,21 @@ Quick start
      git clone https://github.com/apache/nuttx-apps.git external/nuttx-apps
      git clone https://github.com/szafonimateusz-mi/nuttx-testing external/nuttx-testing
 
-5. Configure and build NuttX in ``external/nuttx``.
+
+Automatically build DTU images
+==============================
+
+There is a YAML configuration available that builds the available QEMU and SIM
+targets and runs parallel tests on all DTUs. Just use::
+
+  python -m ntfc test --confpath=./config/nuttx-build-qemu-sim-ntfc.yaml
+
+
+Creating a DTU image manually
+=============================
+
+
+1. Configure and build NuttX in ``external/nuttx``.
 
    A sample configuration for ``SIMULATOR``, QEMU targets can
    be found at ``docs/boards``. There is also a configuration for ``nucleo-h743zi``
@@ -85,7 +102,7 @@ Quick start
      make -j
      cd ../..
 
-6. Collect test cases without running tests.
+2. Collect test cases without running tests.
 
    For ``SIMULATOR``::
 
@@ -118,7 +135,7 @@ Quick start
    When you run NTFC with ``--debug`` option, tests that were detected but
    the conditions for running them are not met will also be listed.
 
-7. Run test cases.
+3. Run test cases.
 
    For ``SIMULATOR``::
 
