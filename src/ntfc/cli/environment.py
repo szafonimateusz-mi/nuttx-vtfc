@@ -38,6 +38,8 @@ class DEnvironmentData:
     verbose: bool = False
     exitonfail: bool = False
     runcollect: bool = False
+    buildonly: bool = False
+    noflash: bool = False
     runtest: bool = False
     runprint: bool = False
     nologs: bool = False

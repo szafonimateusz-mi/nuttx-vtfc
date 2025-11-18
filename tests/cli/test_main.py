@@ -113,6 +113,37 @@ def test_main_collect(runner):
     assert result.exit_code == 0
 
 
+def test_main_build(runner, monkeypatch):
+
+    def fake_run_command(cmd, check, env):
+        return
+
+    monkeypatch.setattr("subprocess.run", fake_run_command)
+
+    args = [
+        "build",
+        "--confpath=./tests/resources/nuttx/sim/config_build.yaml",
+    ]
+    result = runner.invoke(main, args)
+    assert result.exit_code == 0
+
+    # nothing to build
+    args = [
+        "build",
+        "--confpath=./tests/resources/nuttx/sim/config.yaml",
+    ]
+    result = runner.invoke(main, args)
+    assert result.exit_code == 0
+
+    args = [
+        "build",
+        "--confpath=./tests/resources/nuttx/sim/config_build.yaml",
+        "--noflash",
+    ]
+    result = runner.invoke(main, args)
+    assert result.exit_code == 0
+
+
 def test_main_test(runner):
     args = [
         "test",
@@ -137,6 +168,22 @@ def test_main_test(runner):
         "--verbose",
         "collect",
         "--confpath=./tests/resources/nuttx/sim/config.yaml",
+        "--testpath=./tests/resources/tests_collect",
+    ]
+    result = runner.invoke(main, args)
+    assert result.exit_code == 0
+
+
+def test_main_build_test(runner, monkeypatch):
+
+    def fake_run_command(pt, ctx):
+        return
+
+    monkeypatch.setattr("ntfc.cli.main.test_run", fake_run_command)
+
+    args = [
+        "test",
+        "--confpath=./tests/resources/nuttx/sim/config_build.yaml",
         "--testpath=./tests/resources/tests_collect",
     ]
     result = runner.invoke(main, args)

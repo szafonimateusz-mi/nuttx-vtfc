@@ -17,12 +17,11 @@ This is a to-do list for the NTFC project.
 
 ## Features
 
-- [ ] Support for serial port communication with the device.
-- [ ] Support for hardware reset if the device support this feature.
-      Required for real HW testing, for QEMU we can use QEMU monitor.
-- [ ] Support for ELF building from the tool level.
-- [ ] Support for ELF flashing from the tool level (HW testing)
-- [ ] Better workflow with CMake - handle many NuttX images at once.
+- [ ] Support for ELF flashing from the tool level (HW testing).
+- [ ] Run tests for all configured products.
+- [ ] Support for SSH/TELNET communication with the device.
+- [ ] Support for ADB communication with the device.
+- [ ] Support for GDB debugging.
 - [ ] Support for AMP test cases for host-based simulations (rpmsg).
 - [ ] Running test cases on multiple threads in parallel for host-based configuration.
       Pytest-xdist won't help here.

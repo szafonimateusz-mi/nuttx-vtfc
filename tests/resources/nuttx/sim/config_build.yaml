@@ -1,0 +1,43 @@
+config:
+  cwd: './external'
+  build_dir: './build'
+
+product:
+
+  name: "product"
+  cores:
+    core0:
+      name: 'main'
+      device: 'sim'
+      defconfig: 'boards/sim/sim/sim/configs/nsh'
+      flash: ''
+
+    core1:
+      name: 'core1'
+      device: 'sim'
+      defconfig: 'boards/sim/sim/sim/configs/nsh'
+      flash: ''
+
+product1:
+
+  name: "product1"
+  cores:
+    core0:
+      name: 'product1-main'
+      device: 'sim'
+      defconfig: 'boards/sim/sim/sim/configs/nsh'
+
+    core1:
+      name: 'product1-core1'
+      device: 'sim'
+      conf_path: './tests/resources/nuttx/sim/kv_config'
+      elf_path: './tests/resources/nuttx/sim/nuttx'
+
+product2:
+
+  name: "product2"
+  cores:
+    core0:
+      name: 'product2-main'
+      device: 'sim'
+      defconfig: 'boards/sim/sim/sim/configs/nsh'

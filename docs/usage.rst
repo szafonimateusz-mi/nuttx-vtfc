@@ -50,7 +50,7 @@ Options:
 ``test`` command
 ----------------
 
-Run test cases
+Run test cases.
 
 .. code-block:: bash
 
@@ -76,3 +76,19 @@ Options:
 
 * ``--nologs`` - When set, test logs are not saved locally
 
+``build`` command
+----------------
+
+Build NuttX test image from YAML configuration and try to flash.
+
+.. code-block:: bash
+
+   python -m ntfc build [OPTIONS]
+
+Options:
+
+* ``--confpath PATH`` - Path to test configuration file.
+  Can be also set with environmentvariable ``NTFC_CONFPATH``.
+  Default: ``./external/config.yaml``
+
+* ``--noflash`` - Don't try to flash image to DTU.

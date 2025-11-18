@@ -18,19 +18,30 @@
 #
 ############################################################################
 
-"""Default commands."""
+"""Module containing NTFC collect command."""
 
-from typing import TYPE_CHECKING
+import click
 
-from ntfc.commands.cmd_build import cmd_build
-from ntfc.commands.cmd_collect import cmd_collect
-from ntfc.commands.cmd_test import cmd_test
+from ntfc.cli.clitypes import cli_confpath_option
+from ntfc.cli.environment import Environment, pass_environment
 
-if TYPE_CHECKING:
-    import click
+###############################################################################
+# Command: cmd_build
+###############################################################################
 
-commands_list: list["click.Command"] = [
-    cmd_build,
-    cmd_collect,
-    cmd_test,
-]
+
+@click.command(name="build")
+@cli_confpath_option
+@click.option(
+    "--noflash",
+    default=False,
+    is_flag=True,
+)
+@pass_environment
+def cmd_build(ctx: Environment, confpath: str, noflash: bool) -> bool:
+    """Build only command."""
+    ctx.buildonly = True
+    ctx.confpath = confpath
+    ctx.noflash = noflash
+
+    return True

@@ -29,8 +29,21 @@ import click
 ############################################################################
 
 
+# common confpath option
+_confpath_option = click.option(
+    "--confpath",
+    type=click.Path(resolve_path=False),
+    default="./external/config.yaml",
+    help="Path to test configuration file. Can be also set with "
+    "environment variable NTFC_CONFPATH. "
+    "Default: ./external/config.yaml",
+    envvar="NTFC_CONFPATH",
+)
+
 # common test env options
+
 _testenv_options = (
+    _confpath_option,
     click.option(
         "--testpath",
         type=click.Path(resolve_path=False),
@@ -38,15 +51,6 @@ _testenv_options = (
         help="Path to test cases. Can be also set with environment"
         " variable NTFC_TESTPATH. Default: ./external/nuttx-testing",
         envvar="NTFC_TESTPATH",
-    ),
-    click.option(
-        "--confpath",
-        type=click.Path(resolve_path=False),
-        default="./external/config.yaml",
-        help="Path to test configuration file. Can be also set with "
-        "environment variable NTFC_CONFPATH. "
-        "Default: ./external/config.yaml",
-        envvar="NTFC_CONFPATH",
     ),
     click.option(
         "--ignorefile",
@@ -62,4 +66,11 @@ def cli_testenv_options(fn: Any) -> Any:
     """Decorate command with common test env options decorator."""
     for decorator in reversed(_testenv_options):
         fn = decorator(fn)
+    return fn
+
+
+def cli_confpath_option(fn: Any) -> Any:
+    """Decorate command with common test env options decorator."""
+    decorator = _confpath_option
+    fn = decorator(fn)
     return fn

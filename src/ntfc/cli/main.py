@@ -24,6 +24,7 @@ import sys
 
 import click
 
+from ntfc.builder import NuttXBuilder
 from ntfc.cli.environment import Environment, pass_environment
 from ntfc.envconfig import EnvConfig
 from ntfc.logger import logger
@@ -107,7 +108,23 @@ def cli_on_close(ctx: Environment) -> bool:
         # do nothing if help was called
         return True
 
-    cfg = EnvConfig(ctx.confpath)
+    builder = NuttXBuilder(ctx.confpath)
+    new_conf = None
+    if builder.need_build():
+        builder.build_all()
+        if not ctx.noflash:
+            builder.flash_all()
+        new_conf = builder.new_conf()
+
+    # exit now when build only mode
+    if ctx.buildonly:
+        return True
+
+    if new_conf:
+        cfg = EnvConfig(new_conf)
+    else:
+        cfg = EnvConfig(ctx.confpath)
+
     pt = MyPytest(cfg, ctx.ignorefile, ctx.exitonfail, ctx.verbose)
 
     if ctx.runcollect:
