@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import pytest
+import yaml
 from pluggy import HookimplMarker
 
 from ntfc.device.getdev import get_device
@@ -314,6 +315,7 @@ class _CollectedItem:
         path: str,
         line: int,
         nodeid: str,
+        root: str,
     ) -> None:
         """Initialzie collection item."""
         self._directory = directory
@@ -322,11 +324,21 @@ class _CollectedItem:
         self._path = path
         self._line = line
         self._nodeid = nodeid
+        self._module2 = (
+            root
+            + "_"
+            + "_".join(part.capitalize() for part in module.split("/")[:-1])
+        )
 
     def __str__(self) -> str:
         """Get collected item string representation."""
-        _str = "CollectedItem: " + self.nodeid
+        _str = "CollectedItem: " + self.name
         return _str
+
+    @property
+    def module2(self) -> str:
+        """Get collected module name (short version)."""
+        return self._module2
 
     @property
     def directory(self) -> str:
@@ -357,6 +369,45 @@ class _CollectedItem:
     def nodeid(self) -> str:
         """Get collected item node ID."""
         return self._nodeid
+
+
+###############################################################################
+# Class: _Collected
+###############################################################################
+
+
+class _Collected:
+    def __init__(
+        self,
+        items: List[_CollectedItem],
+        skipped: List[Tuple[pytest.Item, str]],
+    ):
+        """Initialize test collected data."""
+        self._items = items
+        self._skipped = skipped
+        self._modules = self._get_modules()
+
+    def _get_modules(self) -> List[str]:
+        """Get collected modules."""
+        mod = set()
+        for i in self._items:
+            mod.add(i.module2)
+        return list(mod)
+
+    @property
+    def items(self) -> List[_CollectedItem]:
+        """Get collected items."""
+        return self._items
+
+    @property
+    def skipped(self) -> List[Tuple[pytest.Item, str]]:
+        """Get skipped items."""
+        return self._skipped
+
+    @property
+    def modules(self) -> List[str]:
+        """Get collected modules."""
+        return self._modules
 
 
 ###############################################################################
@@ -391,10 +442,16 @@ class _CollectorPlugin:
             path, lineno, name = item.location
             abs_path = os.path.abspath(path)
             directory = os.path.dirname(abs_path)
-            module = os.path.splitext(os.path.basename(path))[0]
+            module = path.replace(pytest.testpath, "")
 
             ci = _CollectedItem(
-                directory, module, name, abs_path, lineno, item.nodeid
+                directory,
+                module,
+                name,
+                abs_path,
+                lineno,
+                item.nodeid,
+                pytest.ntfcyaml["module"],
             )
             self.parsed_items.append(ci)
 
@@ -422,8 +479,10 @@ class MyPytest:
         :param verbose: verbose output if set to True
         """
         self._config = config
+        self._device = device
         self._opt = []
         self._plugins = []
+        self._cfg_module = {}
 
         if exit_on_fail:
             self._opt.append("-x")
@@ -444,11 +503,6 @@ class MyPytest:
 
         # add our custom pytest plugin
         self._plugins.append(self._ptconfig)
-
-        # inject some objects into pytest module
-        pytest.products = self._create_products(config, device)
-        pytest.product = self._get_product(product=0)
-        pytest.task = config.product_get(product=0)
 
     def _create_products(
         self, config: "EnvConfig", device: Optional[List["DeviceCommon"]]
@@ -498,6 +552,45 @@ class MyPytest:
             # finish product initialization
             product.init()
 
+    def _init_pytest(self, testpath: str) -> None:
+        """Initialize pytest environment."""
+        # inject some objects into pytest module
+        pytest.products = self._create_products(self._config, self._device)
+        pytest.product = self._get_product(product=0)
+        pytest.task = self._config.product_get(product=0)
+        pytest.testpath = testpath
+
+        # load per test module configuration
+        conf_path = os.path.join(testpath, "ntfc.yaml")
+        self._module_config(conf_path)
+        pytest.ntfcyaml = self._cfg_module
+
+    def _module_config(self, path) -> None:
+        """Load test module configuration."""
+        try:
+            logger.info(f"ntfc.conf file {path}")
+            _path = Path(path)
+
+            with open(_path) as f:  # pragma: no cover
+                self._cfg_module = yaml.safe_load(f)
+
+        except TypeError:  # pragma: no cover
+            pass
+
+        except NotADirectoryError:
+            logger.info("no ntfc.conf file")
+            pass
+
+        except FileNotFoundError:
+            logger.info("no ntfc.conf file")
+            pass
+
+        # module default config
+        if "module" not in self._cfg_module:
+            self._cfg_module["module"] = "Unknown_"
+        if "kvreq" not in self._cfg_module:
+            self._cfg_module["kvreq"] = [["CONFIG_DEBUG_SYMBOLS", True]]
+
     def ignore_tests(self, path: str) -> None:
         """Ignore tests specified in $CWD/ignore.txt file."""
         try:
@@ -523,6 +616,9 @@ class MyPytest:
         :param testpath: path to test directory
         :param result: result output configuration
         """
+        # initialzie pytest env
+        self._init_pytest(testpath)
+
         opt = [testpath]
 
         if not nologs:  # pragma: no cover
@@ -556,10 +652,16 @@ class MyPytest:
 
         :param testpath:
         """
+        # initialzie pytest env
+        self._init_pytest(testpath)
+
+        # collector plugin
         collector = _CollectorPlugin()
 
         # run pytest with our custom collector plugin
         self._run([testpath], [collector])
 
+        collected = _Collected(collector.parsed, self._ptconfig.skipped_items)
+
         # return parsed items and skipped
-        return collector.parsed, self._ptconfig.skipped_items
+        return collected

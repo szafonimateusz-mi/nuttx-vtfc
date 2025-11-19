@@ -1,0 +1,23 @@
+{
+    "module": {                                      // test modules configurtion
+        "include_module": [                          // include these modules
+            "Nuttx_System_Arch_Os_Integration",
+            "Nuttx_System_Tools",
+            "Nuttx_System_Gdb"
+        ],
+        "exclude_module": [],                        // exclude these modules
+        "order": [                                   // force test modules order
+            {
+                "module": "Nuttx_System_Gdb",
+                "value": "1"
+            },
+            {
+                "module": "Nuttx_System_Tools",
+                "value": "-1"
+            }
+        ]
+    },
+    "args": {                                        // overwrite configuration
+        "kv": []                                     //
+    }
+}

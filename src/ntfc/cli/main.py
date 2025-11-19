@@ -86,18 +86,21 @@ def cli_on_close(ctx: Environment) -> bool:
     pt = MyPytest(cfg, ctx.ignorefile, ctx.exitonfail, ctx.verbose)
 
     if ctx.runcollect:
-        parsed, skipped = pt.collect(ctx.testpath)
+        col = pt.collect(ctx.testpath)
 
         # print parsed test cases
-        for item in parsed:
+        for item in col.items:
             print(item)
 
         # print skipped test cases
         if ctx.debug:
-            debug_print_skipped(skipped)
+            debug_print_skipped(col.skipped)
 
         print("\nCollect summary:")
-        print(f"  collected: {len(parsed)} skipped: {len(skipped)}")
+        print(f"  collected: {len(col.items)} skipped: {len(col.skipped)}")
+
+        # print("Modules collected:")
+        # print(col.modules)
 
     if ctx.runtest:
         pt.runner(ctx.testpath, ctx.result, ctx.nologs)

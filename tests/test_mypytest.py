@@ -22,7 +22,7 @@ from ntfc.mypytest import MyPytest, _CollectedItem
 
 
 def test_collector_collected_item():
-    c = _CollectedItem("a", "b", "c", "d", "e", "f")
+    c = _CollectedItem("a", "b", "c", "d", "e", "f", "U")
 
     assert c.directory == "a"
     assert c.module == "b"
@@ -30,56 +30,74 @@ def test_collector_collected_item():
     assert c.path == "d"
     assert c.line == "e"
     assert c.nodeid == "f"
+    assert c.module2 == "U_"
 
 
 def test_collector_collect_file(config_sim, device_dummy):
 
     p = MyPytest(config_sim, device=[device_dummy])
     path = "./tests/resources/tests_collect/test_test1.py"
-    items, skipped = p.collect(path)
+    col = p.collect(path)
 
-    assert len(skipped) == 0
+    assert len(col.skipped) == 0
+    assert len(col.modules) == 1
 
-    assert items[0].name == "test_test1_simple_1"
-    assert items[1].name == "test_test1_simple_2"
+    assert col.items[0].name == "test_test1_simple_1"
+    assert col.items[1].name == "test_test1_simple_2"
 
     p = MyPytest(config_sim, device=[device_dummy])
     path = "./tests/resources/tests_collect/test_test4.py"
-    items, skipped = p.collect(path)
+    col = p.collect(path)
 
-    assert len(skipped) == 3
-    assert len(items) == 2
+    assert len(col.skipped) == 3
+    assert len(col.items) == 2
+    assert len(col.modules) == 1
 
-    assert skipped[0][0].location[2] == "test_test4_simple_2"
-    assert skipped[1][0].location[2] == "test_test4_simple_4"
-    assert skipped[2][0].location[2] == "test_test4_simple_5"
+    assert col.skipped[0][0].location[2] == "test_test4_simple_2"
+    assert col.skipped[1][0].location[2] == "test_test4_simple_4"
+    assert col.skipped[2][0].location[2] == "test_test4_simple_5"
 
-    assert items[0].name == "test_test4_simple_1"
-    assert items[1].name == "test_test4_simple_3"
+    assert col.items[0].name == "test_test4_simple_1"
+    assert col.items[1].name == "test_test4_simple_3"
 
 
 def test_collector_collect_dir(config_sim, device_dummy):
 
     p = MyPytest(config_sim, device=[device_dummy])
     path = "./tests/resources/tests_collect"
-    items, skipped = p.collect(path)
+    col = p.collect(path)
 
-    assert len(skipped) == 3
-    assert len(items) == 9
+    assert len(col.skipped) == 3
+    assert len(col.items) == 9
+    assert len(col.modules) == 1
 
-    assert skipped[0][0].location[2] == "test_test4_simple_2"
-    assert skipped[1][0].location[2] == "test_test4_simple_4"
-    assert skipped[2][0].location[2] == "test_test4_simple_5"
+    assert col.skipped[0][0].location[2] == "test_test4_simple_2"
+    assert col.skipped[1][0].location[2] == "test_test4_simple_4"
+    assert col.skipped[2][0].location[2] == "test_test4_simple_5"
 
-    assert items[0].name == "test_test1_simple_1"
-    assert items[1].name == "test_test1_simple_2"
-    assert items[2].name == "test_test2_simple_1"
-    assert items[3].name == "test_test2_simple_2"
-    assert items[4].name == "test_test3_simple_1"
-    assert items[5].name == "test_test3_simple_2"
-    assert items[6].name == "test_test3_simple_3"
-    assert items[7].name == "test_test4_simple_1"
-    assert items[8].name == "test_test4_simple_3"
+    assert col.items[0].name == "test_test1_simple_1"
+    assert col.items[1].name == "test_test1_simple_2"
+    assert col.items[2].name == "test_test2_simple_1"
+    assert col.items[3].name == "test_test2_simple_2"
+    assert col.items[4].name == "test_test3_simple_1"
+    assert col.items[5].name == "test_test3_simple_2"
+    assert col.items[6].name == "test_test3_simple_3"
+    assert col.items[7].name == "test_test4_simple_1"
+    assert col.items[8].name == "test_test4_simple_3"
+
+
+def test_collector_collect_manydirs(config_sim, device_dummy):
+
+    p = MyPytest(config_sim, device=[device_dummy])
+    path = "./tests/resources/tests_dirs"
+    col = p.collect(path)
+
+    assert len(col.skipped) == 0
+    assert len(col.items) == 8
+    assert len(col.modules) == 3
+    assert "test_Tests_Resources_Tests_dirs_Test1" in col.modules
+    assert "test_Tests_Resources_Tests_dirs_Test2" in col.modules
+    assert "test_Tests_Resources_Tests_dirs_Test3_Test4" in col.modules
 
 
 def test_runner_run_exitcode(config_dummy, device_dummy):
