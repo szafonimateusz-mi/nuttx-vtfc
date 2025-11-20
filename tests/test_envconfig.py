@@ -18,6 +18,8 @@
 #
 ############################################################################
 
+import pytest
+
 from ntfc.envconfig import EnvConfig, ProductConfig
 
 
@@ -29,13 +31,15 @@ def test_product_config():
             "core0": {
                 "name": "dummy",
                 "device": "sim",
-                "elf_path": "./tests/resources/nuttx/sim/config.yaml",
+                "elf_path": "./tests/resources/nuttx/sim/nuttx",
+                "conf_path": "./tests/resources/nuttx/sim/kv_config",
                 "uptime": 1,
             },
             "core1": {
                 "name": "dummy2",
                 "device": "sim2",
-                "elf_path": "./tests/resources/nuttx/sim/config.yaml",
+                "elf_path": "./tests/resources/nuttx/sim/nuttx",
+                "conf_path": "./tests/resources/nuttx/sim/kv_config",
                 "uptime": 1,
             },
         },
@@ -48,16 +52,45 @@ def test_product_config():
     assert p.core(1)["name"] == "dummy2"
     assert p.core(1)["device"] == "sim2"
 
+    with pytest.raises(AttributeError):
+        p.key_check("aaa", 3)
+
+    with pytest.raises(AttributeError):
+        p.cmd_check("aaa", 3)
+
+    with pytest.raises(AttributeError):
+        p.kv_check("aaa", 3)
+
+    conf = {
+        "name": "product",
+    }
+
+    p = ProductConfig(conf)
+
+    assert p.cores == {}
+    with pytest.raises(AttributeError):
+        p.key_check("aaa")
+    with pytest.raises(AttributeError):
+        p.cmd_check("aaa")
+    with pytest.raises(AttributeError):
+        p.kv_check("aaa")
+
 
 def test_envconfig_common():
 
     env = EnvConfig("./tests/resources/nuttx/sim/config.yaml")
 
     # check device options
-    assert env.device["cwd"] == "./"
+    assert env.common["cwd"] == "./"
 
 
 def test_envconfig_product():
+
+    with pytest.raises(TypeError):
+        _ = EnvConfig(["1", "2"])
+
+    with pytest.raises(SystemExit):
+        _ = EnvConfig("./tests/resources/nuttx/sim/XXXXXX.yaml")
 
     env = EnvConfig("./tests/resources/nuttx/sim/config.yaml")
 
@@ -110,6 +143,10 @@ def test_envconfig_product():
     assert env.core(product=4, cpu=2) == ""
     assert env.core(product=4, cpu=3) == ""
 
+    assert env.config is not None
+    assert env.config["config"] is not None
+    assert env.config["product"] is not None
+
     # check kconfig options
     assert env.kv_check("dummy") is False
     assert env.kv_check("CONFIG_ALLOW_BSD_COMPONENTS") is False
@@ -127,3 +164,9 @@ def test_envconfig_product():
     assert env.cmd_check("hello_main") is True
     assert env.cmd_check("ostest") is False
     assert env.cmd_check("ostest_main") is True
+
+    # get product
+    assert env.product_get(0) is not None
+    assert env.product_get(1) is not None
+    assert env.product_get(2) is not None
+    assert env.product_get(4) is None

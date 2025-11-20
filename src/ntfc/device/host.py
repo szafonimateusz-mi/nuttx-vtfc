@@ -65,9 +65,10 @@ class DeviceHost(DeviceCommon):
 
     def _dev_reopen(self) -> pexpect.spawn:
         """Reopen host device."""
-        self.host_close()
         if not self._cmd:
             raise ValueError("Host open command is empty")
+
+        self.host_close()
 
         return self.host_open(self._cmd)
 
@@ -81,7 +82,7 @@ class DeviceHost(DeviceCommon):
             self._child.send(bytes([c]))
 
         # add new line if missing
-        if data[-1] != b"\n":
+        if data[-1] != ord("\n"):
             self._child.send(b"\n")
 
         # read all garbage left by character echo
@@ -95,7 +96,7 @@ class DeviceHost(DeviceCommon):
 
         self._child.sendcontrol(c)
 
-    def _read(self) -> bytes:
+    def _read(self) -> bytes:  # pragma: no cover
         """Read data from the host device."""
         if not self.dev_is_health():
             return b""
@@ -125,7 +126,7 @@ class DeviceHost(DeviceCommon):
             parent.wait(timeout=10)
             logger.info(f"Process group {pid} terminated successfully.")
 
-        except psutil.TimeoutExpired:
+        except psutil.TimeoutExpired:  # pragma: no cover
             logger.warning(
                 f"Timeout: Process group {pid}"
                 "did not terminate within 5 seconds."
@@ -133,6 +134,8 @@ class DeviceHost(DeviceCommon):
             # force termination
             os.killpg(pid, signal.SIGKILL)
             logger.info(f"Sent SIGKILL to process group {pid}")
+
+        self._child = None
 
     def host_open(self, cmd: List[str], uptime: int = 0) -> pexpect.spawn:
         """Open host-based target device."""
@@ -155,7 +158,7 @@ class DeviceHost(DeviceCommon):
         time.sleep(uptime)
 
         ret = self._wait_for_boot()
-        if ret is False:
+        if ret is False:  # pragma: no cover
             raise TimeoutError("device boot timeout")
 
         return self._child

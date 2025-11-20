@@ -29,9 +29,6 @@ class DeviceHost2(DeviceHost):
     def start(self):
         pass
 
-    def _dev_is_health_priv(self):
-        return True
-
 
 def test_device_host_open():
 
@@ -39,8 +36,14 @@ def test_device_host_open():
     path = "./tests/resources/nuttx/sim/nuttx"
     dev = DeviceHost2(conf)
 
+    assert dev.name == "host_unknown"
+    assert dev._dev_is_health_priv() is False
+
     with pytest.raises(IOError):
         dev.host_close()
+
+    with pytest.raises(ValueError):
+        _ = dev._dev_reopen()
 
     assert dev.notalive is True
 
@@ -49,14 +52,46 @@ def test_device_host_open():
 
     assert dev.notalive is True
 
+    with pytest.raises(IOError):
+        _ = dev._dev_reopen()
+
+    # open executable
+    assert dev.host_open([path]) is not None
+
+    with pytest.raises(IOError):
+        dev.host_open([path])
+
+    assert dev.notalive is False
+    assert dev._dev_is_health_priv() is True
+    assert dev._write(b"a") is None
+    assert dev._write(b"a\n") is None
+
+    # reopen
+    assert dev._dev_reopen() is not None
+
+    assert dev.poweroff() is None
+    assert dev.reboot(1) is True
+
+    # close executable
+    dev.host_close()
+    assert dev.notalive is True
+    assert dev._dev_is_health_priv() is False
+    assert dev._write(b"a") is None
+    assert dev._write_ctrl("a") is None
+
     # open executable
     ret = dev.host_open([path])
     assert ret is not None
     assert dev.notalive is False
 
-    # close executable
+    def dummy():
+        pass
+
+    dev.poweroff = dummy
     dev.host_close()
     assert dev.notalive is True
+
+    dev.start()
 
 
 def test_device_host_command():
@@ -64,6 +99,8 @@ def test_device_host_command():
     conf = {}
     path = "./tests/resources/nuttx/sim/nuttx"
     dev = DeviceHost2(conf)
+
+    assert dev.no_cmd is not None
 
     # open executable
     ret = dev.host_open([path])
@@ -93,6 +130,14 @@ def test_device_host_command():
     # pattern in output
     ret = dev.send_cmd_read_until_pattern(b"hello", b"Hello, World!", 1)
     assert ret.status == 0
+
+    with pytest.raises(TypeError):
+        _ = dev.send_cmd_read_until_pattern("hello", "Hello, World!", 1)
+
+    with pytest.raises(TypeError):
+        _ = dev.send_cmd_read_until_pattern(b"hello", "Hello, World!", 1)
+
+    assert dev.send_ctrl_cmd("Z") == 0
 
 
 # TODO: more tests for host device !!!!

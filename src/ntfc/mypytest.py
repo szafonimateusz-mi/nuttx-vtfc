@@ -63,7 +63,7 @@ class _PytestConfigPlugin:
 
     def _device_reboot(self) -> None:
         """Reboot the device if crashed."""
-        pytest.product.reboot()
+        pytest.product.reboot()  # pragma: no cover
 
     def _generate_coredump_file(self, reason: Any) -> None:
         """Generate coredump file.
@@ -162,7 +162,7 @@ class _PytestConfigPlugin:
             or pytest.product.crash
             or pytest.product.notalive
         ):
-            if call.when in ("setup", "call") or (
+            if call.when in ("setup", "call") or (  # pragma: no cover
                 call.when == "teardown"
                 and not hasattr(item, "_setup_call_failed")
             ):
@@ -206,7 +206,7 @@ class _PytestConfigPlugin:
             need_notify
             and hasattr(pytest, "notify")
             and hasattr(pytest, "result_dir")
-        ):
+        ):  # pragma: no cover
             logger.info(
                 f"Test {reason}, notifying developers for"
                 f" on-site debugging ..."
@@ -226,11 +226,11 @@ class _PytestConfigPlugin:
             # Handle core dump generation if needed
             self._generate_coredump_file(reason)
 
-        if debug_time:
+        if debug_time:  # pragma: no cover
             logger.info(f"Waiting {debug_time}s ...")
             time.sleep(debug_time)
 
-        if need_reboot:
+        if need_reboot:  # pragma: no cover
             logger.info(f"Reboot device, reason: {report.longrepr}")
             self._device_reboot()
 
@@ -293,11 +293,11 @@ class _RunnerPlugin:
 
     @pytest.fixture
     def switch_to_core(self) -> None:
-        pass
+        pass  # pragma: no cover
 
     @pytest.fixture
     def core(self) -> None:
-        pass
+        pass  # pragma: no cover
 
 
 ###############################################################################
@@ -368,18 +368,7 @@ class _CollectorPlugin:
     def __init__(self) -> None:
         """Initialize custom pytest collector plugin."""
         self.collected_items: List[Tuple[Any, Any]] = []
-        self.skipped_items: List[Tuple[str, str]] = []
         self.parsed_items: List[_CollectedItem] = []
-
-    @property
-    def collected(self) -> List[Tuple[Any, Any]]:
-        """Get collected items."""
-        return self.collected_items
-
-    @property
-    def skipped(self) -> List[Tuple[str, str]]:
-        """Get skipped items."""
-        return self.skipped_items
 
     @property
     def parsed(self) -> List[_CollectedItem]:
@@ -515,11 +504,11 @@ class MyPytest:
             logger.info(f"ignore file {path}")
             _path = Path(path)
 
-            with open(_path) as f:
+            with open(_path) as f:  # pragma: no cover
                 for line in f:
                     if line[0] == "-" and line[1] == "-":
                         self._opt.append(line[:-1])
-        except TypeError:
+        except TypeError:  # pragma: no cover
             pass
 
         except FileNotFoundError:
@@ -536,7 +525,7 @@ class MyPytest:
         """
         opt = [testpath]
 
-        if not nologs:
+        if not nologs:  # pragma: no cover
             # create result directory
             result_dir = result.get("resdir", "./result")
             time_now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

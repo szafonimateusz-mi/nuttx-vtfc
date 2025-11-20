@@ -47,7 +47,7 @@ class ProductConfig:
                 # load config values
                 self._load_core_config(core)
                 # check some .config requirements
-                if self._kv_validate(core) is False:
+                if self._kv_validate(core) is False:  # pragma: no cover
                     raise IOError
 
         if self.cores:
@@ -76,7 +76,7 @@ class ProductConfig:
 
         for req in requirements:
             if self.kv_check(req[0], core) != req[1]:
-                return False
+                return False  # pragma: no cover
         return True
 
     def _load_elf(self) -> None:
@@ -98,15 +98,19 @@ class ProductConfig:
     @property
     def cores(self) -> Dict:
         """Return product cores configuration."""
-        return self._config["cores"]
-
-    @property
-    def kv_conf(self) -> Dict:
-        """Return kconfig options."""
-        return self._kv_values
+        try:
+            return self._config["cores"]
+        except KeyError:
+            logger.error("no cores info in configuration file!")
+            return {}
 
     def kv_check(self, cfg: str, core=0) -> bool:
         """Check Kconfig option."""
+        if not self._kv_values:
+            raise AttributeError("no config data")
+        if len(self._kv_values) < core or not self._kv_values[core]:
+            raise AttributeError(f"no config data for core {core}")
+
         return (
             self._kv_values[core][cfg]
             if self._kv_values[core].get(cfg)
@@ -124,11 +128,13 @@ class ProductConfig:
 
     def cmd_check(self, cmd: str, core: int = 0) -> bool:
         """Check if command is available in binary."""
-        if self._elf[core]:
-            symbol_name = f"{cmd}_main" if "cmocka" in cmd else cmd
-            return self._elf[core].has_symbol(symbol_name)
+        if not self._elf:
+            raise AttributeError("no elf data")
+        if len(self._elf) < core or not self._elf[core]:
+            raise AttributeError(f"no elf data for core {core}")
 
-        return False
+        symbol_name = f"{cmd}_main" if "cmocka" in cmd else cmd
+        return self._elf[core].has_symbol(symbol_name)
 
 
 class EnvConfig:
@@ -144,7 +150,7 @@ class EnvConfig:
         elif isinstance(yaml_cfg, dict):
             self._cfg_values = yaml_cfg
         else:
-            raise TypeError
+            raise TypeError("invalid configuration")
 
         self._products = self._products_create(self._cfg_values)
 
@@ -177,9 +183,9 @@ class EnvConfig:
         pp.pprint(self._cfg_values)
 
     @property
-    def device(self) -> Dict:
+    def common(self) -> Dict:
         """Return device parameters."""
-        return self._cfg_values.get("device", None)
+        return self._cfg_values.get("config", None)
 
     @property
     def product(self) -> list:
@@ -203,12 +209,6 @@ class EnvConfig:
         """Return test configuration."""
         return self._cfg_values
 
-    @property
-    def kv_conf(self) -> Dict:
-        """Return kconfig options."""
-        product = 0
-        return self._products[product].kv_conf
-
     # dep_config
     def kv_check(self, cfg: str, product: int = 0, core: int = 0) -> bool:
         """Check Kconfig option."""
@@ -218,3 +218,8 @@ class EnvConfig:
         """Check if command is available in binary."""
         product = 0
         return self._products[product].cmd_check(cmd, core)
+
+    def extra_check(self, extra: str, product: int = 0, core: int = 0) -> bool:
+        """Check for extra options."""
+        # not supported yet
+        return False

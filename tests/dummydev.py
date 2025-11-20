@@ -27,7 +27,7 @@ from ntfc.device.common import CmdReturn, CmdStatus
 ###############################################################################
 
 
-class DeviceDummy:
+class DeviceDummy:  # pragma: no cover
     """Dummy device."""
 
     def __init__(self, _):

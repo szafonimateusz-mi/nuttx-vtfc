@@ -18,31 +18,29 @@
 #
 ############################################################################
 
-
-import re
-
 import pytest
 
-from ntfc.lib.elf.elf_parser import ElfParser
+
+@pytest.mark.dep_config("CONFIG_EXAMPLES_HELLO")
+def test_test4_simple_1():  # pragma: no cover
+    assert 1
 
 
-def test_lib_elf_parser():
-    with pytest.raises(AttributeError):
-        _ = ElfParser("xxx")
+@pytest.mark.dep_config("CONFIG_XXXXX")
+def test_test4_simple_2():  # pragma: no cover
+    assert 1
 
-    with pytest.raises(AttributeError):
-        _ = ElfParser("./tests/resources/nuttx/sim/kv_config")
 
-    a = ElfParser("./tests/resources/nuttx/sim/nuttx")
+@pytest.mark.cmd_check("hello_main")
+def test_test4_simple_3():  # pragma: no cover
+    assert 1
 
-    assert a.has_symbol("hello_main") is True
-    assert a.has_symbol("dummy_main") is False
-    assert a.has_symbol(re.compile("hello")) is True
-    assert a.has_symbol(re.compile("dummy_main")) is False
 
-    assert a.get_symbols_by_pattern("hello", "main")[0].name == "hello_main"
-    assert len(a.get_symbols_by_pattern("", "main")) > 1
-    assert a.get_symbols_by_pattern("dummy", "main") == []
+@pytest.mark.cmd_check("xxxx_main")
+def test_test4_simple_4():  # pragma: no cover
+    assert 1
 
-    with pytest.raises(ValueError):
-        _ = a.has_symbol(b"xx")
+
+@pytest.mark.extra_opts("xxxx")
+def test_test4_simple_5():  # pragma: no cover
+    assert 1

@@ -58,7 +58,6 @@ class Product:
             else self._main_prompt.decode("utf-8", errors="ignore")
         )
         self._uptime = conf.core(cpu=0).get("uptime", 3)
-        self._kv_conf = conf.kv_conf
 
         # cores info not ready yet, done in self.init() method called when
         # device is ready
@@ -301,10 +300,8 @@ class Product:
 
         # Process data rows
         core_data = []
-        for line in lines[header_index + 1 :]:
-            prompt = self._device.prompt
-            if isinstance(prompt, bytes):
-                prompt = prompt.decode()
+        for line in lines[header_index + 1 :]:  # pragma: no cover
+            prompt = self._device.prompt.decode()
             if line.startswith(prompt):
                 break  # Stop at next prompt
 

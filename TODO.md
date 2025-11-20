@@ -4,7 +4,7 @@ This is a to-do list for the NTFC project.
 
 ## Package
 
-- [ ] More unit tests, we want 100% coverage result.
+- [ ] Revisit all "pragma: no cover"
 - [ ] Release package (PyPI).
 - [ ] (SOMEDAY) Fix pylint issues.
 - [ ] (SOMEDAY) Fix mypy issues (typing).

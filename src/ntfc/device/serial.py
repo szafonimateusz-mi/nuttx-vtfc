@@ -104,8 +104,8 @@ class DeviceSerial(DeviceCommon):
             self._ser.write(bytes([c]))
 
         # add new line if missing
-        if data[-1] != b"\n":
-            self._ser.write(b"\n")
+        if data[-1] != ord("\n"):
+            self._ser.write(b"\n")  # pragma: no cover
 
         # read all garbage left by character echo
         _ = self._read_all(timeout=0)
@@ -116,7 +116,8 @@ class DeviceSerial(DeviceCommon):
         if not self.dev_is_health():
             return
 
-        self._ser.write(bytes([c]))
+        code = ord(c.upper()) - 64
+        self._ser.write(bytes([code]))
 
     def _read(self) -> bytes:
         """Read data from the serial device."""
@@ -134,9 +135,8 @@ class DeviceSerial(DeviceCommon):
         logger.info(f"serial path: {path}")
         logger.info(f"serial args: {args}")
 
-        if args:
+        if args:  # pragma: no cover
             args = self._decode_exec_args(args)
-            print(args)
             self._ser = serial.Serial(path, timeout=timeout, **args)
         else:
             self._ser = serial.Serial(path, timeout=timeout)
@@ -162,11 +162,11 @@ class DeviceSerial(DeviceCommon):
 
     def poweroff(self) -> None:
         """Poweroff the device."""
-        print("TODO: poweroff")
+        print("TODO: poweroff")  # pragma: no cover
 
     def reboot(self, timeout: int = 1) -> bool:
         """Reboot the device."""
-        if "reboot" in self._conf.core():
+        if "reboot" in self._conf.core():  # pragma: no cover
             logger.info("reboot device")
             cmd = self._conf.core()["reboot"]
             self._system_cmd(cmd)

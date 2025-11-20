@@ -27,7 +27,7 @@ from ntfc.device.common import CmdReturn, CmdStatus
 from ntfc.product import Product
 
 
-def test_product_initinval(config_dummy):
+def test_product_init_inval(config_dummy):
 
     with pytest.raises(TypeError):
         _ = Product(None, None)
@@ -42,6 +42,55 @@ def test_product_initinval(config_dummy):
         _ = Product(mockdevice, config_dummy.product[0])
 
 
+def test_product_internals(config_dummy):
+
+    with patch("ntfc.device.common.DeviceCommon") as mockdevice:
+        dev = mockdevice.return_value
+        dev.send_cmd_read_until_pattern.return_value = CmdReturn(
+            CmdStatus.TIMEOUT
+        )
+        dev.no_cmd = "command not found"
+
+        p = Product(dev, config_dummy.product[0])
+
+        assert p._prepare_command("aaa", None) == "aaa"
+        assert p._prepare_command("aaa", "bbb") == "aaa bbb"
+        assert p._prepare_command("aaa", ["bbb", "ccc"]) == "aaa bbb ccc"
+
+        assert (
+            p._build_expect_pattern(["aaa", "bbb"], False, False)
+            == "(aaa|bbb)"
+        )
+        assert (
+            p._build_expect_pattern(["aaa", "bbb"], True, False)
+            == "(?=.*aaa)(?=.*bbb)"
+        )
+        assert (
+            p._build_expect_pattern(["aaa", "bbb"], True, True)
+            == "(?=.*aaa)(?=.*bbb)"
+        )
+        assert (
+            p._build_expect_pattern(["aaa", "bbb"], False, True) == "(aaa|bbb)"
+        )
+
+        assert p._encode_for_device("aaa", ["bbb", "ccc"]) == (
+            b"aaa",
+            b"bbbccc",
+        )
+        assert p._encode_for_device("aaa", [b"bbb", b"ccc"]) == (
+            b"aaa",
+            b"bbbccc",
+        )
+        assert p._encode_for_device("aaa", "bbb") == (b"aaa", b"bbb")
+        assert p._encode_for_device("aaa", b"bbb") == (b"aaa", b"bbb")
+
+        assert p._match_not_found(None) is False
+        a = re.match(rb"test", b"nsh>")
+        assert p._match_not_found(a) is False
+        b = re.match(rb"command not found", b"command not found")
+        assert p._match_not_found(b) is True
+
+
 def test_product_get_core_info(config_dummy):
 
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
@@ -52,6 +101,8 @@ def test_product_get_core_info(config_dummy):
 
         p = Product(dev, config_dummy.product[0])
 
+        assert p.cur_core is None
+
         # send_cmd_read_until_pattern failed
         assert p.get_core_info() == ()
 
@@ -59,6 +110,16 @@ def test_product_get_core_info(config_dummy):
             CmdStatus.SUCCESS, None, "xxx"
         )
         assert p.get_core_info() == ()
+        assert p.cur_core is None
+
+        dev.prompt = b"dummy"
+        dev.send_cmd_read_until_pattern.return_value = CmdReturn(
+            CmdStatus.SUCCESS,
+            None,
+            "Local CPU Remote CPU\n",
+        )
+        assert p.get_core_info() == ()
+        assert p.cur_core is None
 
         dev.prompt = b"dummy"
         dev.send_cmd_read_until_pattern.return_value = CmdReturn(
@@ -67,12 +128,26 @@ def test_product_get_core_info(config_dummy):
             "Local CPU Remote CPU\n0 1",
         )
         assert p.get_core_info() == ("0", "1")
+        assert p.cur_core is None
+
         dev.send_cmd_read_until_pattern.return_value = CmdReturn(
             CmdStatus.SUCCESS,
             None,
             "Local CPU Remote CPU\n2 3",
         )
         assert p.get_core_info() == ("2", "3")
+        assert p.cur_core is None
+
+        dev.send_cmd_read_until_pattern.return_value = CmdReturn(
+            CmdStatus.SUCCESS,
+            None,
+            "Local CPU Remote CPU\n2 3",
+        )
+        assert p.get_core_info() == ("2", "3")
+        assert p.cur_core is None
+
+        p.init()
+        assert p.cur_core == "2"
 
 
 def test_product_send_command(config_dummy):
@@ -148,10 +223,10 @@ def test_product_send_ctrl_cmd(config_dummy):
         with pytest.raises(ValueError):
             p.sendCtrlCmd("aaa")
 
-        dev.sendCtrlCmd.return_value = 0
+        dev.send_ctrl_cmd.return_value = CmdStatus.TIMEOUT
         assert p.sendCtrlCmd("a") is None
 
-        dev.sendCtrlCmd.return_value = 1
+        dev.send_ctrl_cmd.return_value = CmdStatus.SUCCESS
         assert p.sendCtrlCmd("a") is None
 
 

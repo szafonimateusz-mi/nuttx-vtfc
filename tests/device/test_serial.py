@@ -48,10 +48,9 @@ def fake_device_thread(fd, stop):
         try:
             rlist, _, _ = select.select([fd], [], [], 0.2)
             if rlist:
-                data = os.read(fd, 100)
-                if data:
-                    os.write(fd, g_fake_device_retval)
-        except OSError:
+                _ = os.read(fd, 100)
+                os.write(fd, g_fake_device_retval)
+        except OSError:  # pragma: no cover
             break
 
 
@@ -71,6 +70,28 @@ def serial_config():
     }
 
     return ProductConfig(config)
+
+
+def test_device_sim_internals(serial_config, serial_pair):
+
+    ser = DeviceSerial(serial_config)
+    assert ser.name == "serial"
+    assert ser.notalive is True
+
+    with pytest.raises(ValueError):
+        _ = ser._decode_exec_args("aaaa")
+
+    assert ser._decode_exec_args("1,n,8,1.5") == {
+        "baudrate": 1,
+        "bytesize": 8,
+        "parity": "N",
+        "stopbits": 1.5,
+    }
+
+    assert ser._dev_is_health_priv() is False
+    assert ser._read() == b""
+    assert ser._write_ctrl("a") is None
+    assert ser._write(b"a") is None
 
 
 def test_device_sim_init(serial_config, serial_pair):
@@ -98,6 +119,12 @@ def test_device_sim_init(serial_config, serial_pair):
     global g_fake_device_retval
     g_fake_device_retval = b"\n\rnsh>"
     ser.start()
+    assert ser.notalive is False
+
+    g_fake_device_retval = b""
+    assert ser._write(b"a") is None
+    assert ser._write_ctrl("a") is None
+    assert ser.reboot() is False
 
     stop.set()
     device_thread.join(timeout=1)

@@ -44,6 +44,26 @@ def config_dummy():
 
 
 @pytest.fixture
+def config_sim():
+    conf_dir = {
+        "config": {},
+        "product": {
+            "cores": {
+                "core0": {
+                    "name": "sim",
+                    "device": "sim",
+                    "elf_path": "./tests/resources/nuttx/sim/nuttx",
+                    "conf_path": "./tests/resources/nuttx/sim/kv_config",
+                    "uptime": 1,
+                }
+            }
+        },
+    }
+    conf = EnvConfig(conf_dir)
+    return conf
+
+
+@pytest.fixture
 def device_dummy(config_dummy):
 
     dev = DeviceDummy(config_dummy)

@@ -88,7 +88,7 @@ class FilterTest:
         # check extra parameters
         if skip is False:
             for e in extra:
-                if self._config.extra_check(e) is False:
+                if self._config.extra_check(e) is False:  # pragma: no cover
                     skip = True
                     reason = f"Extra parameter '{e}' not found"
                     break

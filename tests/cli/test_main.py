@@ -47,10 +47,21 @@ def test_main(runner):
 
 
 def test_main_collect(runner):
+
     args = [
         "collect",
         "--confpath=./tests/resources/nuttx/sim/config.yaml",
         "--testpath=./tests/resources/tests_collect",
+    ]
+    result = runner.invoke(main, args)
+    assert result.exit_code == 0
+
+    args = [
+        "--debug",
+        "--verbose",
+        "collect",
+        "--confpath=./tests/resources/nuttx/sim/config.yaml",
+        "--testpath=./tests/resources/tests_collect/test_test1.py",
     ]
     result = runner.invoke(main, args)
     assert result.exit_code == 0
@@ -69,6 +80,16 @@ def test_main_collect(runner):
 def test_main_test(runner):
     args = [
         "test",
+        "--confpath=./tests/resources/nuttx/sim/config.yaml",
+        "--testpath=./tests/resources/tests_collect",
+    ]
+    result = runner.invoke(main, args)
+    assert result.exit_code == 0
+
+    args = [
+        "test",
+        "--nologs",
+        "--exitonfail",
         "--confpath=./tests/resources/nuttx/sim/config.yaml",
         "--testpath=./tests/resources/tests_collect",
     ]

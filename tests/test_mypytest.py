@@ -32,9 +32,9 @@ def test_collector_collected_item():
     assert c.nodeid == "f"
 
 
-def test_collector_collect_file(config_dummy, device_dummy):
+def test_collector_collect_file(config_sim, device_dummy):
 
-    p = MyPytest(config_dummy, device=[device_dummy])
+    p = MyPytest(config_sim, device=[device_dummy])
     path = "./tests/resources/tests_collect/test_test1.py"
     items, skipped = p.collect(path)
 
@@ -43,16 +43,34 @@ def test_collector_collect_file(config_dummy, device_dummy):
     assert items[0].name == "test_test1_simple_1"
     assert items[1].name == "test_test1_simple_2"
 
+    p = MyPytest(config_sim, device=[device_dummy])
+    path = "./tests/resources/tests_collect/test_test4.py"
+    items, skipped = p.collect(path)
 
-def test_collector_collect_dir(config_dummy, device_dummy):
+    assert len(skipped) == 3
+    assert len(items) == 2
 
-    p = MyPytest(config_dummy, device=[device_dummy])
+    assert skipped[0][0].location[2] == "test_test4_simple_2"
+    assert skipped[1][0].location[2] == "test_test4_simple_4"
+    assert skipped[2][0].location[2] == "test_test4_simple_5"
+
+    assert items[0].name == "test_test4_simple_1"
+    assert items[1].name == "test_test4_simple_3"
+
+
+def test_collector_collect_dir(config_sim, device_dummy):
+
+    p = MyPytest(config_sim, device=[device_dummy])
     path = "./tests/resources/tests_collect"
     items, skipped = p.collect(path)
 
-    assert len(skipped) == 0
+    assert len(skipped) == 3
+    assert len(items) == 9
 
-    assert len(items) == 7
+    assert skipped[0][0].location[2] == "test_test4_simple_2"
+    assert skipped[1][0].location[2] == "test_test4_simple_4"
+    assert skipped[2][0].location[2] == "test_test4_simple_5"
+
     assert items[0].name == "test_test1_simple_1"
     assert items[1].name == "test_test1_simple_2"
     assert items[2].name == "test_test2_simple_1"
@@ -60,6 +78,8 @@ def test_collector_collect_dir(config_dummy, device_dummy):
     assert items[4].name == "test_test3_simple_1"
     assert items[5].name == "test_test3_simple_2"
     assert items[6].name == "test_test3_simple_3"
+    assert items[7].name == "test_test4_simple_1"
+    assert items[8].name == "test_test4_simple_3"
 
 
 def test_runner_run_exitcode(config_dummy, device_dummy):

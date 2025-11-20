@@ -25,15 +25,41 @@ import pytest
 from ntfc.device.qemu import DeviceQemu
 
 
+def host_open_dummy(cmd, uptime):
+    assert uptime == 3
+    assert cmd == ["some/path", " ", "some args", " ", "-kernel some/path"]
+
+
 def test_device_qemu_open():
 
     with patch("ntfc.envconfig.EnvConfig") as mockdevice:
         config = mockdevice.return_value
 
-        config.core.return_value = {"exec_path": ""}
+        config.core.return_value = {
+            "exec_path": "",
+            "exec_args": "",
+            "elf_path": "",
+        }
         qemu = DeviceQemu(config)
 
+        with pytest.raises(IOError):
+            qemu.start()
+
+        config.core.return_value = {
+            "exec_path": "",
+            "exec_args": "",
+            "elf_path": "some/path",
+        }
         with pytest.raises(KeyError):
             qemu.start()
 
         assert qemu.name == "qemu"
+
+        qemu.host_open = host_open_dummy
+
+    config.core.return_value = {
+        "exec_path": "some/path",
+        "exec_args": "some args",
+        "elf_path": "some/path",
+    }
+    qemu.start()

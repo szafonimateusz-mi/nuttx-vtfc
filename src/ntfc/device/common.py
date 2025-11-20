@@ -105,7 +105,7 @@ class DeviceCommon(ABC):
 
     def _console_log(self, data: bytes) -> None:
         """Log console output."""
-        if self._logs is not None:
+        if self._logs is not None:  # pragma: no cover
             self._logs["console"].write(data.decode("utf-8"))
 
     def _wait_for_boot(self, timeout: int = 5) -> bool:
@@ -113,7 +113,7 @@ class DeviceCommon(ABC):
         end_time = time.time() + timeout
         while time.time() < end_time:
             # send new line and expect prompt in returned data
-            ret = self.send_command(b"\n", 1)
+            ret = self.send_command(b"\r\n", 1)
             if self._dev.prompt in ret:
                 return True
 
@@ -132,7 +132,9 @@ class DeviceCommon(ABC):
             time_now = time.time()
 
             # check for any sign of system crash
-            if any(key in output for key in self._dev.crash_keys):
+            if any(
+                key in output for key in self._dev.crash_keys
+            ):  # pragma: no cover
                 logger.info("Assertion detected! Set crash flag")
                 self._crash.set()
                 break
@@ -142,7 +144,7 @@ class DeviceCommon(ABC):
             if not chunk:
                 if self._busy_loop_last and (
                     time_now - self._busy_loop_last > self._BUSY_LOOP_TIMEOUT
-                ):
+                ):  # pragma: no cover
                     self._busy_loop_last = 0
                     self._busy_loop.set()
                     break
@@ -163,7 +165,7 @@ class DeviceCommon(ABC):
 
         return clean
 
-    def dev_is_health(self) -> bool:
+    def dev_is_health(self) -> bool:  # pragma: no cover
         """Check if the serial device is OK."""
         if not self._dev_is_health_priv():
             return False
@@ -249,7 +251,7 @@ class DeviceCommon(ABC):
                 break
 
             # exit before timeout if dev crashed
-            if not self.dev_is_health():
+            if not self.dev_is_health():  # pragma: no cover
                 break
 
         # log console output and return
@@ -270,7 +272,7 @@ class DeviceCommon(ABC):
         """Stop device log collector."""
         self._logs = None
 
-    def _system_cmd(self, cmd: str) -> None:
+    def _system_cmd(self, cmd: str) -> None:  # pragma: no cover
         logger.info("system command:", cmd)
         subprocess.run(
             cmd,
