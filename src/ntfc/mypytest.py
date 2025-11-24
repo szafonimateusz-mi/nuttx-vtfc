@@ -33,6 +33,7 @@ from ntfc.device.getdev import get_device
 from ntfc.logger import logger
 from ntfc.product import Product
 from ntfc.pytest.configure import PytestConfigPlugin
+from ntfc.pytest.runner import RunnerPlugin
 
 if TYPE_CHECKING:
     from ntfc.device.common import DeviceCommon
@@ -41,72 +42,6 @@ if TYPE_CHECKING:
 
 # required for plugin
 hookimpl = HookimplMarker("pytest")
-
-
-###############################################################################
-# Class: _RunnerPlugin
-###############################################################################
-
-
-class _RunnerPlugin:
-    def __init__(self, nologs: bool = False) -> None:
-        """Initialize custom pytest test runner plugin."""
-        self._logs: Dict[Dict[str, Any]] = {}
-        self._nologs = nologs
-
-    def _collect_device_logs_teardown(self) -> None:
-        """Teardown for device log."""
-        # stop device log collector
-        if self._nologs:
-            return
-
-        i = 0
-        for product in pytest.products:
-            name = "product" + str(i)
-            product.stop_log_collect()
-            # close files
-            self._logs[name]["console"].close()
-            i += 1
-
-    def _collect_device_logs(self, request) -> None:
-        """Initiate device log writing into a new test file."""
-        if self._nologs:
-            return
-
-        testname = request.node.name
-
-        i = 0
-        for product in pytest.products:
-            name = "product" + str(i)
-            product_dir = os.path.join(pytest.result_dir, name)
-
-            if name not in self._logs:
-                os.makedirs(product_dir, exist_ok=True)
-                self._logs[name] = {}
-
-            # open log files
-            tmp = os.path.join(product_dir, testname + ".console.txt")
-            self._logs[name]["console"] = open(tmp, "a")
-            # start device log collector
-            product.start_log_collect(self._logs[name])
-            i += 1
-
-    @pytest.fixture(scope="function", autouse=True)
-    def prepare_test(self, request) -> None:
-        """Prepare test case."""
-        # initialize log collector
-        self._collect_device_logs(request)
-        # register log collector teardown
-        request.addfinalizer(self._collect_device_logs_teardown)
-
-    @pytest.fixture
-    def switch_to_core(self) -> None:
-        pass  # pragma: no cover
-
-    @pytest.fixture
-    def core(self) -> None:
-        pass  # pragma: no cover
-
 
 ###############################################################################
 # Class: _CollectedItem
@@ -447,7 +382,7 @@ class MyPytest:
                 opt.append(f"--json={path}")
 
         # run pytest with our custom test plugin
-        runner = _RunnerPlugin(nologs)
+        runner = RunnerPlugin(nologs)
 
         # start device before test start
         self._device_start()
