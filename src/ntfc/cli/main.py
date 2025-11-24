@@ -27,8 +27,8 @@ import click
 from ntfc.cli.environment import Environment, pass_environment
 from ntfc.envconfig import EnvConfig
 from ntfc.logger import logger
-from ntfc.mypytest import MyPytest
 from ntfc.plugins_loader import commands_list
+from ntfc.pytest.mypytest import MyPytest
 
 ###############################################################################
 # Function: main

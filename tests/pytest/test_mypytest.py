@@ -18,7 +18,7 @@
 #
 ############################################################################
 
-from ntfc.mypytest import MyPytest
+from ntfc.pytest.mypytest import MyPytest
 
 
 def test_collector_collect_file(config_sim, device_dummy):

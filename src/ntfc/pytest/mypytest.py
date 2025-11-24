@@ -32,9 +32,10 @@ from pluggy import HookimplMarker
 from ntfc.device.getdev import get_device
 from ntfc.logger import logger
 from ntfc.product import Product
-from ntfc.pytest.collector import Collected, CollectorPlugin
-from ntfc.pytest.configure import PytestConfigPlugin
-from ntfc.pytest.runner import RunnerPlugin
+
+from .collector import Collected, CollectorPlugin
+from .configure import PytestConfigPlugin
+from .runner import RunnerPlugin
 
 if TYPE_CHECKING:
     from ntfc.device.common import DeviceCommon
