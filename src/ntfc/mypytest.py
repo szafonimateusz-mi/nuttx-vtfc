@@ -32,6 +32,7 @@ from pluggy import HookimplMarker
 from ntfc.device.getdev import get_device
 from ntfc.logger import logger
 from ntfc.product import Product
+from ntfc.pytest.collector import Collected, CollectorPlugin
 from ntfc.pytest.configure import PytestConfigPlugin
 from ntfc.pytest.runner import RunnerPlugin
 
@@ -42,160 +43,6 @@ if TYPE_CHECKING:
 
 # required for plugin
 hookimpl = HookimplMarker("pytest")
-
-###############################################################################
-# Class: _CollectedItem
-###############################################################################
-
-
-class _CollectedItem:
-    def __init__(
-        self,
-        directory: str,
-        module: str,
-        name: str,
-        path: str,
-        line: int,
-        nodeid: str,
-        root: str,
-    ) -> None:
-        """Initialzie collection item."""
-        self._directory = directory
-        self._module = module
-        self._name = name
-        self._path = path
-        self._line = line
-        self._nodeid = nodeid
-        self._module2 = (
-            root
-            + "_"
-            + "_".join(part.capitalize() for part in module.split("/")[:-1])
-        )
-
-    def __str__(self) -> str:
-        """Get collected item string representation."""
-        _str = "CollectedItem: " + self.name
-        return _str
-
-    @property
-    def module2(self) -> str:
-        """Get collected module name (short version)."""
-        return self._module2
-
-    @property
-    def directory(self) -> str:
-        """Get collected item directory."""
-        return self._directory
-
-    @property
-    def module(self) -> str:
-        """Get collected item module."""
-        return self._module
-
-    @property
-    def name(self) -> str:
-        """Get collected item name."""
-        return self._name
-
-    @property
-    def path(self) -> str:
-        """Get collected item file."""
-        return self._path
-
-    @property
-    def line(self) -> int:
-        """Get collected item line."""
-        return self._line
-
-    @property
-    def nodeid(self) -> str:
-        """Get collected item node ID."""
-        return self._nodeid
-
-
-###############################################################################
-# Class: _Collected
-###############################################################################
-
-
-class _Collected:
-    def __init__(
-        self,
-        items: List[_CollectedItem],
-        skipped: List[Tuple[pytest.Item, str]],
-    ):
-        """Initialize test collected data."""
-        self._items = items
-        self._skipped = skipped
-        self._modules = self._get_modules()
-
-    def _get_modules(self) -> List[str]:
-        """Get collected modules."""
-        mod = set()
-        for i in self._items:
-            mod.add(i.module2)
-        return list(mod)
-
-    @property
-    def items(self) -> List[_CollectedItem]:
-        """Get collected items."""
-        return self._items
-
-    @property
-    def skipped(self) -> List[Tuple[pytest.Item, str]]:
-        """Get skipped items."""
-        return self._skipped
-
-    @property
-    def modules(self) -> List[str]:
-        """Get collected modules."""
-        return self._modules
-
-
-###############################################################################
-# Class: _CollectorPlugin
-###############################################################################
-
-
-class _CollectorPlugin:
-    def __init__(self) -> None:
-        """Initialize custom pytest collector plugin."""
-        self.collected_items: List[Tuple[Any, Any]] = []
-        self.parsed_items: List[_CollectedItem] = []
-
-    @property
-    def parsed(self) -> List[_CollectedItem]:
-        """Get collected items in parsed format."""
-        return self.parsed_items
-
-    def pytest_runtestloop(self, session: pytest.Session) -> bool:
-        """Prevent tests from running.
-
-        Returning True stops test execution.
-        """
-        return True
-
-    def pytest_collection_finish(self, session: pytest.Session) -> None:
-        """Pytest collection finish callback."""
-        self.collected_items.extend(session.items)
-
-        # extract useful data from items
-        for item in session.items:
-            path, lineno, name = item.location
-            abs_path = os.path.abspath(path)
-            directory = os.path.dirname(abs_path)
-            module = path.replace(pytest.testpath, "")
-
-            ci = _CollectedItem(
-                directory,
-                module,
-                name,
-                abs_path,
-                lineno,
-                item.nodeid,
-                pytest.ntfcyaml["module"],
-            )
-            self.parsed_items.append(ci)
 
 
 ###############################################################################
@@ -398,12 +245,12 @@ class MyPytest:
         self._init_pytest(testpath)
 
         # collector plugin
-        collector = _CollectorPlugin()
+        collector = CollectorPlugin()
 
         # run pytest with our custom collector plugin
         self._run([testpath], [collector])
 
-        collected = _Collected(collector.parsed, self._ptconfig.skipped_items)
+        collected = Collected(collector.parsed, self._ptconfig.skipped_items)
 
         # return parsed items and skipped
         return collected

@@ -18,19 +18,7 @@
 #
 ############################################################################
 
-from ntfc.mypytest import MyPytest, _CollectedItem
-
-
-def test_collector_collected_item():
-    c = _CollectedItem("a", "b", "c", "d", "e", "f", "U")
-
-    assert c.directory == "a"
-    assert c.module == "b"
-    assert c.name == "c"
-    assert c.path == "d"
-    assert c.line == "e"
-    assert c.nodeid == "f"
-    assert c.module2 == "U_"
+from ntfc.mypytest import MyPytest
 
 
 def test_collector_collect_file(config_sim, device_dummy):
