@@ -76,6 +76,13 @@ def collect_print_skipped(items):
         print(f"{item[0].location[0]}:{item[0].location[2]}: \n => {item[1]}")
 
 
+def collect_print_modules(modules):
+    """Print collected modules."""
+    print("Modules:")
+    for m in modules:
+        print(m)
+
+
 def collect_run(pt, ctx):
     """Collect tests."""
     col = pt.collect(ctx.testpath)
@@ -94,6 +101,9 @@ def collect_run(pt, ctx):
     if ctx.collect == "skipped" or ctx.collect == "all":
         # print skipped test cases
         collect_print_skipped(col.skipped)
+
+    if ctx.collect == "modules" or ctx.collect == "all":
+        collect_print_modules(col.modules)
 
 
 def test_run(pt, ctx):
@@ -125,7 +135,9 @@ def cli_on_close(ctx: Environment) -> bool:
     else:
         cfg = EnvConfig(ctx.confpath)
 
-    pt = MyPytest(cfg, ctx.ignorefile, ctx.exitonfail, ctx.verbose)
+    pt = MyPytest(
+        cfg, ctx.ignorefile, ctx.exitonfail, ctx.verbose, ctx.confjson
+    )
 
     if ctx.runcollect:
         collect_run(pt, ctx)

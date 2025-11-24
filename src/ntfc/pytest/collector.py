@@ -41,6 +41,7 @@ class CollectedItem:
         path: str,
         line: int,
         nodeid: str,
+        modname: str,
         root: str,
     ) -> None:
         """Initialzie collection item."""
@@ -50,10 +51,8 @@ class CollectedItem:
         self._path = path
         self._line = line
         self._nodeid = nodeid
-        self._module2 = (
-            root
-            + "_"
-            + "_".join(part.capitalize() for part in module.split("/")[:-1])
+        self._module2 = modname + "_".join(
+            part.capitalize() for part in root.split("/")[:-1]
         )
 
     def __str__(self) -> str:
@@ -172,7 +171,8 @@ class CollectorPlugin:
             path, lineno, name = item.location
             abs_path = os.path.abspath(path)
             directory = os.path.dirname(abs_path)
-            module = path.replace(pytest.testpath, "")
+            module = abs_path.replace(pytest.testpath, "")
+            root = module.replace(pytest.testpath, "")
 
             ci = CollectedItem(
                 directory,
@@ -182,5 +182,6 @@ class CollectorPlugin:
                 lineno,
                 item.nodeid,
                 pytest.ntfcyaml["module"],
+                root,
             )
             self.parsed_items.append(ci)

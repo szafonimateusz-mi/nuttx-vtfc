@@ -83,9 +83,9 @@ def test_collector_collect_manydirs(config_sim, device_dummy):
     assert len(col.skipped) == 0
     assert len(col.items) == 8
     assert len(col.modules) == 3
-    assert "test_Tests_Resources_Tests_dirs_Test1" in col.modules
-    assert "test_Tests_Resources_Tests_dirs_Test2" in col.modules
-    assert "test_Tests_Resources_Tests_dirs_Test3_Test4" in col.modules
+    assert "test_Test1" in col.modules
+    assert "test_Test2" in col.modules
+    assert "test_Test3_Test4" in col.modules
 
 
 def test_runner_run_exitcode(config_dummy, device_dummy):

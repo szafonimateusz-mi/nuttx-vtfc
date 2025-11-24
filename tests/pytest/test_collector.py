@@ -22,7 +22,7 @@ from ntfc.pytest.collector import Collected, CollectedItem, CollectorPlugin
 
 
 def test_collector_collected_item():
-    c = CollectedItem("a", "b", "c", "d", "e", "f", "U")
+    c = CollectedItem("a", "b", "c", "d", "e", "f", "U", "/aaa/bbb/ccc.py")
 
     assert c.directory == "a"
     assert c.module == "b"
@@ -30,13 +30,13 @@ def test_collector_collected_item():
     assert c.path == "d"
     assert c.line == "e"
     assert c.nodeid == "f"
-    assert c.module2 == "U_"
+    assert c.module2 == "U_Aaa_Bbb"
 
 
 def test_collected():
 
-    c1 = CollectedItem("a", "b", "c", "d", "e", "f", "U")
-    c2 = CollectedItem("a", "b", "c", "d", "e", "f", "U")
+    c1 = CollectedItem("a", "b", "c", "d", "e", "f", "U", "aaa/bbb/ccc1.py")
+    c2 = CollectedItem("a", "b", "c", "d", "e", "f", "U", "aaa/bbb/ccc2.py")
     items = [c1, c2]
     skipped = [(None, "xxx"), (None, "yyy"), (None, "zzz")]
 

@@ -5,7 +5,10 @@
             "Nuttx_System_Tools",
             "Nuttx_System_Gdb"
         ],
-        "exclude_module": [],                        // exclude these modules
+        "exclude_module":                            // exclude these modules
+        [
+            "Nuttx_System_Arch_Os_Performance"
+        ],
         "order": [                                   // force test modules order
             {
                 "module": "Nuttx_System_Gdb",

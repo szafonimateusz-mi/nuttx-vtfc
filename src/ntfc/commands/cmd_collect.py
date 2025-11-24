@@ -51,6 +51,7 @@ def cmd_collect(
     Where COLLECT argument specify what data to print:\n
       collected - collected items,\n
       skipped - skipped items,\n
+      modules - test modules,\n
       all - (defualt) print all possible data,\n
       silent - silent\n
     """  # noqa: D301

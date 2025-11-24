@@ -48,6 +48,7 @@ class DEnvironmentData:
     ignorefile: str = None
     result: dir = None
     collect: str = None
+    confjson: str = None
 
 
 ###############################################################################

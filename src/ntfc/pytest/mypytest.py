@@ -20,7 +20,9 @@
 
 """NTFC plugin for pytest."""
 
+import json
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
@@ -62,6 +64,7 @@ class MyPytest:
         exit_on_fail: bool = False,
         verbose: bool = False,
         device: Optional[List["DeviceCommon"]] = None,
+        confjson: Optional[str] = None,
     ) -> None:
         """Initialize pytest wrapper.
 
@@ -74,6 +77,7 @@ class MyPytest:
         self._opt = []
         self._plugins = []
         self._cfg_module = {}
+        self._cfg_test = {}
 
         if exit_on_fail:
             self._opt.append("-x")
@@ -81,9 +85,16 @@ class MyPytest:
         if verbose:
             self._opt.append("-qq")
 
-        # ignore tests
+        # global ignore tests
+        # REVISIT: remove this after test config file is supported
         if ignorepath:
-            self.ignore_tests(ignorepath)
+            self._ignore_tests(ignorepath)
+
+        # test config file
+        if confjson:
+            self._test_config(confjson)
+
+        pytest.cfgtest = self._cfg_test
 
         # configure plugin
         hookimpl_marker = hookimpl(hookwrapper=True)
@@ -94,6 +105,21 @@ class MyPytest:
 
         # add our custom pytest plugin
         self._plugins.append(self._ptconfig)
+
+    def _test_config(self, path):
+        try:
+            logger.info(f"test config file {path}")
+            _path = Path(path)
+
+            with open(_path) as f:  # pragma: no cover
+                self._cfg_test = json.load(f)
+
+        except TypeError:  # pragma: no cover
+            pass
+
+        except FileNotFoundError:
+            logger.info("test config file not found")
+            pass
 
     def _create_products(
         self, config: "EnvConfig", device: Optional[List["DeviceCommon"]]
@@ -128,29 +154,14 @@ class MyPytest:
         # override tox.ini configuration from package root
         opt.extend(["--override-ini", "addopts="])
 
+        # don't generate __pycache__ for test cases
+        # this can break modules logic when we change testpath
+        # between ntfc runs.
+        # REVISIT: not sure what is the impact on perfomances of this
+        sys.dont_write_bytecode = True
+
         # run pytest in collection-only mode with our custom plugin
         return pytest.main(opt, plugins=plugins)
-
-    def _device_start(self) -> None:
-        """Start device to test."""
-        for product in pytest.products:
-            # start device
-            product.device.start()
-            # finish product initialization
-            product.init()
-
-    def _init_pytest(self, testpath: str) -> None:
-        """Initialize pytest environment."""
-        # inject some objects into pytest module
-        pytest.products = self._create_products(self._config, self._device)
-        pytest.product = ProductsHandler(pytest.products)
-        pytest.task = self._config.product_get(product=0)
-        pytest.testpath = testpath
-
-        # load per test module configuration
-        conf_path = os.path.join(testpath, "ntfc.yaml")
-        self._module_config(conf_path)
-        pytest.ntfcyaml = self._cfg_module
 
     def _module_config(self, path) -> None:
         """Load test module configuration."""
@@ -178,7 +189,29 @@ class MyPytest:
         if "kvreq" not in self._cfg_module:
             self._cfg_module["kvreq"] = [["CONFIG_DEBUG_SYMBOLS", True]]
 
-    def ignore_tests(self, path: str) -> None:
+    def _init_pytest(self, testpath: str) -> None:
+        """Initialize pytest environment."""
+        # inject some objects into pytest module
+        pytest.products = self._create_products(self._config, self._device)
+        pytest.product = ProductsHandler(pytest.products)
+        pytest.task = self._config.product_get(product=0)
+        pytest.testpath = os.path.abspath(testpath)
+        pytest.testroot = os.path.abspath(testpath)
+
+        # load per test module configuration
+        conf_path = os.path.join(testpath, "ntfc.yaml")
+        self._module_config(conf_path)
+        pytest.ntfcyaml = self._cfg_module
+
+    def _device_start(self) -> None:
+        """Start device to test."""
+        for product in pytest.products:
+            # start device
+            product.device.start()
+            # finish product initialization
+            product.init()
+
+    def _ignore_tests(self, path: str) -> None:
         """Ignore tests specified in $CWD/ignore.txt file."""
         try:
             logger.info(f"ignore file {path}")
