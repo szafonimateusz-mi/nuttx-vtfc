@@ -32,14 +32,32 @@ from ntfc.cli.environment import Environment, pass_environment
 
 @click.command(name="collect")
 @cli_testenv_options
+@click.argument(
+    "collect",
+    type=str,
+    required=False,
+    default="all",
+)
 @pass_environment
 def cmd_collect(
-    ctx: Environment, testpath: str, confpath: str, ignorefile: str
+    ctx: Environment,
+    testpath: str,
+    confpath: str,
+    ignorefile: str,
+    collect: str,
 ) -> bool:
-    """Collect test cases."""
+    """Collect test cases.
+
+    Where COLLECT argument specify what data to print:\n
+      collected - collected items,\n
+      skipped - skipped items,\n
+      all - (defualt) print all possible data,\n
+      silent - silent\n
+    """  # noqa: D301
     ctx.runcollect = True
     ctx.testpath = testpath
     ctx.confpath = confpath
     ctx.ignorefile = ignorefile
+    ctx.collect = collect
 
     return True

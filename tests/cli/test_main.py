@@ -57,6 +57,42 @@ def test_main_collect(runner):
     assert result.exit_code == 0
 
     args = [
+        "collect",
+        "--confpath=./tests/resources/nuttx/sim/config.yaml",
+        "--testpath=./tests/resources/tests_collect",
+        "all",
+    ]
+    result = runner.invoke(main, args)
+    assert result.exit_code == 0
+
+    args = [
+        "collect",
+        "--confpath=./tests/resources/nuttx/sim/config.yaml",
+        "--testpath=./tests/resources/tests_collect",
+        "collected",
+    ]
+    result = runner.invoke(main, args)
+    assert result.exit_code == 0
+
+    args = [
+        "collect",
+        "--confpath=./tests/resources/nuttx/sim/config.yaml",
+        "--testpath=./tests/resources/tests_collect",
+        "skipped",
+    ]
+    result = runner.invoke(main, args)
+    assert result.exit_code == 0
+
+    args = [
+        "collect",
+        "--confpath=./tests/resources/nuttx/sim/config.yaml",
+        "--testpath=./tests/resources/tests_collect",
+        "silent",
+    ]
+    result = runner.invoke(main, args)
+    assert result.exit_code == 0
+
+    args = [
         "--debug",
         "--verbose",
         "collect",

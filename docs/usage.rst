@@ -20,7 +20,18 @@ Collect-only test cases.
 
 .. code-block:: bash
 
-   python -m ntfc collect
+   python -m ntfc collect [OPTIONS] [COLLECT]
+
+
+The ``COLLECT`` argument specify what data to print:
+
+* ``collected`` - print collected items only.
+
+* ``skipped`` - print skipped items only.
+
+* ``all``-  (DEFAULT) print all possible data.
+
+* ``silent`` - don't print any additional data.
 
 Options:
 
@@ -43,7 +54,7 @@ Run test cases
 
 .. code-block:: bash
 
-   python -m ntfc test
+   python -m ntfc test [OPTIONS]
 
 Options:
 

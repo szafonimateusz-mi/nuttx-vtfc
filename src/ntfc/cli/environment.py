@@ -45,6 +45,7 @@ class DEnvironmentData:
     confpath: str = None
     ignorefile: str = None
     result: dir = None
+    collect: str = None
 
 
 ###############################################################################

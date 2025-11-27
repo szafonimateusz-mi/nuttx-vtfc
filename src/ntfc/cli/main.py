@@ -67,12 +67,37 @@ def main(ctx: Environment, debug: bool, verbose: bool) -> bool:
     return True
 
 
-def debug_print_skipped(items):
+def collect_print_skipped(items):
     """Print skipped tests and reason."""
     if items:
         print("Skipped tests:")
     for item in items:
         print(f"{item[0].location[0]}:{item[0].location[2]}: \n => {item[1]}")
+
+
+def collect_run(pt, ctx):
+    """Collect tests."""
+    col = pt.collect(ctx.testpath)
+
+    print("\nCollect summary:")
+    print(f"  collected: {len(col.items)} skipped: {len(col.skipped)}")
+
+    if ctx.collect == "silent":
+        return
+
+    if ctx.collect == "collected" or ctx.collect == "all":
+        # print parsed test cases
+        for item in col.items:
+            print(item)
+
+    if ctx.collect == "skipped" or ctx.collect == "all":
+        # print skipped test cases
+        collect_print_skipped(col.skipped)
+
+
+def test_run(pt, ctx):
+    """Run tests."""
+    pt.runner(ctx.testpath, ctx.result, ctx.nologs)
 
 
 @pass_environment
@@ -86,24 +111,10 @@ def cli_on_close(ctx: Environment) -> bool:
     pt = MyPytest(cfg, ctx.ignorefile, ctx.exitonfail, ctx.verbose)
 
     if ctx.runcollect:
-        col = pt.collect(ctx.testpath)
-
-        # print parsed test cases
-        for item in col.items:
-            print(item)
-
-        # print skipped test cases
-        if ctx.debug:
-            debug_print_skipped(col.skipped)
-
-        print("\nCollect summary:")
-        print(f"  collected: {len(col.items)} skipped: {len(col.skipped)}")
-
-        # print("Modules collected:")
-        # print(col.modules)
+        collect_run(pt, ctx)
 
     if ctx.runtest:
-        pt.runner(ctx.testpath, ctx.result, ctx.nologs)
+        test_run(pt, ctx)
 
     return True
 
