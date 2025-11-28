@@ -113,7 +113,7 @@ class DeviceCommon(ABC):
         end_time = time.time() + timeout
         while time.time() < end_time:
             # send new line and expect prompt in returned data
-            ret = self.send_command(b"\r\n", 1)
+            ret = self.send_command(b"\n", 1)
             if self._dev.prompt in ret:
                 return True
 
@@ -189,6 +189,7 @@ class DeviceCommon(ABC):
         self._console_log(_)
 
         # write command and get response
+        self._console_log(cmd)
         self._write(cmd)
         rsp = self._read_all(timeout=timeout)
 

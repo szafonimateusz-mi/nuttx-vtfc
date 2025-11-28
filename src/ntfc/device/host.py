@@ -85,10 +85,6 @@ class DeviceHost(DeviceCommon):
         if data[-1] != ord("\n"):
             self._child.send(b"\n")
 
-        # read all garbage left by character echo
-        _ = self._read_all(timeout=0)
-        self._console_log(_)
-
     def _write_ctrl(self, c: str) -> None:
         """Write a control character to the host device."""
         if not self.dev_is_health():
