@@ -220,15 +220,15 @@ class DeviceCommon(ABC):
         if not isinstance(pattern, bytes):
             raise TypeError("Pattern must by bytes")
 
-        # clear buffer for reading data after command
-        _ = self._read_all()
+        # clear buffer for any spurious data
+        _ = self._read_all(timeout=0)
 
-        output = self.send_command(cmd, 0)
         end_time = time.time() + timeout
+        output = self.send_command(cmd, 0)
         _match = None
         ret = CmdStatus.TIMEOUT
         while True:
-            output += self._read_all()
+            output += self._read_all(0.1)
 
             # chunk size to process, otherwise re.search can stack
             # REVISIT: its possible to miss some pattern in output
