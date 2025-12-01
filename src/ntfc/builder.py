@@ -139,9 +139,9 @@ class NuttXBuilder:
             if os.path.isfile(nuttx_elf_path) and os.path.isfile(
                 nuttx_conf_path
             ):
-                already_build = True
+                already_build = True  # pragma: no cover
 
-            if not already_build or self._rebuild:
+            if not already_build or self._rebuild:  # pragam: no cover
                 # configure build
                 self._run_cmake(
                     source=nuttx_dir,
@@ -156,6 +156,16 @@ class NuttXBuilder:
             # add elf and conf path
             cores[core]["elf_path"] = nuttx_elf_path
             cores[core]["conf_path"] = nuttx_conf_path
+
+    def _reboot_core(
+        self, core: str, cores: Dict[str, Any]
+    ) -> None:  # pragma: no cover
+        """Reboot single core."""
+        reboot_cmd = cores[core].get("reboot", None)
+        if reboot_cmd:
+            cmd = reboot_cmd.split()
+            logger.info(f"reboot core cmd: {cmd}")
+            self._run_command(cmd, True, None)
 
     def _flash_core(
         self, core: str, cores: Dict[str, Any]
@@ -199,7 +209,10 @@ class NuttXBuilder:
             if "product" in product:
                 cores = self._cfg_values[product]["cores"]
                 for core in cores:
+                    # flash core image
                     self._flash_core(core, cores)
+                    # reboot after flash
+                    self._reboot_core(core, cores)
 
     def new_conf(self) -> Dict[str, Any]:
         """Get modified YAML config."""
