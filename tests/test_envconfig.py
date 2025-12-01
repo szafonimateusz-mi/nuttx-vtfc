@@ -20,60 +20,7 @@
 
 import pytest
 
-from ntfc.envconfig import EnvConfig, ProductConfig
-
-
-def test_product_config():
-
-    conf = {
-        "name": "product",
-        "cores": {
-            "core0": {
-                "name": "dummy",
-                "device": "sim",
-                "elf_path": "./tests/resources/nuttx/sim/nuttx",
-                "conf_path": "./tests/resources/nuttx/sim/kv_config",
-                "uptime": 1,
-            },
-            "core1": {
-                "name": "dummy2",
-                "device": "sim2",
-                "elf_path": "./tests/resources/nuttx/sim/nuttx",
-                "conf_path": "./tests/resources/nuttx/sim/kv_config",
-                "uptime": 1,
-            },
-        },
-    }
-
-    p = ProductConfig(conf)
-
-    assert p.core(0)["name"] == "dummy"
-    assert p.core(0)["device"] == "sim"
-    assert p.core(1)["name"] == "dummy2"
-    assert p.core(1)["device"] == "sim2"
-
-    with pytest.raises(AttributeError):
-        p.key_check("aaa", 3)
-
-    with pytest.raises(AttributeError):
-        p.cmd_check("aaa", 3)
-
-    with pytest.raises(AttributeError):
-        p.kv_check("aaa", 3)
-
-    conf = {
-        "name": "product",
-    }
-
-    p = ProductConfig(conf)
-
-    assert p.cores == {}
-    with pytest.raises(AttributeError):
-        p.key_check("aaa")
-    with pytest.raises(AttributeError):
-        p.cmd_check("aaa")
-    with pytest.raises(AttributeError):
-        p.kv_check("aaa")
+from ntfc.envconfig import EnvConfig
 
 
 def test_envconfig_common():

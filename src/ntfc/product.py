@@ -24,8 +24,8 @@ import re
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
 from ntfc.device.common import CmdReturn, CmdStatus
-from ntfc.envconfig import ProductConfig
 from ntfc.logger import logger
+from ntfc.productconfig import ProductConfig
 
 if TYPE_CHECKING:
     from ntfc.device.common import DeviceCommon

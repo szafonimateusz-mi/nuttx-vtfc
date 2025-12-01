@@ -34,7 +34,7 @@ from ntfc.logger import logger
 from .getos import get_os
 
 if TYPE_CHECKING:
-    from ntfc.envconfig import ProductConfig
+    from ntfc.productconfig import ProductConfig
 
 
 ###############################################################################
