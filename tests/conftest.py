@@ -29,6 +29,7 @@ def config_dummy():
     conf_dir = {
         "config": {},
         "product": {
+            "name": "product-dummy",
             "cores": {
                 "core0": {
                     "name": "dummy",
@@ -36,7 +37,7 @@ def config_dummy():
                     "elf_path": "",
                     "uptime": 1,
                 }
-            }
+            },
         },
     }
     conf = EnvConfig(conf_dir)
@@ -48,6 +49,7 @@ def config_sim():
     conf_dir = {
         "config": {},
         "product": {
+            "name": "product-sim",
             "cores": {
                 "core0": {
                     "name": "sim",
@@ -56,7 +58,7 @@ def config_sim():
                     "conf_path": "./tests/resources/nuttx/sim/kv_config",
                     "uptime": 1,
                 }
-            }
+            },
         },
     }
     conf = EnvConfig(conf_dir)

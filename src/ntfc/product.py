@@ -59,12 +59,17 @@ class Product:
             else self._main_prompt.decode("utf-8", errors="ignore")
         )
         self._uptime = conf.core(cpu=0).get("uptime", 3)
+        self._name = conf.name
 
         # cores info not ready yet, done in self.init() method called when
         # device is ready
         self._core0: Optional[str] = None
         self._cur_core: Optional[str] = None
         self._cores: Optional[Tuple[str, ...]] = None
+
+    def __str__(self) -> str:
+        """Get string for object."""
+        return f"Product: {self._name}"
 
     def _prepare_command(
         self, cmd: str, args: Optional[Union[str, List[str]]]
@@ -163,9 +168,9 @@ class Product:
     def init(self) -> None:
         """Finish product initialization."""
         cores = self.get_core_info()
-        self._core0 = cores[0] if cores else "ap"
+        self._core0 = cores[0] if cores else "core0"
         self._cur_core = self._core0
-        self._cores = cores if cores else ("ap",)
+        self._cores = cores if cores else ("core0",)
         logger.info(f"Current product support cores: {self._cores}")
 
     def sendCommand(  # noqa: N802
@@ -433,6 +438,11 @@ class Product:
         return self._cur_core
 
     @property
+    def cores(self) -> Tuple[str]:
+        """Get cores."""
+        return self._cores
+
+    @property
     def device_status(self) -> str:
         """Check device status with all failure mode detection.
 
@@ -453,6 +463,11 @@ class Product:
     def device(self) -> "DeviceCommon":
         """Get underlying device."""
         return self._device
+
+    @property
+    def name(self) -> str:
+        """Get product name."""
+        return self._name
 
     def start_log_collect(self, logs: dict[str, Any]) -> None:
         """Start device log collector."""

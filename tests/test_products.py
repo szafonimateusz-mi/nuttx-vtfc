@@ -44,6 +44,12 @@ def test_products_init_inval():
 
         assert h.sendCtrlCmd("Z") is None
 
+        dev.name = "test"
+        assert h.cur_name == "test"
+
+        dev.cur_core = "core"
+        assert h.cur_core == "core"
+
         dev.busyloop = False
         assert h.busyloop is False
         dev.busyloop = True

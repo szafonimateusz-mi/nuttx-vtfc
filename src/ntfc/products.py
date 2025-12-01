@@ -122,3 +122,15 @@ class ProductsHandler:
             if not p.reboot():
                 logger.info(f"reboot failed for product {p}")
         return True
+
+    @property
+    def cur_name(self) -> str:
+        """Get current product."""
+        # TODO: many products not supported yet
+        return self._products[0].name
+
+    @property
+    def cur_core(self) -> str:
+        """Get current core."""
+        # TODO: many products not supported yet
+        return self._products[0].cur_core

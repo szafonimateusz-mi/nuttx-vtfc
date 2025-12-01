@@ -42,6 +42,16 @@ def test_product_init_inval(config_dummy):
         _ = Product(mockdevice, config_dummy.product[0])
 
 
+def test_product_properties(config_dummy):
+
+    with patch("ntfc.device.common.DeviceCommon") as mockdevice:
+        dev = mockdevice.return_value
+
+        p = Product(dev, config_dummy.product[0])
+        assert p.__str__() == "Product: product-dummy"
+        assert p.name == "product-dummy"
+
+
 def test_product_internals(config_dummy):
 
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:

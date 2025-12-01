@@ -104,6 +104,15 @@ class ProductConfig:
             logger.error("no cores info in configuration file!")
             return {}
 
+    @property
+    def name(self) -> str:
+        """Get product name."""
+        try:
+            return self._config["name"]
+        except KeyError:  # pragma: no cover
+            logger.error("no product name in configuration file!")
+            return "unknown_name"
+
     def kv_check(self, cfg: str, core=0) -> bool:
         """Check Kconfig option."""
         if not self._kv_values:
