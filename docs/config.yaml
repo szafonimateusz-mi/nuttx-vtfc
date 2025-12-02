@@ -1,6 +1,8 @@
 config:                           # common, global configuration options
   cwd: ''                         # path of work directory. eg: /home/work
   build_dir: ''                   # (optional) path to build directory when NTFC is used for building
+  timeout: 120                    # timeout per test case
+  timeout_session: 2400           # timeout per session
 
 product:                          # many products can be supported in tests (product == product0)
 

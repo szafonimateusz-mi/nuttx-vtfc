@@ -77,7 +77,7 @@ class EnvConfig:
     @property
     def common(self) -> Dict:
         """Return device parameters."""
-        return self._cfg_values.get("config", None)
+        return self._cfg_values.get("config", {})
 
     @property
     def product(self) -> list:

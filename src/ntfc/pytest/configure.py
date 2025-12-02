@@ -74,10 +74,6 @@ class PytestConfigPlugin:
         config.option.log_file_level = "DEBUG"
         config.option.log_file_date_format = "%Y-%m-%d %H:%M:%S"
 
-        # timeout config
-        config.option.timeout = 90000
-        config.option.timeout_method = "thread"
-
         # custom markers (equivalent of markers= section)
         markers = [
             "monkey: Mark test to use the monkey plugin",

@@ -37,6 +37,7 @@ dependencies = [
          "pytest",
          "pytest-dependency",
          "pytest-repeat",
+         "pytest-timeout",
          "pytest-ordering",
          "requests",
          "pillow", # optional for graphic?
