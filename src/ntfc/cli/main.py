@@ -131,7 +131,7 @@ def cli_on_close(ctx: Environment) -> bool:
         new_conf = builder.new_conf()
 
     # exit now when build only mode
-    if ctx.buildonly:
+    if ctx.runbuild:
         return True
 
     if new_conf:

@@ -40,7 +40,7 @@ from ntfc.cli.environment import Environment, pass_environment
 @pass_environment
 def cmd_build(ctx: Environment, confpath: str, noflash: bool) -> bool:
     """Build only command."""
-    ctx.buildonly = True
+    ctx.runbuild = True
     ctx.confpath = confpath
     ctx.noflash = noflash
 

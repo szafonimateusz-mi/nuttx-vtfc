@@ -33,21 +33,27 @@ import click
 class DEnvironmentData:
     """Environment data."""
 
+    # common flags
     helpnow: bool = False
     debug: bool = False
     verbose: bool = False
-    exitonfail: bool = False
+
+    # commands to run
     runcollect: bool = False
-    buildonly: bool = False
-    noflash: bool = False
     runtest: bool = False
-    runprint: bool = False
+    runbuild: bool = False
+
+    # commands options
+    exitonfail: bool = False
+    noflash: bool = False
     nologs: bool = False
+    collect: str = None
+    result: dir = None
+
+    # files
     testpath: str = None
     confpath: str = None
     ignorefile: str = None
-    result: dir = None
-    collect: str = None
     confjson: str = None
 
 
