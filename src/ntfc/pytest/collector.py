@@ -28,47 +28,6 @@ import pytest
 from ntfc.pytest.collecteditem import CollectedItem
 
 ###############################################################################
-# Class: Collected
-###############################################################################
-
-
-class Collected:
-    """Collected tests return data."""
-
-    def __init__(
-        self,
-        items: List[CollectedItem],
-        skipped: List[Tuple[pytest.Item, str]],
-    ):
-        """Initialize test collected data."""
-        self._items = items
-        self._skipped = skipped
-        self._modules = self._get_modules()
-
-    def _get_modules(self) -> List[str]:
-        """Get collected modules."""
-        mod = set()
-        for i in self._items:
-            mod.add(i.module2)
-        return list(mod)
-
-    @property
-    def items(self) -> List[CollectedItem]:
-        """Get collected items."""
-        return self._items
-
-    @property
-    def skipped(self) -> List[Tuple[pytest.Item, str]]:
-        """Get skipped items."""
-        return self._skipped
-
-    @property
-    def modules(self) -> List[str]:
-        """Get collected modules."""
-        return self._modules
-
-
-###############################################################################
 # Class: CollectorPlugin
 ###############################################################################
 

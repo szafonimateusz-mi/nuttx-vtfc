@@ -18,9 +18,15 @@
 #
 ############################################################################
 
-from ntfc.pytest.collector import CollectorPlugin
+from ntfc.pytest.collected import Collected
+from ntfc.pytest.collecteditem import CollectedItem
 
 
-def test_collectorplugin():
+def test_collected():
 
-    _ = CollectorPlugin()
+    c1 = CollectedItem("a", "b", "c", "d", "e", "f", "U", "aaa/bbb/ccc1.py")
+    c2 = CollectedItem("a", "b", "c", "d", "e", "f", "U", "aaa/bbb/ccc2.py")
+    items = [c1, c2]
+    skipped = [(None, "xxx"), (None, "yyy"), (None, "zzz")]
+
+    _ = Collected(items, skipped)

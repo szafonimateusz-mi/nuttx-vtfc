@@ -36,7 +36,8 @@ from ntfc.logger import logger
 from ntfc.product import Product
 from ntfc.products import ProductsHandler
 
-from .collector import Collected, CollectorPlugin
+from .collected import Collected
+from .collector import CollectorPlugin
 from .configure import PytestConfigPlugin
 from .runner import RunnerPlugin
 
