@@ -19,19 +19,15 @@
 ############################################################################
 
 from ntfc.pytest.collecteditem import CollectedItem
-from ntfc.pytest.collector import Collected, CollectorPlugin
 
 
-def test_collected():
+def test_collector_collected_item():
+    c = CollectedItem("a", "b", "c", "d", "e", "f", "U", "/aaa/bbb/ccc.py")
 
-    c1 = CollectedItem("a", "b", "c", "d", "e", "f", "U", "aaa/bbb/ccc1.py")
-    c2 = CollectedItem("a", "b", "c", "d", "e", "f", "U", "aaa/bbb/ccc2.py")
-    items = [c1, c2]
-    skipped = [(None, "xxx"), (None, "yyy"), (None, "zzz")]
-
-    _ = Collected(items, skipped)
-
-
-def test_collectorplugin():
-
-    _ = CollectorPlugin()
+    assert c.directory == "a"
+    assert c.module == "b"
+    assert c.name == "c"
+    assert c.path == "d"
+    assert c.line == "e"
+    assert c.nodeid == "f"
+    assert c.module2 == "U_Aaa_Bbb"

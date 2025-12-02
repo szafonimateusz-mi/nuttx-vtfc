@@ -25,76 +25,7 @@ from typing import Any, List, Tuple
 
 import pytest
 
-###############################################################################
-# Class: CollectedItem
-###############################################################################
-
-
-class CollectedItem:
-    """Collected test item."""
-
-    def __init__(
-        self,
-        directory: str,
-        module: str,
-        name: str,
-        path: str,
-        line: int,
-        nodeid: str,
-        modname: str,
-        root: str,
-    ) -> None:
-        """Initialzie collection item."""
-        self._directory = directory
-        self._module = module
-        self._name = name
-        self._path = path
-        self._line = line
-        self._nodeid = nodeid
-        self._module2 = modname + "_".join(
-            part.capitalize() for part in root.split("/")[:-1]
-        )
-
-    def __str__(self) -> str:
-        """Get collected item string representation."""
-        _str = "CollectedItem: " + self.name
-        return _str
-
-    @property
-    def module2(self) -> str:
-        """Get collected module name (short version)."""
-        return self._module2
-
-    @property
-    def directory(self) -> str:
-        """Get collected item directory."""
-        return self._directory
-
-    @property
-    def module(self) -> str:
-        """Get collected item module."""
-        return self._module
-
-    @property
-    def name(self) -> str:
-        """Get collected item name."""
-        return self._name
-
-    @property
-    def path(self) -> str:
-        """Get collected item file."""
-        return self._path
-
-    @property
-    def line(self) -> int:
-        """Get collected item line."""
-        return self._line
-
-    @property
-    def nodeid(self) -> str:
-        """Get collected item node ID."""
-        return self._nodeid
-
+from ntfc.pytest.collecteditem import CollectedItem
 
 ###############################################################################
 # Class: Collected
