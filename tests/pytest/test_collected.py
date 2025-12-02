@@ -29,4 +29,4 @@ def test_collected():
     items = [c1, c2]
     skipped = [(None, "xxx"), (None, "yyy"), (None, "zzz")]
 
-    _ = Collected(items, skipped)
+    _ = Collected(items, skipped, items)

@@ -88,7 +88,11 @@ def collect_run(pt, ctx):
     col = pt.collect(ctx.testpath)
 
     print("\nCollect summary:")
-    print(f"  collected: {len(col.items)} skipped: {len(col.skipped)}")
+    print(
+        f"  all: {len(col.allitems)}"
+        f"  filtered: {len(col.items)}"
+        f"  skipped: {len(col.skipped)}"
+    )
 
     if ctx.collect == "silent":
         return

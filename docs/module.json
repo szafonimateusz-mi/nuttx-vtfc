@@ -1,6 +1,6 @@
 {
     "module": {                                      // test modules configurtion
-        "include_module": [                          // include these modules
+        "include_module": [                          // include these modules, include all if list empty
             "Nuttx_System_Arch_Os_Integration",
             "Nuttx_System_Tools",
             "Nuttx_System_Gdb"
@@ -9,7 +9,7 @@
         [
             "Nuttx_System_Arch_Os_Performance"
         ],
-        "order": [                                   // force test modules order
+        "order": [                                   // force test modules order, not supported yet
             {
                 "module": "Nuttx_System_Gdb",
                 "value": "1"

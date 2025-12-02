@@ -39,10 +39,12 @@ class Collected:
         self,
         items: List["CollectedItem"],
         skipped: List[Tuple["pytest.Item", str]],
+        allitems: List["CollectedItem"],
     ):
         """Initialize test collected data."""
         self._items = items
         self._skipped = skipped
+        self._allitems = allitems
         self._modules = self._get_modules()
 
     def _get_modules(self) -> List[str]:
@@ -54,8 +56,13 @@ class Collected:
 
     @property
     def items(self) -> List["CollectedItem"]:
-        """Get collected items."""
+        """Get filtered collected items."""
         return self._items
+
+    @property
+    def allitems(self) -> List["CollectedItem"]:
+        """Get all collected items."""
+        return self._allitems
 
     @property
     def skipped(self) -> List[Tuple["pytest.Item", str]]:

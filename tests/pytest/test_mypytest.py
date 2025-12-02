@@ -37,6 +37,7 @@ def test_collector_collect_file(config_sim, device_dummy):
     path = "./tests/resources/tests_collect/test_test4.py"
     col = p.collect(path)
 
+    assert len(col.allitems) == 5
     assert len(col.skipped) == 3
     assert len(col.items) == 2
     assert len(col.modules) == 1
@@ -55,6 +56,7 @@ def test_collector_collect_dir(config_sim, device_dummy):
     path = "./tests/resources/tests_collect"
     col = p.collect(path)
 
+    assert len(col.allitems) == 12
     assert len(col.skipped) == 3
     assert len(col.items) == 9
     assert len(col.modules) == 1
@@ -80,12 +82,39 @@ def test_collector_collect_manydirs(config_sim, device_dummy):
     path = "./tests/resources/tests_dirs"
     col = p.collect(path)
 
+    assert len(col.allitems) == 8
     assert len(col.skipped) == 0
     assert len(col.items) == 8
     assert len(col.modules) == 3
     assert "test_Test1" in col.modules
     assert "test_Test2" in col.modules
     assert "test_Test3_Test4" in col.modules
+
+
+def test_runner_module_exclude(config_sim, device_dummy):
+
+    json = "./tests/resources/nuttx/sim/module_exclude.json"
+    p = MyPytest(config_sim, device=[device_dummy], confjson=json)
+    path = "./tests/resources/tests_dirs"
+    col = p.collect(path)
+
+    assert len(col.allitems) == 8
+    assert len(col.skipped) == 2
+    assert len(col.items) == 6
+    assert len(col.modules) == 2
+
+
+def test_runner_module_include(config_sim, device_dummy):
+
+    json = "./tests/resources/nuttx/sim/module_include.json"
+    p = MyPytest(config_sim, device=[device_dummy], confjson=json)
+    path = "./tests/resources/tests_dirs"
+    col = p.collect(path)
+
+    assert len(col.allitems) == 8
+    assert len(col.skipped) == 6
+    assert len(col.items) == 2
+    assert len(col.modules) == 1
 
 
 def test_runner_run_exitcode(config_dummy, device_dummy):

@@ -35,43 +35,129 @@ from ntfc.pytest.collecteditem import CollectedItem
 class CollectorPlugin:
     """Custom Pytest collector plugin."""
 
-    def __init__(self) -> None:
+    def __init__(self, collectonly: bool = True) -> None:
         """Initialize custom pytest collector plugin."""
-        self.collected_items: List[Tuple[Any, Any]] = []
-        self.parsed_items: List[CollectedItem] = []
+        self._all_items: List[CollectedItem] = []
+        self._filtered_items: List[CollectedItem] = []
+        self._collectonly = collectonly
+
+        self._skipped_items: List[Tuple[pytest.Item, str]] = []
+
+    def _collected_item(self, item):
+        """Create collected item."""
+        path, lineno, name = item.location
+        abs_path = os.path.abspath(path)
+        directory = os.path.dirname(abs_path)
+        module = abs_path.replace(pytest.testpath, "")
+        root = module.replace(pytest.testpath, "")
+
+        ci = CollectedItem(
+            directory,
+            module,
+            name,
+            abs_path,
+            lineno,
+            item.nodeid,
+            pytest.ntfcyaml["module"],
+            root,
+        )
+
+        return ci
 
     @property
-    def parsed(self) -> List[CollectedItem]:
-        """Get collected items in parsed format."""
-        return self.parsed_items
+    def skipped_items(self) -> List[Tuple[pytest.Item, str]]:
+        """Get skipped items."""
+        return self._skipped_items
+
+    @property
+    def filtered(self) -> List[CollectedItem]:
+        """Get filtered items."""
+        return self._filtered_items
+
+    @property
+    def allitems(self) -> List[CollectedItem]:
+        """Get all items before filtration."""
+        return self._all_items
 
     def pytest_runtestloop(self, session: pytest.Session) -> bool:
-        """Prevent tests from running.
+        """Run test loop.
 
-        Returning True stops test execution.
+        Do not run tests if we are in collect only mode.
         """
+        if session.testsfailed:  # pragma: no cover
+            raise session.Interrupted("error during collection")
+
+        if self._collectonly:
+            return True
+
+        for i, item in enumerate(session.items):
+            nextitem = (
+                session.items[i + 1] if i + 1 < len(session.items) else None
+            )
+            item.config.hook.pytest_runtest_protocol(
+                item=item, nextitem=nextitem
+            )
+            if session.shouldfail:  # pragma: no cover
+                raise session.Failed(session.shouldfail)
+            if session.shouldstop:  # pragma: no cover
+                raise session.Interrupted(session.shouldstop)
+
         return True
 
     def pytest_collection_finish(self, session: pytest.Session) -> None:
         """Pytest collection finish callback."""
-        self.collected_items.extend(session.items)
+        pass  # empty for now
 
-        # extract useful data from items
-        for item in session.items:
-            path, lineno, name = item.location
-            abs_path = os.path.abspath(path)
-            directory = os.path.dirname(abs_path)
-            module = abs_path.replace(pytest.testpath, "")
-            root = module.replace(pytest.testpath, "")
+    def pytest_collection_modifyitems(
+        self, config: pytest.Config, items: list[pytest.Item]
+    ) -> None:
+        """Modify the `items` list after collection is completed.
 
-            ci = CollectedItem(
-                directory,
-                module,
-                name,
-                abs_path,
-                lineno,
-                item.nodeid,
-                pytest.ntfcyaml["module"],
-                root,
-            )
-            self.parsed_items.append(ci)
+        :param config:
+        :param items:
+        """
+        tmp: List[Any] = []
+
+        module = pytest.cfgtest.get("module", {})
+        include_module = module.get("include_module", [])
+        exclude_module = module.get("exclude_module", [])
+        # order_module = module.get("order", [])
+
+        for item in items:
+            # add to all items
+            self._all_items.append(item)
+
+            # get collected data and attach to item
+            ci = self._collected_item(item)
+            item._collected = ci
+
+            skip, reason = pytest.filter.check_test_support(item)
+
+            if skip:
+                self._skipped_items.append((item, reason))
+                item.add_marker(pytest.mark.skip(reason=reason))
+                continue
+
+            # check if we match to include_module
+            if include_module:
+                if ci.module2 not in include_module:
+                    reason = "not in include_module"
+                    self._skipped_items.append((item, reason))
+                    item.add_marker(pytest.mark.skip(reason=reason))
+                    continue
+
+            # excluded modules
+            if ci.module2 in exclude_module:
+                reason = "excluded module"
+                self._skipped_items.append((item, reason))
+                item.add_marker(pytest.mark.skip(reason=reason))
+                continue
+
+            # include the test if not skipped
+            self._filtered_items.append(ci)
+            tmp.append(item)
+
+        # TODO: force modules order
+
+        # overwrite items
+        items[:] = tmp

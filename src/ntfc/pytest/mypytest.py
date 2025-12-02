@@ -118,7 +118,7 @@ class MyPytest:
         except TypeError:  # pragma: no cover
             pass
 
-        except FileNotFoundError:
+        except FileNotFoundError:  # pragma: no cover
             logger.info("test config file not found")
             pass
 
@@ -260,13 +260,16 @@ class MyPytest:
                 path = os.path.join(pytest.result_dir, "report.json")
                 opt.append(f"--json={path}")
 
+        # collector plugin
+        collector = CollectorPlugin(False)
+
         # run pytest with our custom test plugin
         runner = RunnerPlugin(nologs)
 
         # start device before test start
         self._device_start()
 
-        return self._run(opt, [runner])
+        return self._run(opt, [runner, collector])
 
     def collect(self, testpath: str) -> Tuple[List[Any], List[Any]]:
         """Collect tests.
@@ -282,7 +285,9 @@ class MyPytest:
         # run pytest with our custom collector plugin
         self._run([testpath], [collector])
 
-        collected = Collected(collector.parsed, self._ptconfig.skipped_items)
+        collected = Collected(
+            collector.filtered, collector.skipped_items, collector.allitems
+        )
 
-        # return parsed items and skipped
+        # return result
         return collected

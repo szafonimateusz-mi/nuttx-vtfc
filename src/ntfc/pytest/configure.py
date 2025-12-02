@@ -21,7 +21,7 @@
 """NTFC plugin configuration for pytest."""
 
 import time
-from typing import TYPE_CHECKING, Any, List, Tuple
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -47,9 +47,8 @@ class PytestConfigPlugin:
         """
         self._config = config
 
-        self._filter = FilterTest(config)
-
-        self._skipped_items: List[Tuple[pytest.Item, str]] = []
+        # TODO: warning move this to collector
+        pytest.filter = FilterTest(config)
 
     def _device_reboot(self) -> None:
         """Reboot the device if crashed."""
@@ -92,35 +91,6 @@ class PytestConfigPlugin:
 
         for m in markers:
             config.addinivalue_line("markers", m)
-
-    @property
-    def skipped_items(self) -> List[Tuple[pytest.Item, str]]:
-        """Get skipped items."""
-        return self._skipped_items
-
-    def pytest_collection_modifyitems(
-        self, config: pytest.Config, items: list[pytest.Item]
-    ) -> None:
-        """Modify the `items` list after collection is completed.
-
-        :param config:
-        :param items:
-        """
-        collected_items: List[Any] = []
-
-        for item in items:
-            skip, reason = self._filter.check_test_support(item)
-
-            if skip:
-                self._skipped_items.append((item, reason))
-                item.add_marker(pytest.mark.skip(reason=reason))
-                continue
-
-            # include the test if not skipped
-            collected_items.append(item)
-
-        # Update the items list to only include filtered items
-        items[:] = collected_items
 
     def pytest_runtest_makereport(  # noqa: C901
         self, item: pytest.Item, call: pytest.CallInfo[None]
