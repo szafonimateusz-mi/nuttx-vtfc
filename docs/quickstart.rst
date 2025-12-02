@@ -29,70 +29,86 @@ Common initialization
 Automatically build DTU images
 ==============================
 
-There is a YAML configuration available that builds the available QEMU and SIM
-targets and runs parallel tests on all DTUs. Just use::
+The tool allows you to automatically build configurations and run tests on
+the created NuttX image.
+
+First make sure the configuration is copied to NuttX directory.
+
+For ``SIMULATOR``::
+
+     mkdir external/nuttx/boards/sim/sim/sim/configs/ntfc
+     cp docs/boards/sim/defconfig external/nuttx/boards/sim/sim/sim/configs/ntfc
+
+For ``QEMU-X86_64``::
+
+     mkdir external/nuttx/boards/x86_64/intel64/qemu-intel64/configs/ntfc
+     cp docs/boards/qemu-intel64/defconfig external/nuttx/boards/x86_64/intel64/qemu-intel64/configs/ntfc
+
+For ``QEMU-ARMV7A``::
+
+     mkdir external/nuttx/boards/arm/qemu/qemu-armv7a/configs/ntfc
+     cp docs/boards/qemu-armv7a/defconfig external/nuttx/boards/arm/qemu/qemu-armv7a/configs/ntfc
+
+For ``QEMU-ARMV7R``::
+
+     mkdir external/nuttx/boards/arm/qemu/qemu-armv7r/configs/ntfc
+     cp docs/boards/qemu-armv7r/defconfig external/nuttx/boards/arm/qemu/qemu-armv7r/configs/ntfc
+
+For ``QEMU-ARMV8A``::
+
+     mkdir external/nuttx/boards/arm64/qemu/qemu-armv8a/configs/ntfc
+     cp docs/boards/qemu-armv8a/defconfig external/nuttx/boards/arm64/qemu/qemu-armv8a/configs/ntfc
+
+For ``QEMU-RISCV64``::
+
+     mkdir boards/risc-v/qemu-rv/rv-virt/configs/ntfc64
+     cp docs/boards/qemu-riscv-rv-virt-64/defconfig external/nuttx/boards/risc-v/qemu-rv/rv-virt/configs/ntfc64
+
+Then run the ``test`` command that build which will build the image
+and start testing.
+
+For ``SIMULATOR``::
+
+     python -m ntfc test --confpath config/nuttx-sim.yaml
+
+For ``QEMU-X86_64``::
+
+     python -m ntfc test --confpath config/nuttx-qemu-x86_64.yaml
+
+For ``QEMU-ARMV7A``::
+
+     python -m ntfc test --confpath config/nuttx-qemu-armv7a.yaml
+
+For ``QEMU-ARMV7R``::
+
+     python -m ntfc test --confpath config/nuttx-qemu-armv7r.yaml
+
+For ``QEMU-ARMV8A``::
+
+     python -m ntfc test --confpath config/nuttx-qemu-armv8a.yaml
+
+For ``QEMU-RISCV64``::
+
+     python -m ntfc test --confpath config/nuttx-qemu-riscv-rv-virt-64.yaml
+
+There is also a configuration available that builds the all available
+QEMU and SIM targets and runs parallel tests on all DTUs::
 
   python -m ntfc test --confpath=./config/nuttx-build-qemu-sim-ntfc.yaml
 
+You can also run ``build`` command that only build image without starting tests.
 
 Creating a DTU image manually
 =============================
 
+You can then manually build the nuttx image. Currently, such an example
+is available in ``config/nuttx-serial-stlink.yaml``.
+
 
 1. Configure and build NuttX in ``external/nuttx``.
 
-   A sample configuration for ``SIMULATOR``, QEMU targets can
-   be found at ``docs/boards``. There is also a configuration for ``nucleo-h743zi``
-   that demonstrating the use of the serial port to communicate with the DTU.
-
-   For ``SIMULATOR``::
-
-     cd external/nuttx
-     mkdir boards/sim/sim/sim/configs/ntfc
-     cp ../../docs/boards/sim/defconfig boards/sim/sim/sim/configs/ntfc
-     ./tools/configure.sh sim/ntfc
-     make -j
-     cd ../..
-
-   For ``QEMU-X86_64``::
-
-     mkdir boards/x86_64/intel64/qemu-intel64/configs/ntfc
-     cp ../../docs/boards/qemu-intel64/defconfig boards/x86_64/intel64/qemu-intel64/configs/ntfc
-     ./tools/configure.sh qemu-intel64/ntfc
-     make -j
-     cd ../..
-
-   For ``QEMU-ARMV7A``::
-
-     mkdir boards/arm/qemu/qemu-armv7a/configs/ntfc
-     cp ../../docs/boards/qemu-armv7a/defconfig boards/arm/qemu/qemu-armv7a/configs/ntfc
-     ./tools/configure.sh qemu-armv7a/ntfc
-     make -j
-     cd ../..
-
-   For ``QEMU-ARMV7R``::
-
-     mkdir boards/arm/qemu/qemu-armv7r/configs/ntfc
-     cp ../../docs/boards/qemu-armv7r/defconfig boards/arm/qemu/qemu-armv7r/configs/ntfc
-     ./tools/configure.sh qemu-armv7r/ntfc
-     make -j
-     cd ../..
-
-   For ``QEMU-ARMV8A``::
-
-     mkdir boards/arm64/qemu/qemu-armv8a/configs/ntfc
-     cp ../../docs/boards/qemu-armv8a/defconfig boards/arm64/qemu/qemu-armv8a/configs/ntfc
-     ./tools/configure.sh qemu-armv8a/ntfc
-     make -j
-     cd ../..
-
-   For ``QEMU-RISCV64``::
-
-     mkdir boards/risc-v/qemu-rv/rv-virt/configs/ntfc64
-     cp ../../docs/boards/qemu-riscv-rv-virt-64/defconfig boards/risc-v/qemu-rv/rv-virt/configs/ntfc64
-     ./tools/configure.sh rv-virt/ntfc64
-     make -j
-     cd ../..
+   A sample configuration for ``nucleo-h743zi`` is available.
+   It demonstrating the use of the serial port to communicate with the DTU.
 
    For ``NUCLEO-H743ZI``::
 
@@ -104,30 +120,6 @@ Creating a DTU image manually
 
 2. Collect test cases without running tests.
 
-   For ``SIMULATOR``::
-
-     python -m ntfc collect --confpath config/nuttx-sim.yaml
-
-   For ``QEMU-X86_64``::
-
-     python -m ntfc collect --confpath config/nuttx-qemu-x86_64.yaml
-
-   For ``QEMU-ARMV7A``::
-
-     python -m ntfc collect --confpath config/nuttx-qemu-armv7a.yaml
-
-   For ``QEMU-ARMV7R``::
-
-     python -m ntfc collect --confpath config/nuttx-qemu-armv7r.yaml
-
-   For ``QEMU-ARMV8A``::
-
-     python -m ntfc collect --confpath config/nuttx-qemu-armv8a.yaml
-
-   For ``QEMU-RISCV64``::
-
-     python -m ntfc collect --confpath config/nuttx-qemu-riscv-rv-virt-64.yaml
-
    For ``NUCLEO-H743ZI``::
 
      python -m ntfc collect --confpath config/nuttx-qemu-serial-stlink.yaml
@@ -136,30 +128,6 @@ Creating a DTU image manually
    the conditions for running them are not met will also be listed.
 
 3. Run test cases.
-
-   For ``SIMULATOR``::
-
-     python -m ntfc test --confpath config/nuttx-sim.yaml
-
-   For ``QEMU-X86_64``::
-
-     python -m ntfc test --confpath config/nuttx-qemu-x86_64.yaml
-
-   For ``QEMU-ARMV7A``::
-
-     python -m ntfc test --confpath config/nuttx-qemu-armv7a.yaml
-
-   For ``QEMU-ARMV7R``::
-
-     python -m ntfc test --confpath config/nuttx-qemu-armv7r.yaml
-
-   For ``QEMU-ARMV8A``::
-
-     python -m ntfc test --confpath config/nuttx-qemu-armv8a.yaml
-
-   For ``QEMU-RISCV64``::
-
-     python -m ntfc test --confpath config/nuttx-qemu-riscv-rv-virt-64.yaml
 
    For ``NUCLEO-H743ZI``::
 

@@ -1,42 +1,13 @@
 config:
   cwd: './external'
+  build_dir: './build'
 
 product:
 
-  name: "product"
+  name: "ntfc-sim"
   cores:
     core0:
       name: 'main'
       device: 'sim'
-      conf_path: './external/nuttx/.config'
-      elf_path: './external/nuttx/nuttx'
-
-    core1:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core2:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core3:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core4:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core5:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
+      defconfig: 'boards/sim/sim/sim/configs/vtfc'
+      flash: ''

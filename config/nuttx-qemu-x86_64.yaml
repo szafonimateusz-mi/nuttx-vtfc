@@ -1,44 +1,15 @@
 config:
   cwd: './external'
+  build_dir: './build'
 
 product:
 
-  name: "product"
+  name: "ntfc-x86-64"
   cores:
     core0:
       name: 'main'
       device: 'qemu'
       exec_path: 'qemu-system-x86_64'
       exec_args: '-m 2G -smp 4 -cpu host -enable-kvm -nographic -serial mon:stdio'
-      conf_path: './external/nuttx/.config'
-      elf_path: './external/nuttx/nuttx'
-
-    core1:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core2:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core3:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core4:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core5:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
+      defconfig: 'boards/x86_64/intel64/qemu-intel64/configs/vtfc'
+      flash: ''

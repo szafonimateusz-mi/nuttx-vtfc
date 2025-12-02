@@ -17,11 +17,12 @@ product:                          # many products can be supported in tests (pro
                                   # Empty for simulator.
 
                                   # NTFC can use pre-build image or build it from defconfig
+                                  # the behavior will depend on the parameters specified in config.
       conf_path: ''               # (optional) configuration path for this core firmware
       elf_path: ''                # (optional) NuttX ELF path for this core firmware
-      reboot: ''                  # (optional) System command to reset DUT, eg 'st-flash reset'
       defconfig: ''               # (optional) path to build config if NTFC is used for building
       flash: ''                   # (optional) flash command if NTFC is used for flashing
+      reboot: ''                  # (optional) System command to reset DUT, eg 'st-flash reset'
 
 
     core1:                        # (optional) Aux core 1  AMP test cases)

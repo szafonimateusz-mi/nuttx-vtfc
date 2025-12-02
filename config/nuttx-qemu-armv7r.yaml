@@ -1,9 +1,10 @@
 config:
   cwd: './external'
+  build_dir: './build'
 
 product:
 
-  name: "product"
+  name: "ntfc-armv7r"
   cores:
     core0:
       name: 'main'
@@ -12,35 +13,5 @@ product:
       exec_args: '-M virt,virtualization=on,highmem=off -semihosting -nographic
                  -cpu cortex-r52 -chardev stdio,id=con,mux=on
                  -serial chardev:con -mon chardev=con,mode=readline'
-      conf_path: './external/nuttx/.config'
-      elf_path: './external/nuttx/nuttx'
-
-    core1:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core2:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core3:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core4:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core5:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
+      defconfig: 'boards/arm/qemu/qemu-armv7r/configs/vtfc'
+      flash: ''

@@ -1,9 +1,10 @@
 config:
   cwd: './external'
+  build_dir: './build'
 
 product:
 
-  name: "product"
+  name: "ntfc-armv8a"
   cores:
     core0:
       name: 'main'
@@ -13,35 +14,5 @@ product:
                  -machine virt,virtualization=on,gic-version=3
                  -net none -chardev stdio,id=con,mux=on
                  -serial chardev:con -mon chardev=con,mode=readline'
-      conf_path: './external/nuttx/.config'
-      elf_path: './external/nuttx/nuttx'
-
-    core1:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core2:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core3:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core4:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core5:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
+      defconfig: 'boards/arm64/qemu/qemu-armv8a/configs/vtfc'
+      flash: ''
