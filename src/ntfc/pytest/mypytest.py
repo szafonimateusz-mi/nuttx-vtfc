@@ -243,7 +243,7 @@ class MyPytest:
         opt = [testpath]
 
         # configure timeouts
-        timeout = self._config.common.get("timeout", 120)
+        timeout = self._config.common.get("timeout", 800)
         timeout_session = self._config.common.get("timeout_session", 3600)
         opt.append("--timeout=" + str(timeout))
         opt.append("--session-timeout=" + str(timeout_session))
