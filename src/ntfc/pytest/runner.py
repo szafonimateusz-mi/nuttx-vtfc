@@ -44,12 +44,12 @@ class RunnerPlugin:
         if self._nologs:
             return
 
-        i = 0
         for product in pytest.products:
             product.stop_log_collect()
-            # close files
-            self._logs[product.name]["console"].close()
-            i += 1
+
+            for core in product.cores:
+                # close files
+                self._logs[product.name][core]["console"].close()
 
     def _collect_device_logs(self, request) -> None:
         """Initiate device log writing into a new test file."""
@@ -66,14 +66,17 @@ class RunnerPlugin:
                 core_dir = os.path.join(product_dir, core)
 
                 if name not in self._logs:
-                    os.makedirs(core_dir, exist_ok=True)
                     self._logs[name] = {}
+
+                if core not in self._logs[name]:
+                    os.makedirs(core_dir, exist_ok=True)
+                    self._logs[name][core] = {}
 
                 # open log files
                 tmp = os.path.join(core_dir, testname + ".console.txt")
-                self._logs[name]["console"] = open(tmp, "a")
+                self._logs[name][core]["console"] = open(tmp, "a")
                 # start device log collector
-                product.start_log_collect(self._logs[name])
+                product.start_log_collect(self._logs[name][core])
 
     @pytest.fixture(scope="function", autouse=True)
     def prepare_test(self, request) -> None:
