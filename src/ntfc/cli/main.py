@@ -20,9 +20,11 @@
 
 """Module containing the CLI logic for NTFC."""
 
+import pprint
 import sys
 
 import click
+import yaml
 
 from ntfc.builder import NuttXBuilder
 from ntfc.cli.environment import Environment, pass_environment
@@ -117,6 +119,13 @@ def test_run(pt, ctx):
     pt.runner(ctx.testpath, ctx.result, ctx.nologs)
 
 
+def print_yaml_config(config):
+    """Print configuration."""
+    print("YAML config:")
+    pp = pprint.PrettyPrinter()
+    pp.pprint(config)
+
+
 @pass_environment
 def cli_on_close(ctx: Environment) -> bool:
     """Handle all work on Click close."""
@@ -124,22 +133,26 @@ def cli_on_close(ctx: Environment) -> bool:
         # do nothing if help was called
         return True
 
-    builder = NuttXBuilder(ctx.confpath)
-    new_conf = None
+    conf = None
+    with open(ctx.confpath, "r") as f:
+        conf = yaml.safe_load(f)
+
+    print_yaml_config(conf)
+
+    builder = NuttXBuilder(conf)
     if builder.need_build():
         builder.build_all()
         if not ctx.noflash:
             builder.flash_all()
-        new_conf = builder.new_conf()
+
+        # update config
+        conf = builder.new_conf()
 
     # exit now when build only mode
     if ctx.runbuild:
         return True
 
-    if new_conf:
-        cfg = EnvConfig(new_conf)
-    else:
-        cfg = EnvConfig(ctx.confpath)
+    cfg = EnvConfig(conf)
 
     pt = MyPytest(
         cfg, ctx.ignorefile, ctx.exitonfail, ctx.verbose, ctx.confjson

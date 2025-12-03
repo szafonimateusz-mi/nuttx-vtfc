@@ -23,9 +23,7 @@
 import os
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, List, Union
-
-import yaml
+from typing import Any, Dict, List
 
 from ntfc.logger import logger
 
@@ -33,19 +31,12 @@ from ntfc.logger import logger
 class NuttXBuilder:
     """NuttX configuration builder (CMake only)."""
 
-    def __init__(self, yaml_cfg: Union[str, Dict]):
+    def __init__(self, config: Dict):
         """Initialize NuttX builder."""
-        if isinstance(yaml_cfg, str):
-            self._load_config(yaml_cfg)
-        elif isinstance(yaml_cfg, dict):
-            self._cfg_values = yaml_cfg
-        else:
+        if not isinstance(config, dict):
             raise TypeError("invalid config file type")
 
-    def _load_config(self, yaml_path: str) -> None:  # pragma: no cover
-        """Load configuration."""
-        with open(yaml_path, "r") as f:
-            self._cfg_values = yaml.safe_load(f)
+        self._cfg_values = config
 
     def _run_command(
         self, cmd: List[str], check: bool, env: Any

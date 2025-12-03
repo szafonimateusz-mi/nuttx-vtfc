@@ -19,13 +19,18 @@
 ############################################################################
 
 import pytest
+import yaml
 
 from ntfc.envconfig import EnvConfig
 
 
 def test_envconfig_common():
 
-    env = EnvConfig("./tests/resources/nuttx/sim/config.yaml")
+    conf = None
+    with open("./tests/resources/nuttx/sim/config.yaml", "r") as f:
+        conf = yaml.safe_load(f)
+
+    env = EnvConfig(conf)
 
     # check device options
     assert env.common["cwd"] == "./"
@@ -36,10 +41,11 @@ def test_envconfig_product():
     with pytest.raises(TypeError):
         _ = EnvConfig(["1", "2"])
 
-    with pytest.raises(SystemExit):
-        _ = EnvConfig("./tests/resources/nuttx/sim/XXXXXX.yaml")
+    conf = None
+    with open("./tests/resources/nuttx/sim/config.yaml", "r") as f:
+        conf = yaml.safe_load(f)
 
-    env = EnvConfig("./tests/resources/nuttx/sim/config.yaml")
+    env = EnvConfig(conf)
 
     assert env.core()["conf_path"] == "./tests/resources/nuttx/sim/kv_config"
     assert env.core()["elf_path"] == "./tests/resources/nuttx/sim/nuttx"

@@ -20,33 +20,25 @@
 
 """Configuration handler."""
 
-import pprint
-from typing import Dict, List, Union
+from typing import Dict, List
 
-import yaml
-
-from ntfc.logger import logger
 from ntfc.productconfig import ProductConfig
 
 
 class EnvConfig:
     """This class handles tests environment configuration."""
 
-    def __init__(self, yaml_cfg: Union[str, Dict], args=None) -> None:
+    def __init__(self, config: Dict, args=None) -> None:
         """Initialzie tests environment configuration."""
+        if not isinstance(config, dict):
+            raise TypeError("invalid config file type")
+
         self._args = []
         self._cfg_values = {}
 
-        if isinstance(yaml_cfg, str):
-            self._load_config(yaml_cfg)
-        elif isinstance(yaml_cfg, dict):
-            self._cfg_values = yaml_cfg
-        else:
-            raise TypeError("invalid configuration")
+        self._cfg_values = config
 
         self._products = self._products_create(self._cfg_values)
-
-        self._print_config()
 
     def _products_create(self, config: dict) -> List[ProductConfig]:
         """Create product configuration."""
@@ -57,22 +49,6 @@ class EnvConfig:
                 products.append(p)
 
         return products
-
-    def _load_config(self, yaml_path: str) -> None:
-        """Load configuration."""
-        try:
-            with open(yaml_path, "r") as f:
-                self._cfg_values = yaml.safe_load(f)
-
-        except FileNotFoundError:
-            logger.error(f"ERROR: Configuration file not found: {yaml_path}")
-            exit(1)
-
-    def _print_config(self) -> None:
-        """Print device configuration."""
-        print("YAML config:")
-        pp = pprint.PrettyPrinter()
-        pp.pprint(self._cfg_values)
 
     @property
     def common(self) -> Dict:
