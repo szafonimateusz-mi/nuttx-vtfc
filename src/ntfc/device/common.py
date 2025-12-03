@@ -204,7 +204,7 @@ class DeviceCommon(ABC):
         self._console_log(rsp)
         return rsp
 
-    def send_cmd_read_until_pattern(
+    def send_cmd_read_until_pattern(  # noqa: C901
         self, cmd: bytes, pattern: bytes, timeout: int
     ) -> CmdReturn:
         """Send command to device and read until the specified pattern.
@@ -230,25 +230,24 @@ class DeviceCommon(ABC):
 
         end_time = time.time() + timeout
         output = self.send_command(cmd, 0)
+        output_all = output
         _match = None
         ret = CmdStatus.TIMEOUT
         while True:
-            output += self._read_all(0.1)
+            chunk = self._read_all(0.1)
+            output += chunk
+            output_all += chunk
 
-            # chunk size to process, otherwise re.search can stack
+            # limit output data to process, otherwise re.search can stack
             # REVISIT: its possible to miss some pattern in output
-            chunk_size = 10000
-            for i in range(0, len(output), chunk_size):
-                chunk = output[i : i + chunk_size]
+            output_max = 10240
+            if len(output) > output_max:
+                output = output[-output_max:]
 
-                _match = re.search(pattern, chunk)
-                if _match:
-                    logger.debug(f">>match: {chunk}, search: {pattern}<<")
-                    ret = CmdStatus.SUCCESS
-                    break
-
-            # break if found match
-            if ret == CmdStatus.SUCCESS:
+            _match = re.search(pattern, output)
+            if _match:
+                logger.debug(f">>match: {output}, search: {pattern}<<")
+                ret = CmdStatus.SUCCESS
                 break
 
             # check for timeout
@@ -267,10 +266,10 @@ class DeviceCommon(ABC):
             chunk = self._read_all(0.1)
             if len(chunk) > 0:
                 self._flood.set()
-            output += chunk
+            output_all += chunk
 
         # log console output and return
-        self._console_log(output)
+        self._console_log(output_all)
         return CmdReturn(ret, _match, output.decode("utf-8"))
 
     def send_ctrl_cmd(self, ctrl_char: str) -> CmdStatus:

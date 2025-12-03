@@ -98,7 +98,7 @@ class DeviceHost(DeviceCommon):
             return b""
 
         try:
-            return self._child.read_nonblocking(size=1024, timeout=0)
+            return self._child.read_nonblocking(size=5120, timeout=0)
 
         except pexpect.TIMEOUT:
             return b""

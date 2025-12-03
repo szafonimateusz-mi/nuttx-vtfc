@@ -22,6 +22,8 @@ from unittest.mock import patch
 
 from ntfc.device.common import CmdReturn, CmdStatus, DeviceCommon
 
+g_mock_read = b""
+
 
 class DeviceMock(DeviceCommon):
 
@@ -30,31 +32,34 @@ class DeviceMock(DeviceCommon):
 
         DeviceCommon.__init__(self, _)
 
-    def _read():
+    def _read(self, _=0):
+        """Mock."""
+        return g_mock_read
+
+    def _write(self, _):
         """Mock."""
 
-    def _write():
+    def _write_ctrl(self, _):
         """Mock."""
 
-    def _write_ctrl():
+    def _dev_is_health_priv(
+        self,
+    ):
         """Mock."""
 
-    def _dev_is_health_priv():
+    def start(self):
         """Mock."""
 
-    def start():
+    def name(self):
         """Mock."""
 
-    def name():
+    def notalive(self):
         """Mock."""
 
-    def notalive():
+    def poweroff(self):
         """Mock."""
 
-    def poweroff():
-        """Mock."""
-
-    def reboot():
+    def reboot(self, _):
         """Mock."""
 
 
@@ -84,6 +89,30 @@ def test_device_common_init():
         assert d.crash is False
         assert d.busyloop is False
         assert d.flood is False
+
+
+def test_device_common_send_cmd_pattern():
+
+    with patch("ntfc.envconfig.EnvConfig") as mockdevice:
+
+        global g_mock_read
+
+        config = mockdevice.return_value
+
+        dev = DeviceMock(config)
+        assert dev is not None
+
+        assert dev.flood is False
+
+        g_mock_read = b"x" * 10000
+        ret = dev.send_cmd_read_until_pattern(b"", b"x", 1)
+        assert ret.status == CmdStatus.SUCCESS
+
+        g_mock_read = b"x" * 10000
+        ret = dev.send_cmd_read_until_pattern(b"", b"y", 1)
+        assert ret.status == CmdStatus.TIMEOUT
+
+        assert dev.flood is True
 
 
 # TODO: missing tests
