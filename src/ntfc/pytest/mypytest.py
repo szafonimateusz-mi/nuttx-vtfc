@@ -102,7 +102,7 @@ class MyPytest:
         hookimpl_marker(
             PytestConfigPlugin.__dict__["pytest_runtest_makereport"]
         )
-        self._ptconfig = PytestConfigPlugin(config)
+        self._ptconfig = PytestConfigPlugin(config, verbose)
 
         # add our custom pytest plugin
         self._plugins.append(self._ptconfig)

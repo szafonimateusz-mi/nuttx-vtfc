@@ -39,12 +39,13 @@ if TYPE_CHECKING:
 class PytestConfigPlugin:
     """Everything you would have put in pytest.ini and conftest.py."""
 
-    def __init__(self, config: "EnvConfig") -> None:
+    def __init__(self, config: "EnvConfig", verbose: bool = False) -> None:
         """Initialize custom pytest plugin.
 
         :param config: configuration instance
         """
         self._config = config
+        self._verbose = verbose
 
     def _device_reboot(self) -> None:
         """Reboot the device if crashed."""
@@ -64,7 +65,11 @@ class PytestConfigPlugin:
         """
         # logging config
         config.option.log_cli = True
-        config.option.log_cli_level = "INFO"
+
+        if self._verbose:
+            config.option.log_cli_level = "INFO"
+        else:
+            config.option.log_cli_level = "ERROR"
 
         config.option.log_file = "pytest.debug.log"
         config.option.log_file_level = "DEBUG"
