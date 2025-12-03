@@ -23,26 +23,26 @@ import pytest
 from ntfc.device.getdev import get_device
 
 
-def test_getdev_get_device(config_dummy):
+def test_getdev_get_device(envconfig_dummy):
 
-    config_dummy.product_get(0)["cores"]["core0"]["device"] = ""
-
-    with pytest.raises(ValueError):
-        get_device(config_dummy.product[0])
-
-    config_dummy.product_get(0)["cores"]["core0"]["device"] = "dummy"
+    envconfig_dummy.product_get(0)["cores"]["core0"]["device"] = ""
 
     with pytest.raises(ValueError):
-        get_device(config_dummy.product[0])
+        get_device(envconfig_dummy.product[0])
 
-    config_dummy.product_get(0)["cores"]["core0"]["device"] = "sim"
+    envconfig_dummy.product_get(0)["cores"]["core0"]["device"] = "dummy"
 
-    _ = get_device(config_dummy.product[0])
+    with pytest.raises(ValueError):
+        get_device(envconfig_dummy.product[0])
 
-    config_dummy.product_get(0)["cores"]["core0"]["device"] = "qemu"
+    envconfig_dummy.product_get(0)["cores"]["core0"]["device"] = "sim"
 
-    _ = get_device(config_dummy.product[0])
+    _ = get_device(envconfig_dummy.product[0])
 
-    config_dummy.product_get(0)["cores"]["core0"]["device"] = "serial"
+    envconfig_dummy.product_get(0)["cores"]["core0"]["device"] = "qemu"
 
-    _ = get_device(config_dummy.product[0])
+    _ = get_device(envconfig_dummy.product[0])
+
+    envconfig_dummy.product_get(0)["cores"]["core0"]["device"] = "serial"
+
+    _ = get_device(envconfig_dummy.product[0])

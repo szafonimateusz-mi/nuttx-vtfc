@@ -33,6 +33,7 @@ import yaml
 from pluggy import HookimplMarker
 
 from ntfc.device.getdev import get_device
+from ntfc.envconfig import EnvConfig
 from ntfc.logger import logger
 from ntfc.product import Product
 from ntfc.products import ProductsHandler
@@ -45,7 +46,6 @@ from .runner import RunnerPlugin
 if TYPE_CHECKING:
     from ntfc.device.common import DeviceCommon
 
-    from .envconfig import EnvConfig
 
 # required for plugin
 hookimpl = HookimplMarker("pytest")
@@ -61,7 +61,7 @@ class MyPytest:
 
     def __init__(
         self,
-        config: "EnvConfig",
+        config: Dict,
         ignorepath: Optional[str] = None,
         exit_on_fail: bool = False,
         verbose: bool = False,
@@ -74,7 +74,7 @@ class MyPytest:
         :param exit_on_fail: exit on first test fail if set to True
         :param verbose: verbose output if set to True
         """
-        self._config = config
+        self._config = EnvConfig(config)
         self._device = device
         self._opt = []
         self._plugins = []

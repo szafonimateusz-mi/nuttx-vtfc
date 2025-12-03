@@ -27,7 +27,7 @@ from ntfc.device.common import CmdReturn, CmdStatus
 from ntfc.product import Product
 
 
-def test_product_init_inval(config_dummy):
+def test_product_init_inval(envconfig_dummy):
 
     with pytest.raises(TypeError):
         _ = Product(None, None)
@@ -39,20 +39,20 @@ def test_product_init_inval(config_dummy):
         _ = Product(None, 1)
 
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
-        _ = Product(mockdevice, config_dummy.product[0])
+        _ = Product(mockdevice, envconfig_dummy.product[0])
 
 
-def test_product_properties(config_dummy):
+def test_product_properties(envconfig_dummy):
 
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
         dev = mockdevice.return_value
 
-        p = Product(dev, config_dummy.product[0])
+        p = Product(dev, envconfig_dummy.product[0])
         assert p.__str__() == "Product: product-dummy"
         assert p.name == "product-dummy"
 
 
-def test_product_internals(config_dummy):
+def test_product_internals(envconfig_dummy):
 
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
         dev = mockdevice.return_value
@@ -61,7 +61,7 @@ def test_product_internals(config_dummy):
         )
         dev.no_cmd = "command not found"
 
-        p = Product(dev, config_dummy.product[0])
+        p = Product(dev, envconfig_dummy.product[0])
 
         assert p._prepare_command("aaa", None) == "aaa"
         assert p._prepare_command("aaa", "bbb") == "aaa bbb"
@@ -101,7 +101,7 @@ def test_product_internals(config_dummy):
         assert p._match_not_found(b) is True
 
 
-def test_product_get_core_info(config_dummy):
+def test_product_get_core_info(envconfig_dummy):
 
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
         dev = mockdevice.return_value
@@ -109,7 +109,7 @@ def test_product_get_core_info(config_dummy):
             CmdStatus.TIMEOUT
         )
 
-        p = Product(dev, config_dummy.product[0])
+        p = Product(dev, envconfig_dummy.product[0])
 
         assert p.cur_core is None
 
@@ -160,7 +160,7 @@ def test_product_get_core_info(config_dummy):
         assert p.cur_core == "2"
 
 
-def test_product_send_command(config_dummy):
+def test_product_send_command(envconfig_dummy):
 
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
         dev = mockdevice.return_value
@@ -169,7 +169,7 @@ def test_product_send_command(config_dummy):
         dev.send_cmd_read_until_pattern.return_value = CmdReturn(
             CmdStatus.TIMEOUT
         )
-        p = Product(dev, config_dummy.product[0])
+        p = Product(dev, envconfig_dummy.product[0])
 
         # empty command
         with pytest.raises(ValueError):
@@ -198,11 +198,11 @@ def test_product_send_command(config_dummy):
         assert p.sendCommand("test") == CmdStatus.NOTFOUND
 
 
-def test_product_send_command_read_until_pattern(config_dummy):
+def test_product_send_command_read_until_pattern(envconfig_dummy):
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
         dev = mockdevice.return_value
         dev._main_prompt = "nsh>"
-        p = Product(dev, config_dummy.product[0])
+        p = Product(dev, envconfig_dummy.product[0])
 
         with pytest.raises(ValueError):
             p.sendCommandReadUntilPattern("")
@@ -222,10 +222,10 @@ def test_product_send_command_read_until_pattern(config_dummy):
         )
 
 
-def test_product_send_ctrl_cmd(config_dummy):
+def test_product_send_ctrl_cmd(envconfig_dummy):
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
         dev = mockdevice.return_value
-        p = Product(dev, config_dummy.product[0])
+        p = Product(dev, envconfig_dummy.product[0])
 
         with pytest.raises(ValueError):
             p.sendCtrlCmd("")
@@ -240,11 +240,11 @@ def test_product_send_ctrl_cmd(config_dummy):
         assert p.sendCtrlCmd("a") is None
 
 
-def test_product_switch_core(config_dummy):
+def test_product_switch_core(envconfig_dummy):
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
         dev = mockdevice.return_value
         dev.no_cmd = ""
-        p = Product(dev, config_dummy.product[0])
+        p = Product(dev, envconfig_dummy.product[0])
 
         with pytest.raises(ValueError):
             p.switch_core("")
@@ -272,10 +272,10 @@ def test_product_switch_core(config_dummy):
         assert p.switch_core("ccc") == CmdStatus.SUCCESS
 
 
-def test_product_get_current_prompt(config_dummy):
+def test_product_get_current_prompt(envconfig_dummy):
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
         dev = mockdevice.return_value
-        p = Product(dev, config_dummy.product[0])
+        p = Product(dev, envconfig_dummy.product[0])
 
         dev.send_cmd_read_until_pattern.return_value = CmdReturn(
             CmdStatus.NOTFOUND
@@ -288,10 +288,10 @@ def test_product_get_current_prompt(config_dummy):
         assert p.get_current_prompt() == "nsh>"
 
 
-def test_product_reboot(config_dummy):
+def test_product_reboot(envconfig_dummy):
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
         dev = mockdevice.return_value
-        p = Product(dev, config_dummy.product[0])
+        p = Product(dev, envconfig_dummy.product[0])
 
         dev.reboot.return_value = False
         assert p.reboot() is False
@@ -300,10 +300,10 @@ def test_product_reboot(config_dummy):
         assert p.reboot() is True
 
 
-def test_product_busyloop(config_dummy):
+def test_product_busyloop(envconfig_dummy):
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
         dev = mockdevice.return_value
-        p = Product(dev, config_dummy.product[0])
+        p = Product(dev, envconfig_dummy.product[0])
 
         dev.busyloop = False
         assert p.busyloop is False
@@ -311,10 +311,10 @@ def test_product_busyloop(config_dummy):
         assert p.busyloop is True
 
 
-def test_product_crash(config_dummy):
+def test_product_crash(envconfig_dummy):
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
         dev = mockdevice.return_value
-        p = Product(dev, config_dummy.product[0])
+        p = Product(dev, envconfig_dummy.product[0])
 
         dev.crash = False
         assert p.crash is False
@@ -322,10 +322,10 @@ def test_product_crash(config_dummy):
         assert p.crash is True
 
 
-def test_product_notalive(config_dummy):
+def test_product_notalive(envconfig_dummy):
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
         dev = mockdevice.return_value
-        p = Product(dev, config_dummy.product[0])
+        p = Product(dev, envconfig_dummy.product[0])
 
         dev.notalive = False
         assert p.notalive is False
@@ -333,10 +333,10 @@ def test_product_notalive(config_dummy):
         assert p.notalive is True
 
 
-def test_product_device_status_checker(config_dummy):
+def test_product_device_status_checker(envconfig_dummy):
     with patch("ntfc.device.common.DeviceCommon") as mockdevice:
         dev = mockdevice.return_value
-        p = Product(dev, config_dummy.product[0])
+        p = Product(dev, envconfig_dummy.product[0])
 
         dev.busyloop = False
         dev.crash = False

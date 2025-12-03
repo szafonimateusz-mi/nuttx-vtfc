@@ -28,7 +28,6 @@ import yaml
 
 from ntfc.builder import NuttXBuilder
 from ntfc.cli.environment import Environment, pass_environment
-from ntfc.envconfig import EnvConfig
 from ntfc.logger import logger
 from ntfc.plugins_loader import commands_list
 from ntfc.pytest.mypytest import MyPytest
@@ -152,10 +151,8 @@ def cli_on_close(ctx: Environment) -> bool:
     if ctx.runbuild:
         return True
 
-    cfg = EnvConfig(conf)
-
     pt = MyPytest(
-        cfg, ctx.ignorefile, ctx.exitonfail, ctx.verbose, ctx.confjson
+        conf, ctx.ignorefile, ctx.exitonfail, ctx.verbose, ctx.confjson
     )
 
     if ctx.runcollect:

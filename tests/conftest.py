@@ -40,8 +40,7 @@ def config_dummy():
             },
         },
     }
-    conf = EnvConfig(conf_dir)
-    return conf
+    return conf_dir
 
 
 @pytest.fixture
@@ -61,8 +60,12 @@ def config_sim():
             },
         },
     }
-    conf = EnvConfig(conf_dir)
-    return conf
+    return conf_dir
+
+
+@pytest.fixture
+def envconfig_dummy(config_dummy):
+    return EnvConfig(config_dummy)
 
 
 @pytest.fixture
