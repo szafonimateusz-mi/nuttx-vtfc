@@ -1,1 +1,3 @@
 module: "Nuttx"    # test cases top module name
+
+dependencies: ["toml"] # python dependencies for test cases module

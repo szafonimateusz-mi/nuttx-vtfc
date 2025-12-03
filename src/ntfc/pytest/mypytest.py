@@ -20,6 +20,7 @@
 
 """NTFC plugin for pytest."""
 
+import importlib.util
 import json
 import os
 import sys
@@ -203,6 +204,14 @@ class MyPytest:
         conf_path = os.path.join(testpath, "ntfc.yaml")
         self._module_config(conf_path)
         pytest.ntfcyaml = self._cfg_module
+
+        dependencies = self._cfg_module.get("dependencies", [])
+        for dep in dependencies:
+            if importlib.util.find_spec(dep) is None:  # pragma: no cover
+                raise ImportError(
+                    f"Python package from module"
+                    f" dependencies not found {dep}"
+                )
 
     def _device_start(self) -> None:
         """Start device to test."""
