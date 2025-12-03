@@ -70,7 +70,6 @@ def cmd_test(
     ctx: Environment,
     testpath: str,
     confpath: str,
-    ignorefile: str,
     jsonconf: str,
     nologs: bool,
     exitonfail: bool,
@@ -80,7 +79,6 @@ def cmd_test(
     ctx.runtest = True
     ctx.testpath = testpath
     ctx.confpath = confpath
-    ctx.ignorefile = ignorefile
     ctx.jsonconf = jsonconf
     ctx.nologs = nologs
     ctx.exitonfail = exitonfail

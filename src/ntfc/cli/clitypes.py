@@ -52,13 +52,6 @@ _testenv_options = (
         " variable NTFC_TESTPATH. Default: ./external/nuttx-testing",
         envvar="NTFC_TESTPATH",
     ),
-    click.option(
-        "--ignorefile",
-        type=click.Path(resolve_path=False),
-        default="./external/ignore.txt",
-        help="Path to file with test ignore rules."
-        "Default: ./external/ignore.txt",
-    ),
 )
 
 

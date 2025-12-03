@@ -7,8 +7,6 @@ The default organization under this directory is as follows:
 
 - ``external/nuttx-testing`` – for test cases
 
-- ``external/ignore.txt`` – for a list of blacklisted test cases
-
 - ``external/config.yaml`` – for the YAML configuration file
 
 - ``external/nuttx`` – for the NuttX kernel source code

@@ -151,9 +151,7 @@ def cli_on_close(ctx: Environment) -> bool:
     if ctx.runbuild:
         return True
 
-    pt = MyPytest(
-        conf, ctx.ignorefile, ctx.exitonfail, ctx.verbose, ctx.confjson
-    )
+    pt = MyPytest(conf, ctx.exitonfail, ctx.verbose, ctx.confjson)
 
     if ctx.runcollect:
         collect_run(pt, ctx)

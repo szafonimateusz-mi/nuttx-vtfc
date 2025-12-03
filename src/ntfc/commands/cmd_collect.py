@@ -43,7 +43,6 @@ def cmd_collect(
     ctx: Environment,
     testpath: str,
     confpath: str,
-    ignorefile: str,
     collect: str,
 ) -> bool:
     """Collect test cases.
@@ -58,7 +57,6 @@ def cmd_collect(
     ctx.runcollect = True
     ctx.testpath = testpath
     ctx.confpath = confpath
-    ctx.ignorefile = ignorefile
     ctx.collect = collect
 
     return True

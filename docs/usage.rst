@@ -43,9 +43,6 @@ Options:
   Can be also set with environmentvariable ``NTFC_CONFPATH``.
   Default: ``./external/config.yaml``
 
-* ``--ignorefile PATH`` - Path to file with test ignore rules.
-  Default: ``./external/ignore.txt``
-
 
 ``test`` command
 ----------------
@@ -71,8 +68,9 @@ Options:
   Can be also set with environmentvariable ``NTFC_CONFPATH``.
   Default: ``./external/config.yaml``
 
-* ``--ignorefile PATH`` - Path to file with test ignore rules.
-  Default: ``./external/ignore.txt``
+* ``--jsonconf PATH`` - Path to test module configuration file.
+  Default: ``./external/module.json``.
+  For details look at ``docs/module.json``.
 
 * ``--nologs`` - When set, test logs are not saved locally
 

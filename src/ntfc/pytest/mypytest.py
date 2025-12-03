@@ -62,7 +62,6 @@ class MyPytest:
     def __init__(
         self,
         config: Dict,
-        ignorepath: Optional[str] = None,
         exit_on_fail: bool = False,
         verbose: bool = False,
         device: Optional[List["DeviceCommon"]] = None,
@@ -86,11 +85,6 @@ class MyPytest:
 
         if verbose:
             self._opt.append("-qq")
-
-        # global ignore tests
-        # REVISIT: remove this after test config file is supported
-        if ignorepath:
-            self._ignore_tests(ignorepath)
 
         # test module config file
         if confjson:
@@ -220,23 +214,6 @@ class MyPytest:
             product.device.start()
             # finish product initialization
             product.init()
-
-    def _ignore_tests(self, path: str) -> None:
-        """Ignore tests specified in $CWD/ignore.txt file."""
-        try:
-            logger.info(f"ignore file {path}")
-            _path = Path(path)
-
-            with open(_path) as f:  # pragma: no cover
-                for line in f:
-                    if line[0] == "-" and line[1] == "-":
-                        self._opt.append(line[:-1])
-        except TypeError:  # pragma: no cover
-            pass
-
-        except FileNotFoundError:
-            logger.info("no ignore file")
-            pass
 
     def runner(
         self, testpath: str, result: Dict[str, str], nologs: bool = False

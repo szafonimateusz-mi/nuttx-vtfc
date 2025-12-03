@@ -53,7 +53,6 @@ class DEnvironmentData:
     # files
     testpath: str = None
     confpath: str = None
-    ignorefile: str = None
     confjson: str = None
 
 
