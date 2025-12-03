@@ -26,7 +26,6 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from ntfc.logger import logger
-from ntfc.testfilter import FilterTest
 
 if TYPE_CHECKING:
     from .envconfig import EnvConfig
@@ -46,9 +45,6 @@ class PytestConfigPlugin:
         :param config: configuration instance
         """
         self._config = config
-
-        # TODO: warning move this to collector
-        pytest.filter = FilterTest(config)
 
     def _device_reboot(self) -> None:
         """Reboot the device if crashed."""

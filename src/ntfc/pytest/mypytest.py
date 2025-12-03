@@ -267,7 +267,7 @@ class MyPytest:
                 opt.append(f"--json={path}")
 
         # collector plugin
-        collector = CollectorPlugin(False)
+        collector = CollectorPlugin(self._config, False)
 
         # run pytest with our custom test plugin
         runner = RunnerPlugin(nologs)
@@ -286,7 +286,7 @@ class MyPytest:
         self._init_pytest(testpath)
 
         # collector plugin
-        collector = CollectorPlugin()
+        collector = CollectorPlugin(self._config, True)
 
         # run pytest with our custom collector plugin
         self._run([testpath], [collector])

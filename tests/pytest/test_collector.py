@@ -21,6 +21,6 @@
 from ntfc.pytest.collector import CollectorPlugin
 
 
-def test_collectorplugin():
+def test_collectorplugin(config_dummy):
 
-    _ = CollectorPlugin()
+    _ = CollectorPlugin(config_dummy)

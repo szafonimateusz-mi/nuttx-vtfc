@@ -21,11 +21,15 @@
 """NTFC collector plugin for pytest."""
 
 import os
-from typing import Any, List, Tuple
+from typing import TYPE_CHECKING, Any, List, Tuple
 
 import pytest
 
 from ntfc.pytest.collecteditem import CollectedItem
+from ntfc.testfilter import FilterTest
+
+if TYPE_CHECKING:
+    from .envconfig import EnvConfig
 
 ###############################################################################
 # Class: CollectorPlugin
@@ -35,8 +39,11 @@ from ntfc.pytest.collecteditem import CollectedItem
 class CollectorPlugin:
     """Custom Pytest collector plugin."""
 
-    def __init__(self, collectonly: bool = True) -> None:
+    def __init__(self, config: "EnvConfig", collectonly: bool = True) -> None:
         """Initialize custom pytest collector plugin."""
+        self._config = config
+        self._filter = FilterTest(config)
+
         self._all_items: List[CollectedItem] = []
         self._filtered_items: List[CollectedItem] = []
         self._collectonly = collectonly
@@ -87,20 +94,25 @@ class CollectorPlugin:
         if session.testsfailed:  # pragma: no cover
             raise session.Interrupted("error during collection")
 
+        # do not run test cases when in collect only mode
         if self._collectonly:
             return True
 
-        for i, item in enumerate(session.items):
-            nextitem = (
-                session.items[i + 1] if i + 1 < len(session.items) else None
-            )
-            item.config.hook.pytest_runtest_protocol(
-                item=item, nextitem=nextitem
-            )
-            if session.shouldfail:  # pragma: no cover
-                raise session.Failed(session.shouldfail)
-            if session.shouldstop:  # pragma: no cover
-                raise session.Interrupted(session.shouldstop)
+        loops = self._config.common.get("loops", 1)
+        for _ in range(loops):
+            for i, item in enumerate(session.items):
+                nextitem = (
+                    session.items[i + 1]
+                    if i + 1 < len(session.items)
+                    else None
+                )
+                item.config.hook.pytest_runtest_protocol(
+                    item=item, nextitem=nextitem
+                )
+                if session.shouldfail:  # pragma: no cover
+                    raise session.Failed(session.shouldfail)
+                if session.shouldstop:  # pragma: no cover
+                    raise session.Interrupted(session.shouldstop)
 
         return True
 
@@ -131,7 +143,7 @@ class CollectorPlugin:
             ci = self._collected_item(item)
             item._collected = ci
 
-            skip, reason = pytest.filter.check_test_support(item)
+            skip, reason = self._filter.check_test_support(item)
 
             if skip:
                 self._skipped_items.append((item, reason))
