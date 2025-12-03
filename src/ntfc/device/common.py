@@ -198,7 +198,7 @@ class DeviceCommon(ABC):
         self._write(cmd)
         rsp = self._read_all(timeout=timeout)
 
-        logger.debug("Sent command: %s", cmd)
+        logger.info("Sent command: %s", cmd)
 
         # console log
         self._console_log(rsp)
