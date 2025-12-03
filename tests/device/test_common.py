@@ -83,6 +83,7 @@ def test_device_common_init():
 
         assert d.crash is False
         assert d.busyloop is False
+        assert d.flood is False
 
 
 # TODO: missing tests

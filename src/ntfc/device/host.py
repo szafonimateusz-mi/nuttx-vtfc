@@ -139,8 +139,7 @@ class DeviceHost(DeviceCommon):
             raise IOError("Host device already open")
 
         self._child = None
-        self._crash.clear()
-        self._busy_loop.clear()
+        self.clear_fault_flags()
 
         # we need command to reopen file in the case of crash
         self._cmd = cmd

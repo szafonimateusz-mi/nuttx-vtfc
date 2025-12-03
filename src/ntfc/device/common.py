@@ -99,7 +99,9 @@ class DeviceCommon(ABC):
         # device health
         self._crash = Event()
         self._busy_loop = Event()
+        self._flood = Event()
         self._busy_loop_last = 0
+        self.clear_fault_flags()
 
         self._read_all_sleep = 0.1
 
@@ -174,6 +176,9 @@ class DeviceCommon(ABC):
             return False
 
         if self._busy_loop.is_set():
+            return False
+
+        if self._flood.is_set():
             return False
 
         return True
@@ -255,6 +260,15 @@ class DeviceCommon(ABC):
             if not self.dev_is_health():  # pragma: no cover
                 break
 
+        # check for output flood condition.
+        # If we still get some data from dev, its possible that we stuck
+        # in some command
+        if ret == CmdStatus.TIMEOUT:
+            chunk = self._read_all(0.1)
+            if len(chunk) > 0:
+                self._flood.set()
+            output += chunk
+
         # log console output and return
         self._console_log(output)
         return CmdReturn(ret, _match, output.decode("utf-8"))
@@ -272,6 +286,12 @@ class DeviceCommon(ABC):
     def stop_log_collect(self) -> None:
         """Stop device log collector."""
         self._logs = None
+
+    def clear_fault_flags(self):
+        """Clear fault flags."""
+        self._crash.clear()
+        self._flood.clear()
+        self._busy_loop.clear()
 
     def _system_cmd(self, cmd: str) -> None:  # pragma: no cover
         logger.info("system command:", cmd)
@@ -297,6 +317,11 @@ class DeviceCommon(ABC):
     def busyloop(self) -> bool:
         """Check if the device is in busy loop."""
         return True if self._busy_loop.is_set() else False
+
+    @property
+    def flood(self) -> bool:
+        """Check if the device is in flood state."""
+        return True if self._flood.is_set() else False
 
     @property
     def crash(self) -> bool:

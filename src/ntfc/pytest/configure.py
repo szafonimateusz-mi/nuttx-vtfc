@@ -103,18 +103,21 @@ class PytestConfigPlugin:
         need_notify = False
         reason = "failed"
         busyloop_crash_flag = False
+        flood_flag = False
         debug_time = 0
 
         logger.debug(
             f"pytest_runtest_makereport: {report.outcome}"
             f" loop {pytest.product.busyloop}  "
             f" crash {pytest.product.crash}"
+            f" flood {pytest.product.flood}"
             f" notalive {pytest.product.notalive}"
         )
 
         # Check for crashes in any phase
         if (
             pytest.product.busyloop
+            or pytest.product.flood
             or pytest.product.crash
             or pytest.product.notalive
         ):
@@ -137,6 +140,11 @@ class PytestConfigPlugin:
                     report.longrepr = (
                         f'"Device busy_loop" detected, during: {call.when}'
                     )
+                elif pytest.product.flood:
+                    reason = "flood"
+                    report.longrepr = (
+                        f'"Device flood" detected, during: {call.when}'
+                    )
                 else:
                     reason = "not_alive"
                     report.longrepr = (
@@ -152,7 +160,11 @@ class PytestConfigPlugin:
                 need_notify = True
                 busyloop_crash_flag = True
 
-        if report.outcome == "failed" and not busyloop_crash_flag:
+        if (
+            report.outcome == "failed"
+            and not busyloop_crash_flag
+            and not flood_flag
+        ):
             need_coredump = True
             reason = "failed"
             need_reboot = False

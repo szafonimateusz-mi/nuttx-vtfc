@@ -423,6 +423,11 @@ class Product:
         return self._device.busyloop
 
     @property
+    def flood(self) -> bool:
+        """Check if flood condition was detected."""
+        return self._device.flood
+
+    @property
     def crash(self) -> bool:
         """Check if the device is crashed."""
         return self._device.crash

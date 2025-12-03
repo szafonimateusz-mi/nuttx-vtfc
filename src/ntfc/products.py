@@ -99,6 +99,15 @@ class ProductsHandler:
         return False
 
     @property
+    def flood(self) -> bool:
+        """Get flood flag from products."""
+        for p in self._products:
+            if p.flood:
+                logger.info(f"flood for product {p}")
+                return True
+        return False
+
+    @property
     def crash(self) -> bool:
         """Get crash flag from products."""
         for p in self._products:

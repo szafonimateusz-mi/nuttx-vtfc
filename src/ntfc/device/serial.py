@@ -172,8 +172,7 @@ class DeviceSerial(DeviceCommon):
             self._system_cmd(cmd)
 
             # clear fautl flags
-            self._crash.clear()
-            self._busy_loop.clear()
+            self.clear_fault_flags()
 
             return True
         return False

@@ -55,6 +55,11 @@ def test_products_init_inval():
         dev.busyloop = True
         assert h.busyloop is True
 
+        dev.flood = False
+        assert h.flood is False
+        dev.flood = True
+        assert h.flood is True
+
         dev.crash = False
         assert h.crash is False
         dev.crash = True

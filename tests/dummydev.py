@@ -68,6 +68,11 @@ class DeviceDummy:  # pragma: no cover
         return False
 
     @property
+    def flood(self):
+        """Check if the device is in flood state."""
+        return False
+
+    @property
     def crash(self):
         """Check if the device is crashed."""
         return False
