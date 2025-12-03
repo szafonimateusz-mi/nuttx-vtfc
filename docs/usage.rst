@@ -69,7 +69,7 @@ Options:
   Default: ``./external/config.yaml``
 
 * ``--jsonconf PATH`` - Path to test module configuration file.
-  Default: ``./external/module.json``.
+  Default: "".
   For details look at ``docs/module.json``.
 
 * ``--nologs`` - When set, test logs are not saved locally

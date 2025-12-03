@@ -21,7 +21,6 @@
 """NTFC plugin for pytest."""
 
 import importlib.util
-import json
 import os
 import sys
 from datetime import datetime
@@ -65,7 +64,7 @@ class MyPytest:
         exit_on_fail: bool = False,
         verbose: bool = False,
         device: Optional[List["DeviceCommon"]] = None,
-        confjson: Optional[str] = None,
+        confjson: Optional[Dict] = None,
     ) -> None:
         """Initialize pytest wrapper.
 
@@ -86,9 +85,11 @@ class MyPytest:
         if verbose:
             self._opt.append("-qq")
 
-        # test module config file
+        # test module config
         if confjson:
-            self._test_module_config(confjson)
+            self._cfg_test = confjson
+        else:
+            self._cfg_test = {}
 
         pytest.cfgtest = self._cfg_test
 
@@ -101,21 +102,6 @@ class MyPytest:
 
         # add our custom pytest plugin
         self._plugins.append(self._ptconfig)
-
-    def _test_module_config(self, path):
-        try:
-            logger.info(f"test config file {path}")
-            _path = Path(path)
-
-            with open(_path) as f:  # pragma: no cover
-                self._cfg_test = json.load(f)
-
-        except TypeError:  # pragma: no cover
-            pass
-
-        except FileNotFoundError:  # pragma: no cover
-            logger.info("test config file not found")
-            pass
 
     def _create_products(
         self, config: "EnvConfig", device: Optional[List["DeviceCommon"]]

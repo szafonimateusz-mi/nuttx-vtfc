@@ -20,6 +20,7 @@
 
 """Module containing the CLI logic for NTFC."""
 
+import json
 import pprint
 import sys
 
@@ -133,8 +134,15 @@ def cli_on_close(ctx: Environment) -> bool:
         return True
 
     conf = None
+    logger.info(f"YAML config file {ctx.confjson}")
     with open(ctx.confpath, "r") as f:
         conf = yaml.safe_load(f)
+
+    conf_json = None
+    if ctx.confjson:  # pragma: no cover
+        logger.info(f"Module config file {ctx.confjson}")
+        with open(ctx.confjson, "r") as f:
+            conf_json = json.load(f)
 
     print_yaml_config(conf)
 
@@ -151,7 +159,9 @@ def cli_on_close(ctx: Environment) -> bool:
     if ctx.runbuild:
         return True
 
-    pt = MyPytest(conf, ctx.exitonfail, ctx.verbose, ctx.confjson)
+    # TODO: open confjson here !
+
+    pt = MyPytest(conf, ctx.exitonfail, ctx.verbose, conf_json)
 
     if ctx.runcollect:
         collect_run(pt, ctx)

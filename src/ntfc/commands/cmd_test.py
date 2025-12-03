@@ -60,7 +60,7 @@ HAS_PYTEST_JSON = importlib.util.find_spec("pytest_json") is not None
 @click.option(
     "--jsonconf",
     type=click.Path(resolve_path=False),
-    default="./external/module.json",
+    default="",
     help="Path to test module configuration file."
     "Default: ./external/module.json",
 )

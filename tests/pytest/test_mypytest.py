@@ -18,6 +18,8 @@
 #
 ############################################################################
 
+import json
+
 from ntfc.pytest.mypytest import MyPytest
 
 
@@ -93,8 +95,11 @@ def test_collector_collect_manydirs(config_sim, device_dummy):
 
 def test_runner_module_exclude(config_sim, device_dummy):
 
-    json = "./tests/resources/nuttx/sim/module_exclude.json"
-    p = MyPytest(config_sim, device=[device_dummy], confjson=json)
+    path = "./tests/resources/nuttx/sim/module_exclude.json"
+    with open(path, "r") as f:
+        jsoncfg = json.load(f)
+
+    p = MyPytest(config_sim, device=[device_dummy], confjson=jsoncfg)
     path = "./tests/resources/tests_dirs"
     col = p.collect(path)
 
@@ -106,8 +111,11 @@ def test_runner_module_exclude(config_sim, device_dummy):
 
 def test_runner_module_include(config_sim, device_dummy):
 
-    json = "./tests/resources/nuttx/sim/module_include.json"
-    p = MyPytest(config_sim, device=[device_dummy], confjson=json)
+    path = "./tests/resources/nuttx/sim/module_include.json"
+    with open(path, "r") as f:
+        jsoncfg = json.load(f)
+
+    p = MyPytest(config_sim, device=[device_dummy], confjson=jsoncfg)
     path = "./tests/resources/tests_dirs"
     col = p.collect(path)
 
