@@ -98,6 +98,8 @@ def collect_run(pt, ctx):
         return
 
     if ctx.collect == "collected" or ctx.collect == "all":
+        print()
+        print("Collected items:")
         # print parsed test cases
         for item in col.items:
             print(item)
