@@ -91,9 +91,9 @@ class MyPytest:
         if ignorepath:
             self._ignore_tests(ignorepath)
 
-        # test config file
+        # test module config file
         if confjson:
-            self._test_config(confjson)
+            self._test_module_config(confjson)
 
         pytest.cfgtest = self._cfg_test
 
@@ -107,7 +107,7 @@ class MyPytest:
         # add our custom pytest plugin
         self._plugins.append(self._ptconfig)
 
-    def _test_config(self, path):
+    def _test_module_config(self, path):
         try:
             logger.info(f"test config file {path}")
             _path = Path(path)

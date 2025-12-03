@@ -57,6 +57,13 @@ HAS_PYTEST_JSON = importlib.util.find_spec("pytest_json") is not None
     default=False,
     is_flag=True,
 )
+@click.option(
+    "--jsonconf",
+    type=click.Path(resolve_path=False),
+    default="./external/module.json",
+    help="Path to test module configuration file."
+    "Default: ./external/module.json",
+)
 @cli_testenv_options
 @pass_environment
 def cmd_test(
@@ -64,6 +71,7 @@ def cmd_test(
     testpath: str,
     confpath: str,
     ignorefile: str,
+    jsonconf: str,
     nologs: bool,
     exitonfail: bool,
     **kwargs,
@@ -73,6 +81,7 @@ def cmd_test(
     ctx.testpath = testpath
     ctx.confpath = confpath
     ctx.ignorefile = ignorefile
+    ctx.jsonconf = jsonconf
     ctx.nologs = nologs
     ctx.exitonfail = exitonfail
 
