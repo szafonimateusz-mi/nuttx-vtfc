@@ -4,10 +4,9 @@ This is a to-do list for the NTFC project.
 
 ## Package
 
-- [ ] Revisit all "pragma: no cover"
+- [ ] Revisit all "pragma: no cover" and "type: ignore"
 - [ ] Release package (PyPI).
 - [ ] (SOMEDAY) Fix pylint issues.
-- [ ] (SOMEDAY) Fix mypy issues (typing).
 
 ## Documentation
 
