@@ -25,7 +25,7 @@ import json
 import os
 import re
 import time
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any, List, Tuple
 
 from ntfc.lib.performance.sqllite_lib import DBLib
 from ntfc.logger import logger
@@ -37,14 +37,16 @@ if TYPE_CHECKING:
 class ProcessPerfData:
     """Process performance data."""
 
-    def read_json_file(self, jsonfilepath):
+    def read_json_file(self, jsonfilepath: str) -> Any:
         """Read json file."""
         with open(jsonfilepath, "r", encoding="utf-8") as file:
             data = file.read()
         json_data = json.loads(data)
         return json_data
 
-    def _wait_for_file(self, file_path, max_retries=10, retry_interval=5):
+    def _wait_for_file(
+        self, file_path: str, max_retries: int = 10, retry_interval: int = 5
+    ) -> bool:
         """Check if the file exists.
 
         If not, it will retry for a maximum of max_retries times with a retry
@@ -68,7 +70,7 @@ class ProcessPerfData:
         )
         return False
 
-    def __create_performance_folder(self, resultdir):
+    def __create_performance_folder(self, resultdir: str) -> Tuple[bool, str]:
         """Create performance folder."""
         try:
             report_path = resultdir
@@ -85,8 +87,12 @@ class ProcessPerfData:
             return (False, "")
 
     def __get_perf_data_from_log_file(
-        self, output, board="", core="", branch=""
-    ):
+        self,
+        output: List[str],
+        board: str = "",
+        core: str = "",
+        branch: str = "",
+    ) -> Tuple[List[str], List[List[str]]]:
         """Get performance data from log file."""
         raw_data_list = [line for line in output if not line.startswith("ap>")]
         head = ["board", "core", "branch"]
@@ -108,10 +114,10 @@ class ProcessPerfData:
         domain: str,
         metricname: str,
         csvheadlist: List[str],
-        csvdatalist: List[list[str]],
-    ):
+        csvdatalist: List[List[str]],
+    ) -> bool:
         """Generate CSV file."""
-        create_res = self.__create_performance_folder(resultdir)
+        create_res = self.__create_performance_folder(str(resultdir))
         if create_res[0]:
             try:
                 head = [
@@ -137,20 +143,22 @@ class ProcessPerfData:
                         "The csvheadlist must contain three fields: board, "
                         "core, and branch.Please check your csvheadlist field."
                     )
+                    return False
             except Exception as e:
                 logger.error(f"Writing CSV file failed: {str(e)}")
                 return False
+        return False
 
     def generate_csv_of_simple_scene(
         self,
-        output,
+        output: List[str],
         board: str,
         core: str,
         branch: str,
         reportdir: "Path",
         domain: str,
         metricname: str,
-    ):
+    ) -> None:
         """Generate CSV file."""
         perf_data = self.__get_perf_data_from_log_file(
             output, board, core, branch
@@ -167,22 +175,22 @@ class ProcessPerfData:
 class DataProcess(DBLib):
     """Process data."""
 
-    def __init__(self, dbpath):
+    def __init__(self, dbpath: str) -> None:
         """Initialize data process handler."""
         super().__init__(dbpath)
         self.db_path = dbpath
 
-    def __clean_sql(self, sql):
+    def __clean_sql(self, sql: str) -> str:
         """Clean sql command."""
         sql = re.sub(r"--.*", "", sql)
         sql = re.sub(r"/\*.*?\*/", "", sql, flags=re.DOTALL)
         sql = re.sub(r"\s+", " ", sql)
         return sql.strip()
 
-    def __split_columns(self, body):
+    def __split_columns(self, body: str) -> List[str]:
         """Split columds."""
-        columns = []
-        current = []
+        columns: List[str] = []
+        current: List[str] = []
         depth = 0
         for char in body:
             if char == "(":
@@ -198,7 +206,7 @@ class DataProcess(DBLib):
             columns.append("".join(current).strip())
         return columns
 
-    def step_1_mysql_to_sqlitesql(self, mysqlfp):  # noqa: C901
+    def step_1_mysql_to_sqlitesql(self, mysqlfp: str) -> Any:  # noqa: C901
         """Translate MySQL statements into SQLite statements."""
         logger.info(
             "step-1: translate MySQL statements into SQLite statements"
@@ -297,13 +305,15 @@ class DataProcess(DBLib):
 
         return create_table_sql.strip(), table_name
 
-    def step_2_create_new_table(self, sqlcmd):
+    def step_2_create_new_table(self, sqlcmd: str) -> None:
         """Create new table for sqlite."""
         logger.info("step-2: create new table")
         time.sleep(1)
         super()._create_table(sqlcmd)
 
-    def setp_3_insert_csv_data_from_csv(self, csvfp, tabname):
+    def setp_3_insert_csv_data_from_csv(
+        self, csvfp: str, tabname: Any
+    ) -> None:
         """Read data from CSV file and insert it into database."""
         logger.info("step-3: insert performance data from csv")
         time.sleep(1)
@@ -335,14 +345,16 @@ class DataProcess(DBLib):
                         )
                     )
                 super()._insert_data(
-                    TableName=tabname,
-                    LowercaseHeaders=lowercase_headers,
-                    Data=data_to_insert,
+                    tablename=tabname,
+                    lowercaseheaders=lowercase_headers,
+                    data=data_to_insert,
                 )
         except Exception as e:
             logger.info(f"Error: fail to insert performance data: {e}")
 
-    def performance_indicator_data_storage_verification(self, mysqlfp, csvfp):
+    def performance_indicator_data_storage_verification(
+        self, mysqlfp: str, csvfp: str
+    ) -> None:
         """Verify the data storage of performance indicators."""
         data_tup = self.step_1_mysql_to_sqlitesql(mysqlfp)
         self.step_2_create_new_table(data_tup[0])

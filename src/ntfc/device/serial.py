@@ -20,16 +20,16 @@
 
 """Serial-based device implementation."""
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict
 
-import serial
+import serial  # type: ignore
 
 from ntfc.logger import logger
 
 from .common import DeviceCommon
 
 if TYPE_CHECKING:
-    from ntfc.envconfig import ProductConfig
+    from ntfc.productconfig import ProductConfig
 
 ###############################################################################
 # Class: DeviceSerial
@@ -44,7 +44,7 @@ class DeviceSerial(DeviceCommon):
         DeviceCommon.__init__(self, conf)
         self._ser = None
 
-    def _decode_exec_args(self, args: str):
+    def _decode_exec_args(self, args: str) -> Dict[str, Any]:
         """Decode a serial port configuration string."""
         try:
             baud, parity, data_bits, stop_bits = args.split(",")
@@ -99,6 +99,8 @@ class DeviceSerial(DeviceCommon):
         if not self.dev_is_health():
             return
 
+        assert self._ser
+
         # send char by char to avoid line length full
         for c in data:
             self._ser.write(bytes([c]))
@@ -116,6 +118,8 @@ class DeviceSerial(DeviceCommon):
         if not self.dev_is_health():
             return
 
+        assert self._ser
+
         code = ord(c.upper()) - 64
         self._ser.write(bytes([code]))
 
@@ -123,6 +127,8 @@ class DeviceSerial(DeviceCommon):
         """Read data from the serial device."""
         if not self.dev_is_health():
             return b""
+
+        assert self._ser
 
         return self._ser.read(size=1024)
 

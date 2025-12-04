@@ -27,7 +27,7 @@ import logging
 import os
 import re
 import subprocess
-from typing import List, Union
+from typing import List, Pattern, Union
 
 
 class Symbol:
@@ -117,7 +117,7 @@ class ElfParser:
             if s.name.startswith(prefix) and s.name.endswith(suffix)
         ]
 
-    def has_symbol(self, symbol_name: Union[str, re.Pattern]) -> bool:
+    def has_symbol(self, symbol_name: Union[str, Pattern[str]]) -> bool:
         """Check if symbol exists."""
         if isinstance(symbol_name, str):
             return any(symbol.name == symbol_name for symbol in self.symbols)

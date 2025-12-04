@@ -23,9 +23,10 @@
 import json
 import pprint
 import sys
+from typing import Any, Dict, List, Tuple
 
 import click
-import yaml
+import yaml  # type: ignore
 
 from ntfc.builder import NuttXBuilder
 from ntfc.cli.environment import Environment, pass_environment
@@ -70,7 +71,7 @@ def main(ctx: Environment, debug: bool, verbose: bool) -> bool:
     return True
 
 
-def collect_print_skipped(items):
+def collect_print_skipped(items: List[Tuple[Any, str]]) -> None:
     """Print skipped tests and reason."""
     if items:
         print("Skipped tests:")
@@ -78,15 +79,16 @@ def collect_print_skipped(items):
         print(f"{item[0].location[0]}:{item[0].location[2]}: \n => {item[1]}")
 
 
-def collect_print_modules(modules):
+def collect_print_modules(modules: List[str]) -> None:
     """Print collected modules."""
     print("Modules:")
     for m in modules:
         print(m)
 
 
-def collect_run(pt, ctx):
+def collect_run(pt: MyPytest, ctx: Environment) -> None:
     """Collect tests."""
+    assert ctx.testpath is not None
     col = pt.collect(ctx.testpath)
 
     print("\nCollect summary:")
@@ -114,12 +116,14 @@ def collect_run(pt, ctx):
         collect_print_modules(col.modules)
 
 
-def test_run(pt, ctx):
+def test_run(pt: MyPytest, ctx: Environment) -> None:
     """Run tests."""
+    assert ctx.testpath is not None
+    assert ctx.result is not None
     pt.runner(ctx.testpath, ctx.result, ctx.nologs)
 
 
-def print_yaml_config(config):
+def print_yaml_config(config: Dict[str, Any]) -> None:
     """Print configuration."""
     print("YAML config:")
     pp = pprint.PrettyPrinter()
@@ -135,6 +139,7 @@ def cli_on_close(ctx: Environment) -> bool:
 
     conf = None
     logger.info(f"YAML config file {ctx.confjson}")
+    assert ctx.confpath is not None
     with open(ctx.confpath, "r") as f:
         conf = yaml.safe_load(f)
 

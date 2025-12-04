@@ -77,24 +77,24 @@ def test_envconfig_product():
     assert env.core(product=1)["name"] == "product1-main"
     assert env.core(product=1, cpu=0)["name"] == "product1-main"
     assert env.core(product=1, cpu=1)["name"] == "product1-core1"
-    assert env.core(product=1, cpu=2) == ""
-    assert env.core(product=1, cpu=3) == ""
+    assert env.core(product=1, cpu=2) == {}
+    assert env.core(product=1, cpu=3) == {}
 
     assert env.core(product=2)["name"] == "product2-main"
     assert env.core(product=2, cpu=0)["name"] == "product2-main"
     assert env.core(product=2, cpu=1)["name"] == ""
-    assert env.core(product=2, cpu=2) == ""
-    assert env.core(product=2, cpu=3) == ""
+    assert env.core(product=2, cpu=2) == {}
+    assert env.core(product=2, cpu=3) == {}
 
-    assert env.core(product=3, cpu=0) == ""
-    assert env.core(product=3, cpu=1) == ""
-    assert env.core(product=3, cpu=2) == ""
-    assert env.core(product=3, cpu=3) == ""
+    assert env.core(product=3, cpu=0) == {}
+    assert env.core(product=3, cpu=1) == {}
+    assert env.core(product=3, cpu=2) == {}
+    assert env.core(product=3, cpu=3) == {}
 
-    assert env.core(product=4, cpu=0) == ""
-    assert env.core(product=4, cpu=1) == ""
-    assert env.core(product=4, cpu=2) == ""
-    assert env.core(product=4, cpu=3) == ""
+    assert env.core(product=4, cpu=0) == {}
+    assert env.core(product=4, cpu=1) == {}
+    assert env.core(product=4, cpu=2) == {}
+    assert env.core(product=4, cpu=3) == {}
 
     assert env.config is not None
     assert env.config["config"] is not None

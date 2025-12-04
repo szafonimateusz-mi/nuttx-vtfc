@@ -23,7 +23,7 @@
 import os
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from ntfc.logger import logger
 
@@ -31,7 +31,7 @@ from ntfc.logger import logger
 class NuttXBuilder:
     """NuttX configuration builder (CMake only)."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: Dict[str, Any]):
         """Initialize NuttX builder."""
         if not isinstance(config, dict):
             raise TypeError("invalid config file type")
@@ -53,9 +53,9 @@ class NuttXBuilder:
         source: str,
         build: str,
         generator: str = "Ninja",
-        defines: Dict[str, str] = None,
-        env: str = None,
-    ):
+        defines: Optional[Dict[str, str]] = None,
+        env: Optional[Dict[str, str]] = None,
+    ) -> None:
         """Run CMake configure step."""
         build_path = Path(build)
         self._make_dir(build_path)
@@ -80,14 +80,16 @@ class NuttXBuilder:
 
         self._run_command(cmd, check=True, env=run_env)
 
-    def _run_build(self, build: str, env: str = None):
+    def _run_build(
+        self, build: str, env: Optional[Dict[str, str]] = None
+    ) -> None:
         """Run the CMake build step."""
-        build = Path(build)
+        build_path = Path(build)
 
         cmd = [
             "cmake",
             "--build",
-            build,
+            str(build_path),
         ]
 
         run_env = os.environ.copy()
@@ -96,7 +98,9 @@ class NuttXBuilder:
 
         self._run_command(cmd, check=True, env=run_env)
 
-    def _build_core(self, core, cores, product):
+    def _build_core(
+        self, core: str, cores: Dict[str, Any], product: str
+    ) -> None:
         """Build single core image."""
         if "defconfig" in cores[core]:
             build_dir = (
@@ -140,7 +144,9 @@ class NuttXBuilder:
             cores[core]["elf_path"] = os.path.join(build_path, "nuttx")
             cores[core]["conf_path"] = os.path.join(build_path, ".config")
 
-    def _flash_core(self, core, cores):  # pragma: no cover
+    def _flash_core(
+        self, core: str, cores: Dict[str, Any]
+    ) -> None:  # pragma: no cover
         """Flash single core image."""
         flash_cmd = cores[core].get("flash", None)
         if flash_cmd:
@@ -177,6 +183,6 @@ class NuttXBuilder:
                 for core in cores:
                     self._flash_core(core, cores)
 
-    def new_conf(self) -> Dict:
+    def new_conf(self) -> Dict[str, Any]:
         """Get modified YAML config."""
         return self._cfg_values

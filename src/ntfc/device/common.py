@@ -100,7 +100,7 @@ class DeviceCommon(ABC):
         self._crash = Event()
         self._busy_loop = Event()
         self._flood = Event()
-        self._busy_loop_last = 0
+        self._busy_loop_last = 0.0
         self.clear_fault_flags()
 
         self._read_all_sleep = 0.1
@@ -123,7 +123,7 @@ class DeviceCommon(ABC):
 
         return False
 
-    def _read_all(self, timeout: int = 1) -> bytes:
+    def _read_all(self, timeout: float = 1.0) -> bytes:
         """Read data from the device."""
         output = b""
         end_time = time.time() + timeout
@@ -246,7 +246,7 @@ class DeviceCommon(ABC):
 
             _match = re.search(pattern, output)
             if _match:
-                logger.debug(f">>match: {output}, search: {pattern}<<")
+                logger.debug(f">>match: {output!r}, search: {pattern!r}<<")
                 ret = CmdStatus.SUCCESS
                 break
 
@@ -286,7 +286,7 @@ class DeviceCommon(ABC):
         """Stop device log collector."""
         self._logs = None
 
-    def clear_fault_flags(self):
+    def clear_fault_flags(self) -> None:
         """Clear fault flags."""
         self._crash.clear()
         self._flood.clear()

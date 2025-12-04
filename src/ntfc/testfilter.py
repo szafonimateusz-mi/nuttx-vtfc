@@ -20,9 +20,13 @@
 
 """Test cases filter."""
 
-from typing import List, Tuple
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 
 from ntfc.logger import logger
+
+if TYPE_CHECKING:
+    import pytest
+
 
 ###############################################################################
 # Class: FilterTest
@@ -32,20 +36,22 @@ from ntfc.logger import logger
 class FilterTest:
     """This class implements test filtration depending on the configuration."""
 
-    def __init__(self, config) -> None:
+    def __init__(self, config: Any) -> None:
         """Initialize test filter."""
         self._config = config
 
-    def extract_test_requirements(self, item) -> Tuple[List, List, List]:
+    def extract_test_requirements(
+        self, item: "pytest.Item"
+    ) -> Tuple[List[Any], List[Any], List[Any]]:
         """Extract test requirements from markers.
 
         :param item: Pytest test item object
 
         :return: Tuple of (command_checks, config_dependencies, extra_options)
         """
-        cmd_checks = []
-        dep_configs = []
-        extra_opts = []
+        cmd_checks: List[Any] = []
+        dep_configs: List[Any] = []
+        extra_opts: List[Any] = []
 
         for marker in item.iter_markers(name="cmd_check"):
             cmd_checks.extend(marker.args)
@@ -58,7 +64,9 @@ class FilterTest:
 
         return cmd_checks, dep_configs, extra_opts
 
-    def check_test_support(self, item) -> Tuple[bool, str]:
+    def check_test_support(
+        self, item: "pytest.Item"
+    ) -> Tuple[bool, Optional[str]]:
         """Check if a given test is supported.
 
         :param item: Pytest test item object
@@ -68,7 +76,7 @@ class FilterTest:
         cmd, dep, extra = self.extract_test_requirements(item)
 
         skip = False
-        reason = None
+        reason: Optional[str] = None
 
         # check Kconfig value
         for d in dep:

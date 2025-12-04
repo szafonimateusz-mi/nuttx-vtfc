@@ -21,7 +21,15 @@
 """Product class implementation."""
 
 import re
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from ntfc.device.common import CmdReturn, CmdStatus
 from ntfc.logger import logger
@@ -66,7 +74,7 @@ class Product:
         # device is ready
         self._core0: Optional[str] = None
         self._cur_core: Optional[str] = None
-        self._cores: Optional[Tuple[str, ...]] = None
+        self._cores: Tuple[str, ...] = ()
 
     def __str__(self) -> str:
         """Get string for object."""
@@ -244,7 +252,8 @@ class Product:
         cmd_bytes, pattern_bytes = self._encode_for_device(cmd, pattern)
 
         logger.debug(
-            f"Sending command: {cmd}, expecting pattern: {pattern} "
+            f"Sending command: {cmd}, expecting pattern: "
+            f"{pattern.decode() if isinstance(pattern, bytes) else pattern} "
             f"(timeout={timeout}s)"
         )
         return self._device.send_cmd_read_until_pattern(
@@ -346,7 +355,7 @@ class Product:
             )
             return CmdStatus.NOTFOUND
 
-        if target_core.lower() == self._core0.lower():
+        if self._core0 and target_core.lower() == self._core0.lower():
             logger.warning(
                 "The target core is the main core, and the core"
                 " is not switched."
@@ -355,7 +364,9 @@ class Product:
 
         logger.info(f"Attempting to switch to core: {target_core}")
 
-        if target_core.lower() not in self._cores:
+        if target_core.lower() not in tuple(
+            core.lower() for core in self._cores
+        ):
             logger.debug(f"There is no {target_core} core in the device")
             return CmdStatus.NOTFOUND
 
@@ -373,15 +384,15 @@ class Product:
         :return: The current prompt (e.g., ap>) (str)
                  or None: If the current prompt cannot be determined
         """
-        core_pattern = r"(\S+)>"
-        matches = []
+        core_pattern = rb"(\S+)>"
+        matches: List[str] = []
 
         for _ in range(5):
             cmdret = self._device.send_cmd_read_until_pattern(
-                "\n", core_pattern, 1
+                b"\n", core_pattern, 1
             )
 
-            if cmdret.valid_match():
+            if cmdret.valid_match() and cmdret.rematch:
                 # Extract the matched core name
                 core_name = (
                     cmdret.rematch.group(1).decode("utf-8", errors="ignore")
@@ -444,7 +455,7 @@ class Product:
         return self._cur_core
 
     @property
-    def cores(self) -> Tuple[str]:
+    def cores(self) -> Tuple[str, ...]:
         """Get cores."""
         return self._cores
 
@@ -476,11 +487,11 @@ class Product:
         return self._name
 
     @property
-    def conf(self) -> dir:
+    def conf(self) -> "ProductConfig":
         """Get product configuration."""
         return self._conf
 
-    def start_log_collect(self, logs: dict[str, Any]) -> None:
+    def start_log_collect(self, logs: Dict[str, Any]) -> None:
         """Start device log collector."""
         self._device.start_log_collect(logs)
 

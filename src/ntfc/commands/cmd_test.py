@@ -21,6 +21,7 @@
 """Module containing NTFC test command."""
 
 import importlib.util
+from typing import Any
 
 import click
 
@@ -36,16 +37,14 @@ HAS_PYTEST_JSON = importlib.util.find_spec("pytest_json") is not None
 
 
 @click.command(name="test")
+@pass_environment
+@cli_testenv_options
 @click.option(
-    "--xml",
-    is_flag=True,
-    help="Store the XML report.",
-)
-@click.option(
-    "--resdir",
+    "--jsonconf",
     type=click.Path(resolve_path=False),
-    default="./result",
-    help="Where to store the test results. Default: ./result",
+    default="",
+    help="Path to test module configuration file."
+    "Default: ./external/module.json",
 )
 @click.option(
     "--nologs",
@@ -58,14 +57,16 @@ HAS_PYTEST_JSON = importlib.util.find_spec("pytest_json") is not None
     is_flag=True,
 )
 @click.option(
-    "--jsonconf",
-    type=click.Path(resolve_path=False),
-    default="",
-    help="Path to test module configuration file."
-    "Default: ./external/module.json",
+    "--xml",
+    is_flag=True,
+    help="Store the XML report.",
 )
-@cli_testenv_options
-@pass_environment
+@click.option(
+    "--resdir",
+    type=click.Path(resolve_path=False),
+    default="./result",
+    help="Where to store the test results. Default: ./result",
+)
 def cmd_test(
     ctx: Environment,
     testpath: str,
@@ -73,7 +74,7 @@ def cmd_test(
     jsonconf: str,
     nologs: bool,
     exitonfail: bool,
-    **kwargs,
+    **kwargs: Any,
 ) -> bool:
     """Run tests."""
     ctx.runtest = True

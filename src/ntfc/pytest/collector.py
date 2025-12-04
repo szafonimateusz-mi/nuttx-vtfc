@@ -21,7 +21,7 @@
 """NTFC collector plugin for pytest."""
 
 import os
-from typing import TYPE_CHECKING, Any, List, Tuple
+from typing import TYPE_CHECKING, List, Tuple
 
 import pytest
 
@@ -29,7 +29,7 @@ from ntfc.pytest.collecteditem import CollectedItem
 from ntfc.testfilter import FilterTest
 
 if TYPE_CHECKING:
-    from .envconfig import EnvConfig
+    from ntfc.envconfig import EnvConfig
 
 ###############################################################################
 # Class: CollectorPlugin
@@ -50,9 +50,10 @@ class CollectorPlugin:
 
         self._skipped_items: List[Tuple[pytest.Item, str]] = []
 
-    def _collected_item(self, item):
+    def _collected_item(self, item: pytest.Item) -> CollectedItem:
         """Create collected item."""
         path, lineno, name = item.location
+        lineno = lineno or 0
         abs_path = os.path.abspath(path)
         directory = os.path.dirname(abs_path)
         module = abs_path.replace(pytest.testpath, "")
@@ -128,7 +129,7 @@ class CollectorPlugin:
         :param config:
         :param items:
         """
-        tmp: List[Any] = []
+        tmp: List[pytest.Item] = []
 
         module = pytest.cfgtest.get("module", {})
         include_module = module.get("include_module", [])
@@ -136,18 +137,19 @@ class CollectorPlugin:
         # order_module = module.get("order", [])
 
         for item in items:
-            # add to all items
-            self._all_items.append(item)
 
             # get collected data and attach to item
             ci = self._collected_item(item)
             item._collected = ci
+            # add to all items
+            self._all_items.append(ci)
 
             skip, reason = self._filter.check_test_support(item)
 
             if skip:
-                self._skipped_items.append((item, reason))
-                item.add_marker(pytest.mark.skip(reason=reason))
+                skip_reason: str = reason or "unknown reason"
+                self._skipped_items.append((item, skip_reason))
+                item.add_marker(pytest.mark.skip(reason=skip_reason))
                 continue
 
             # check if we match to include_module

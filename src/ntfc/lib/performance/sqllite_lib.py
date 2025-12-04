@@ -22,6 +22,7 @@
 
 import sqlite3
 import time
+from typing import Any, List, Tuple
 
 from ntfc.logger import logger
 
@@ -29,18 +30,18 @@ from ntfc.logger import logger
 class DBLib:
     """This class implements Sqlite database handler."""
 
-    def __init__(self, dbpath):
+    def __init__(self, dbpath: str) -> None:
         """Initialize database handler."""
         self.timestamp = int(time.time())
         self.conn = sqlite3.connect(dbpath)
         self.cursor = self.conn.cursor()
 
-    def _close_db(self):
+    def _close_db(self) -> None:
         """Close database."""
         self.cursor.close()
         self.conn.close()
 
-    def _create_table(self, sqlcmd):
+    def _create_table(self, sqlcmd: str) -> None:
         """Create table."""
         try:
             sql_commands = [
@@ -58,7 +59,12 @@ class DBLib:
         except sqlite3.Error as e:
             logger.info(f"Error creating table, error message: {e}")
 
-    def _insert_data(self, tablename, lowercaseheaders, data):
+    def _insert_data(
+        self,
+        tablename: str,
+        lowercaseheaders: List[str],
+        data: List[Tuple[Any, ...]],
+    ) -> None:
         """Insert data."""
         try:
             insert_sql = (

@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, List
 from .oscommon import OSCommon
 
 if TYPE_CHECKING:
-    from ntfc.envconfig import ProductConfig
+    from ntfc.productconfig import ProductConfig
 
 ###############################################################################
 # Class: DeviceNuttx

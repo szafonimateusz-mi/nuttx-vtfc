@@ -25,10 +25,10 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import pytest
-import yaml
+import yaml  # type: ignore
 from pluggy import HookimplMarker
 
 from ntfc.device.getdev import get_device
@@ -60,11 +60,11 @@ class MyPytest:
 
     def __init__(
         self,
-        config: Dict,
+        config: Dict[str, Any],
         exit_on_fail: bool = False,
         verbose: bool = False,
         device: Optional[List["DeviceCommon"]] = None,
-        confjson: Optional[Dict] = None,
+        confjson: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize pytest wrapper.
 
@@ -74,10 +74,10 @@ class MyPytest:
         """
         self._config = EnvConfig(config)
         self._device = device
-        self._opt = []
-        self._plugins = []
-        self._cfg_module = {}
-        self._cfg_test = {}
+        self._opt: List[str] = []
+        self._plugins: List[Any] = []
+        self._cfg_module: Dict[str, Any] = {}
+        self._cfg_test: Dict[str, Any] = {}
 
         if exit_on_fail:
             self._opt.append("-x")
@@ -98,14 +98,14 @@ class MyPytest:
         hookimpl_marker(
             PytestConfigPlugin.__dict__["pytest_runtest_makereport"]
         )
-        self._ptconfig = PytestConfigPlugin(config, verbose)
+        self._ptconfig = PytestConfigPlugin(self._config, verbose)
 
         # add our custom pytest plugin
         self._plugins.append(self._ptconfig)
 
     def _kv_validate(
         self, product: Product, core: int
-    ) -> Union[bool, Any]:  # pragma: no cover
+    ) -> Tuple[bool, Optional[Any]]:  # pragma: no cover
         """Check if configuration can be used with this tool."""
         requirements = pytest.ntfcyaml.get("requirements", {})
 
@@ -137,7 +137,7 @@ class MyPytest:
 
         return tmp
 
-    def _run(self, extra_opt: List[str], extra_plugins: List[Any]) -> int:
+    def _run(self, extra_opt: List[str], extra_plugins: List[Any]) -> Any:
         """Run pytest.
 
         :param extra_opt:
@@ -163,7 +163,7 @@ class MyPytest:
         # run pytest in collection-only mode with our custom plugin
         return pytest.main(opt, plugins=plugins)
 
-    def _module_config(self, path) -> None:
+    def _module_config(self, path: str) -> None:
         """Load test module configuration."""
         self._cfg_module = {}
         try:
@@ -217,8 +217,8 @@ class MyPytest:
             product.init()
 
     def runner(
-        self, testpath: str, result: Dict[str, str], nologs: bool = False
-    ) -> int:
+        self, testpath: str, result: Dict[str, Any], nologs: bool = False
+    ) -> Any:
         """Run tests.
 
         :param testpath: path to test directory
@@ -264,7 +264,7 @@ class MyPytest:
 
         return self._run(opt, [runner, collector])
 
-    def collect(self, testpath: str) -> Tuple[List[Any], List[Any]]:
+    def collect(self, testpath: str) -> "Collected":
         """Collect tests.
 
         :param testpath:

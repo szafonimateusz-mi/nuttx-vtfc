@@ -25,15 +25,15 @@ import signal
 import time
 from typing import TYPE_CHECKING, List, Optional
 
-import pexpect
-import psutil
+import pexpect  # type: ignore
+import psutil  # type: ignore
 
 from ntfc.logger import logger
 
 from .common import DeviceCommon
 
 if TYPE_CHECKING:
-    from ntfc.envconfig import ProductConfig
+    from ntfc.productconfig import ProductConfig
 
 ###############################################################################
 # Class: DeviceHost
@@ -77,6 +77,8 @@ class DeviceHost(DeviceCommon):
         if not self.dev_is_health():
             return
 
+        assert self._child
+
         # send char by char to avoid line length full
         for c in data:
             self._child.send(bytes([c]))
@@ -90,6 +92,7 @@ class DeviceHost(DeviceCommon):
         if not self.dev_is_health():
             return
 
+        assert self._child
         self._child.sendcontrol(c)
 
     def _read(self) -> bytes:  # pragma: no cover
@@ -98,6 +101,7 @@ class DeviceHost(DeviceCommon):
             return b""
 
         try:
+            assert self._child
             return self._child.read_nonblocking(size=5120, timeout=0)
 
         except pexpect.TIMEOUT:
@@ -145,7 +149,6 @@ class DeviceHost(DeviceCommon):
         self._cmd = cmd
 
         logger.info("spawn cmd: {}".format("".join(cmd)))
-        print("spawn cmd: {}".format("".join(cmd)))
         self._child = pexpect.spawn(
             "".join(cmd), timeout=10, maxread=20000, cwd=self._cwd
         )

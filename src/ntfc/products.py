@@ -22,10 +22,10 @@
 
 from typing import TYPE_CHECKING, List, Optional, Union
 
+from ntfc.device.common import CmdReturn, CmdStatus
 from ntfc.logger import logger
 
 if TYPE_CHECKING:
-    from ntfc.device.common import CmdReturn, CmdStatus
     from ntfc.product import Product
 
 ###############################################################################
@@ -54,7 +54,7 @@ class ProductsHandler:
         flag: str = "",
         match_all: bool = True,
         regexp: bool = False,
-    ) -> "CmdStatus":
+    ) -> CmdStatus:
         """Send command to all products."""
         for p in self._products:
             ret = p.sendCommand(
@@ -64,7 +64,9 @@ class ProductsHandler:
                 logger.info(f"sendCommand failed for product {p}")
                 return ret
 
-        return 0
+        from ntfc.device.common import CmdStatus
+
+        return CmdStatus.SUCCESS
 
     def sendCommandReadUntilPattern(  # noqa: N802
         self,
@@ -72,17 +74,17 @@ class ProductsHandler:
         pattern: Optional[Union[str, bytes, List[Union[str, bytes]]]] = None,
         args: Optional[Union[str, List[str]]] = None,
         timeout: int = 30,
-    ) -> "CmdReturn":
+    ) -> CmdReturn:
         """Send command to all products."""
         for p in self._products:
             ret = p.sendCommandReadUntilPattern(cmd, pattern, args, timeout)
-            if ret != 0:
+            if ret.status != 0:
                 logger.info(
                     f"sendCommandReadUntilPattern failed for product {p}"
                 )
                 return ret
 
-        return 0
+        return CmdReturn(CmdStatus.SUCCESS)
 
     def sendCtrlCmd(self, ctrl_char: str) -> None:  # noqa: N802
         """Send ctrl command to all products."""
@@ -139,7 +141,7 @@ class ProductsHandler:
         return self._products[0].name
 
     @property
-    def cur_core(self) -> str:
+    def cur_core(self) -> Optional[str]:
         """Get current core."""
         # TODO: many products not supported yet
         return self._products[0].cur_core

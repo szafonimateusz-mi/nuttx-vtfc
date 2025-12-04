@@ -20,7 +20,7 @@
 
 """Configuration handler."""
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from ntfc.productconfig import ProductConfig
 
@@ -28,19 +28,19 @@ from ntfc.productconfig import ProductConfig
 class EnvConfig:
     """This class handles tests environment configuration."""
 
-    def __init__(self, config: Dict, args=None) -> None:
+    def __init__(self, config: Dict[str, Any], args: Any = None) -> None:
         """Initialzie tests environment configuration."""
         if not isinstance(config, dict):
             raise TypeError("invalid config file type")
 
-        self._args = []
+        self._args: List[Any] = []
         self._cfg_values = {}
 
         self._cfg_values = config
 
         self._products = self._products_create(self._cfg_values)
 
-    def _products_create(self, config: dict) -> List[ProductConfig]:
+    def _products_create(self, config: Dict[str, Any]) -> List[ProductConfig]:
         """Create product configuration."""
         products = []
         for k in config.keys():
@@ -51,29 +51,32 @@ class EnvConfig:
         return products
 
     @property
-    def common(self) -> Dict:
+    def common(self) -> Any:
         """Return device parameters."""
         return self._cfg_values.get("config", {})
 
     @property
-    def product(self) -> list:
+    def product(self) -> list[Any]:
         """Return product instance."""
         return self._products
 
-    def product_get(self, product: int = 0) -> dict:
+    def product_get(self, product: int = 0) -> Any:
         """Return product parameters."""
         if product >= len(self._products):
             return None
         return self._products[product].config
 
-    def core(self, product: int = 0, cpu: int = 0) -> Dict:
+    def core(self, product: int = 0, cpu: int = 0) -> Dict[str, Any]:
         """Return core parameters."""
         if product >= len(self._products):
-            return ""
-        return self._products[product].core(cpu)
+            return {}
+        tmp = self._products[product].core(cpu)
+        if not tmp:
+            return {}
+        return tmp
 
     @property
-    def config(self) -> Dict:
+    def config(self) -> Dict[str, Any]:
         """Return test configuration."""
         return self._cfg_values
 

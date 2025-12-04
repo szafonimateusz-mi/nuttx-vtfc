@@ -35,7 +35,7 @@ class RunnerPlugin:
 
     def __init__(self, nologs: bool = False) -> None:
         """Initialize custom pytest test runner plugin."""
-        self._logs: Dict[Dict[str, Any]] = {}
+        self._logs: Dict[str, Dict[str, Any]] = {}
         self._nologs = nologs
 
     def _collect_device_logs_teardown(self) -> None:
@@ -51,7 +51,7 @@ class RunnerPlugin:
                 # close files
                 self._logs[product.name][core]["console"].close()
 
-    def _collect_device_logs(self, request) -> None:
+    def _collect_device_logs(self, request: Any) -> None:
         """Initiate device log writing into a new test file."""
         if self._nologs:
             return
@@ -78,20 +78,20 @@ class RunnerPlugin:
                 # start device log collector
                 product.start_log_collect(self._logs[name][core])
 
-    @pytest.fixture(scope="function", autouse=True)
-    def prepare_test(self, request) -> None:
+    @pytest.fixture(scope="function", autouse=True)  # type: ignore
+    def prepare_test(self, request: Any) -> None:
         """Prepare test case."""
         # initialize log collector
         self._collect_device_logs(request)
         # register log collector teardown
         request.addfinalizer(self._collect_device_logs_teardown)
 
-    @pytest.fixture
+    @pytest.fixture  # type: ignore
     def switch_to_core(self) -> None:
         """Switch to core."""
         pass  # pragma: no cover
 
-    @pytest.fixture
+    @pytest.fixture  # type: ignore
     def core(self) -> None:
         """Get active core."""
         pass  # pragma: no cover

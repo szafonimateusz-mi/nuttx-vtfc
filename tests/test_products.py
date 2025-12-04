@@ -20,6 +20,7 @@
 
 from unittest.mock import patch
 
+from ntfc.device.common import CmdReturn, CmdStatus
 from ntfc.products import ProductsHandler
 
 
@@ -37,10 +38,18 @@ def test_products_init_inval():
         dev.sendCommand.return_value = 1
         assert h.sendCommand("") == 1
 
-        dev.sendCommandReadUntilPattern.return_value = 0
-        assert h.sendCommandReadUntilPattern("") == 0
-        dev.sendCommandReadUntilPattern.return_value = 1
-        assert h.sendCommandReadUntilPattern("") == 1
+        dev.sendCommandReadUntilPattern.return_value = CmdReturn(
+            CmdStatus.SUCCESS
+        )
+        assert h.sendCommandReadUntilPattern("") == CmdReturn(
+            CmdStatus.SUCCESS
+        )
+        dev.sendCommandReadUntilPattern.return_value = CmdReturn(
+            CmdStatus.TIMEOUT
+        )
+        assert h.sendCommandReadUntilPattern("") == CmdReturn(
+            CmdStatus.TIMEOUT
+        )
 
         assert h.sendCtrlCmd("Z") is None
 

@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING
 from .host import DeviceHost
 
 if TYPE_CHECKING:
-    from ntfc.envconfig import ProductConfig
+    from ntfc.productconfig import ProductConfig
 
 ##############################################################################
 # Class: DeviceQemu

@@ -27,7 +27,7 @@ from .serial import DeviceSerial
 from .sim import DeviceSim
 
 if TYPE_CHECKING:
-    from ntfc.envconfig import ProductConfig
+    from ntfc.productconfig import ProductConfig
 
     from .common import DeviceCommon
 

@@ -28,7 +28,7 @@ import pytest
 from ntfc.logger import logger
 
 if TYPE_CHECKING:
-    from .envconfig import EnvConfig
+    from ntfc.envconfig import EnvConfig
 
 
 ###############################################################################
