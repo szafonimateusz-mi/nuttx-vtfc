@@ -25,7 +25,7 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 import pytest
 import yaml
@@ -103,6 +103,17 @@ class MyPytest:
         # add our custom pytest plugin
         self._plugins.append(self._ptconfig)
 
+    def _kv_validate(
+        self, product: Product, core: int
+    ) -> Union[bool, Any]:  # pragma: no cover
+        """Check if configuration can be used with this tool."""
+        requirements = pytest.ntfcyaml.get("requirements", {})
+
+        for req in requirements:
+            if product.conf.kv_check(req[0], core) != req[1]:
+                return False, req
+        return True, None
+
     def _create_products(
         self, config: "EnvConfig", device: Optional[List["DeviceCommon"]]
     ) -> List[Product]:
@@ -115,6 +126,13 @@ class MyPytest:
                 dev = device[i]
 
             p = Product(dev, config.product[i])
+
+            # check config requirements
+            for core in range(len(p.conf.cores)):
+                ret = self._kv_validate(p, core)
+                if ret[0] is False:  # pragma: no cover
+                    raise IOError(f"Missing kconfig dependency: {ret[1]}")
+
             tmp.append(p)
 
         return tmp
@@ -169,16 +187,17 @@ class MyPytest:
     def _init_pytest(self, testpath: str) -> None:
         """Initialize pytest environment."""
         # inject some objects into pytest module
+        # load per test module configuration
+        conf_path = os.path.join(testpath, "ntfc.yaml")
+        self._module_config(conf_path)
+
+        # store some objects for later use in pytest context
+        pytest.ntfcyaml = self._cfg_module
         pytest.products = self._create_products(self._config, self._device)
         pytest.product = ProductsHandler(pytest.products)
         pytest.task = self._config.product_get(product=0)
         pytest.testpath = os.path.abspath(testpath)
         pytest.testroot = os.path.abspath(testpath)
-
-        # load per test module configuration
-        conf_path = os.path.join(testpath, "ntfc.yaml")
-        self._module_config(conf_path)
-        pytest.ntfcyaml = self._cfg_module
 
         # python dependencies for test cases module
         dependencies = self._cfg_module.get("dependencies", [])

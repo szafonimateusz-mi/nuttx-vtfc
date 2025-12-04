@@ -43,9 +43,6 @@ class ProductConfig:
                 self._kv_values.append({})
                 # load config values
                 self._load_core_config(core)
-                # check some .config requirements
-                if self._kv_validate(core) is False:  # pragma: no cover
-                    raise IOError
 
         if self.cores:
             self._load_elf()
@@ -66,15 +63,6 @@ class ProductConfig:
                         val = val[1:-2]
 
                     self._kv_values[core][name] = val
-
-    def _kv_validate(self, core: int) -> bool:
-        """Check if configuration can be used with this tool."""
-        requirements = [["CONFIG_DEBUG_SYMBOLS", True]]
-
-        for req in requirements:
-            if self.kv_check(req[0], core) != req[1]:
-                return False  # pragma: no cover
-        return True
 
     def _load_elf(self) -> None:
         """Load ELF symbols."""

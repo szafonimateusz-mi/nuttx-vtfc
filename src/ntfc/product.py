@@ -60,6 +60,7 @@ class Product:
         )
         self._uptime = conf.core(cpu=0).get("uptime", 3)
         self._name = conf.name
+        self._conf = conf
 
         # cores info not ready yet, done in self.init() method called when
         # device is ready
@@ -473,6 +474,11 @@ class Product:
     def name(self) -> str:
         """Get product name."""
         return self._name
+
+    @property
+    def conf(self) -> dir:
+        """Get product configuration."""
+        return self._conf
 
     def start_log_collect(self, logs: dict[str, Any]) -> None:
         """Start device log collector."""
