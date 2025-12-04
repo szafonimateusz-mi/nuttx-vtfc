@@ -147,6 +147,7 @@ class MyPytest:
 
     def _module_config(self, path) -> None:
         """Load test module configuration."""
+        self._cfg_module = {}
         try:
             logger.info(f"ntfc.conf file {path}")
             _path = Path(path)
@@ -165,12 +166,6 @@ class MyPytest:
             logger.info("no ntfc.conf file")
             pass
 
-        # module default config
-        if "module" not in self._cfg_module:
-            self._cfg_module["module"] = "Unknown_"
-        if "kvreq" not in self._cfg_module:
-            self._cfg_module["kvreq"] = [["CONFIG_DEBUG_SYMBOLS", True]]
-
     def _init_pytest(self, testpath: str) -> None:
         """Initialize pytest environment."""
         # inject some objects into pytest module
@@ -185,6 +180,7 @@ class MyPytest:
         self._module_config(conf_path)
         pytest.ntfcyaml = self._cfg_module
 
+        # python dependencies for test cases module
         dependencies = self._cfg_module.get("dependencies", [])
         for dep in dependencies:
             if importlib.util.find_spec(dep) is None:  # pragma: no cover

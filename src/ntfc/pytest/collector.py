@@ -65,7 +65,7 @@ class CollectorPlugin:
             abs_path,
             lineno,
             item.nodeid,
-            pytest.ntfcyaml["module"],
+            pytest.ntfcyaml.get("module", "Unknown_"),
             root,
         )
 
