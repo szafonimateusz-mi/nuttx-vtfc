@@ -19,9 +19,12 @@ Details on installing from source can be found in [CONTRIBUTING.md](CONTRIBUTING
 
 ## Usage
 
-For a quick start quid, see [docs/quickstart](docs/quickstart.rst).
+For a quick start quide, see [docs/quickstart](docs/quickstart.rst).
 
 For usage details, look at [docs/usage](docs/usage.rst).
+
+For a quick guide how to write your own test case, see
+[docs/writing-test-cases](docs/writing-test-cases.rst)
 
 ### Preparing the image for testing
 

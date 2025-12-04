@@ -18,6 +18,7 @@ This is a to-do list for the NTFC project.
 
 - [ ] Support for ELF flashing from the tool level (HW testing).
 - [ ] Run tests for all configured products.
+- [ ] Migrate session.json to yaml file so we can drop json dependency.
 - [ ] Support for SSH/TELNET communication with the device.
 - [ ] Support for ADB communication with the device.
 - [ ] Support for GDB debugging.

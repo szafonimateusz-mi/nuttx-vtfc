@@ -1,4 +1,5 @@
-{
+{                                                    // test session configuration file
+                                                     // this file allows to fine tune test session
     "module": {                                      // test modules configurtion
         "include_module": [                          // include these modules, include all if list empty
             "Nuttx_System_Arch_Os_Integration",

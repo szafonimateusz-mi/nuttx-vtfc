@@ -67,10 +67,11 @@ Options:
 * ``--confpath PATH`` - Path to test configuration file.
   Can be also set with environmentvariable ``NTFC_CONFPATH``.
   Default: ``./external/config.yaml``
+  For details look at ``docs/config.yaml``.
 
-* ``--jsonconf PATH`` - Path to test module configuration file.
-  Default: "".
-  For details look at ``docs/module.json``.
+* ``--jsonconf PATH`` - Path to test session configuration file.
+  Default: None.
+  For details look at ``docs/session.json``.
 
 * ``--nologs`` - When set, test logs are not saved locally
 
