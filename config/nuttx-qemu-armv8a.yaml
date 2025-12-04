@@ -14,5 +14,5 @@ product:
                  -machine virt,virtualization=on,gic-version=3
                  -net none -chardev stdio,id=con,mux=on
                  -serial chardev:con -mon chardev=con,mode=readline'
-      defconfig: 'boards/arm64/qemu/qemu-armv8a/configs/vtfc'
+      defconfig: 'boards/arm64/qemu/qemu-armv8a/configs/ntfc'
       flash: ''

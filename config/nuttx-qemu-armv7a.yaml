@@ -14,5 +14,5 @@ product:
                  -machine virt,highmem=off,virtualization=off,gic-version=2
                  -chardev stdio,id=con,mux=on -serial chardev:con
                  -mon chardev=con,mode=readline'
-      defconfig: 'boards/arm/qemu/qemu-armv7a/configs/vtfc'
+      defconfig: 'boards/arm/qemu/qemu-armv7a/configs/ntfc'
       flash: ''

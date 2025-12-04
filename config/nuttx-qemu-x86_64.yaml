@@ -11,5 +11,5 @@ product:
       device: 'qemu'
       exec_path: 'qemu-system-x86_64'
       exec_args: '-m 2G -smp 4 -cpu host -enable-kvm -nographic -serial mon:stdio'
-      defconfig: 'boards/x86_64/intel64/qemu-intel64/configs/vtfc'
+      defconfig: 'boards/x86_64/intel64/qemu-intel64/configs/ntfc'
       flash: ''

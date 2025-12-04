@@ -9,5 +9,5 @@ product:
     core0:
       name: 'main'
       device: 'sim'
-      defconfig: 'boards/sim/sim/sim/configs/vtfc'
+      defconfig: 'boards/sim/sim/sim/configs/ntfc'
       flash: ''

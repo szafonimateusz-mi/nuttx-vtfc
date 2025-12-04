@@ -11,7 +11,7 @@ product0:
       device: 'sim'
       exec_path: ''
       exec_args: ''
-      defconfig: 'boards/sim/sim/sim/configs/vtfc'
+      defconfig: 'boards/sim/sim/sim/configs/ntfc'
       flash: ''
 
 product1:
@@ -23,7 +23,7 @@ product1:
       device: 'qemu'
       exec_path: 'qemu-system-x86_64'
       exec_args: '-m 2G -smp 4 -cpu host -enable-kvm -nographic -serial mon:stdio'
-      defconfig: 'boards/x86_64/intel64/qemu-intel64/configs/vtfc'
+      defconfig: 'boards/x86_64/intel64/qemu-intel64/configs/ntfc'
       flash: ''
 
 product2:
@@ -38,7 +38,7 @@ product2:
                  -machine virt,highmem=off,virtualization=off,gic-version=2
                  -chardev stdio,id=con,mux=on -serial chardev:con
                  -mon chardev=con,mode=readline'
-      defconfig: 'boards/arm/qemu/qemu-armv7a/configs/vtfc'
+      defconfig: 'boards/arm/qemu/qemu-armv7a/configs/ntfc'
       flash: ''
 
 # product3:
@@ -53,7 +53,7 @@ product2:
 #                  -machine virt,virtualization=on,gic-version=3
 #                  -net none -chardev stdio,id=con,mux=on
 #                  -serial chardev:con -mon chardev=con,mode=readline'
-#       defconfig: 'boards/arm64/qemu/qemu-armv8a/configs/vtfc'
+#       defconfig: 'boards/arm64/qemu/qemu-armv8a/configs/ntfc'
 #       flash: ''
 
 # product4:
@@ -65,7 +65,7 @@ product2:
 #       device: 'qemu'
 #       exec_path: 'qemu-system-riscv64'
 #       exec_args: '-semihosting -M virt,aclint=on -cpu rv64 -smp 1 -bios none -nographic'
-#       defconfig: 'boards/risc-v/qemu-rv/rv-virt/configs/vtfc64'
+#       defconfig: 'boards/risc-v/qemu-rv/rv-virt/configs/ntfc64'
 #       flash: ''
 
 
@@ -81,6 +81,6 @@ product2:
 #       exec_args: '-M virt,virtualization=on,highmem=off -semihosting -nographic
 #                  -cpu cortex-r52 -chardev stdio,id=con,mux=on
 #                  -serial chardev:con -mon chardev=con,mode=readline'
-#       defconfig: 'boards/arm/qemu/qemu-armv7r/configs/vtfc'
+#       defconfig: 'boards/arm/qemu/qemu-armv7r/configs/ntfc'
 #       flash: ''
 
