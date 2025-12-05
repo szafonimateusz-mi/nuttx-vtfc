@@ -22,6 +22,7 @@
 
 import os
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -43,7 +44,7 @@ class NuttXBuilder:
         self._rebuild = rebuild
 
     def _run_command(
-        self, cmd: List[str], check: bool, env: Any
+        self, cmd: List[str], env: Any
     ) -> None:  # pragma: no cover
         """Run command."""
         subprocess.run(cmd, check=True, env=env)
@@ -82,7 +83,7 @@ class NuttXBuilder:
         if env:
             run_env.update(env)  # pragma: no cover
 
-        self._run_command(cmd, check=True, env=run_env)
+        self._run_command(cmd, env=run_env)
 
     def _run_build(
         self, build: str, env: Optional[Dict[str, str]] = None
@@ -100,7 +101,7 @@ class NuttXBuilder:
         if env:
             run_env.update(env)  # pragma: no cover
 
-        self._run_command(cmd, check=True, env=run_env)
+        self._run_command(cmd, env=run_env)
 
     def _build_core(
         self, core: str, cores: Dict[str, Any], product: str
@@ -118,12 +119,12 @@ class NuttXBuilder:
             cfg_build_dir = self._cfg_values["config"].get("build_dir", None)
             if not cfg_build_dir:  # pragma: no cover
                 print("ERROR: not found build_dir in YAML configuration!")
-                exit(1)
+                sys.exit(1)
 
             cfg_cwd = self._cfg_values["config"].get("cwd", None)
             if not cfg_cwd:  # pragma: no cover
                 print("ERROR: not found cwd in YAML configuration!")
-                exit(1)
+                sys.exit(1)
 
             build_path = os.path.join(cfg_build_dir, build_dir)
             build_cfg = cores[core]["defconfig"]
@@ -165,7 +166,7 @@ class NuttXBuilder:
         if reboot_cmd:
             cmd = reboot_cmd.split()
             logger.info(f"reboot core cmd: {cmd}")
-            self._run_command(cmd, True, None)
+            self._run_command(cmd, env=None)
 
     def _flash_core(
         self, core: str, cores: Dict[str, Any]
@@ -183,7 +184,7 @@ class NuttXBuilder:
             cmd = flash_cmd.split()
 
             logger.info(f"flash image cmd: {cmd}")
-            self._run_command(cmd, True, None)
+            self._run_command(cmd, env=None)
 
     def need_build(self) -> bool:
         """Check if we need build something."""

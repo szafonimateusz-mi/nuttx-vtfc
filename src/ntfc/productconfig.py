@@ -49,7 +49,9 @@ class ProductConfig:
 
     def _load_core_config(self, core: int) -> None:
         """Load core configuration."""
-        with open(self.core(cpu=core)["conf_path"], "r") as f:
+        with open(
+            self.core(cpu=core)["conf_path"], "r", encoding="utf-8"
+        ) as f:
             for line in f:
                 # ignore all commented lines
                 if line[0] != "#" and line[0] != "\n":

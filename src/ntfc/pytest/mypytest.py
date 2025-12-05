@@ -119,13 +119,13 @@ class MyPytest:
     ) -> List[Product]:
         """Create products according to configuration."""
         tmp = []
-        for i in range(len(config.product)):
+        for i, prod_config in enumerate(config.product):
             if not device or not device[i]:
-                dev = get_device(config.product[i])
+                dev = get_device(prod_config)
             else:
                 dev = device[i]
 
-            p = Product(dev, config.product[i])
+            p = Product(dev, prod_config)
 
             # check config requirements
             for core in range(len(p.conf.cores)):
@@ -170,7 +170,7 @@ class MyPytest:
             logger.info(f"ntfc.conf file {path}")
             _path = Path(path)
 
-            with open(_path) as f:  # pragma: no cover
+            with open(_path, encoding="utf-8") as f:  # pragma: no cover
                 self._cfg_module = yaml.safe_load(f)
 
         except TypeError:  # pragma: no cover
@@ -178,11 +178,9 @@ class MyPytest:
 
         except NotADirectoryError:
             logger.info("no ntfc.conf file")
-            pass
 
         except FileNotFoundError:
             logger.info("no ntfc.conf file")
-            pass
 
     def _init_pytest(self, testpath: str) -> None:
         """Initialize pytest environment."""

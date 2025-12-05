@@ -28,7 +28,7 @@ from ntfc.productconfig import ProductConfig
 class EnvConfig:
     """This class handles tests environment configuration."""
 
-    def __init__(self, config: Dict[str, Any], args: Any = None) -> None:
+    def __init__(self, config: Dict[str, Any], _args: Any = None) -> None:
         """Initialzie tests environment configuration."""
         if not isinstance(config, dict):
             raise TypeError("invalid config file type")
@@ -90,7 +90,9 @@ class EnvConfig:
         product = 0
         return self._products[product].cmd_check(cmd, core)
 
-    def extra_check(self, extra: str, product: int = 0, core: int = 0) -> bool:
+    def extra_check(
+        self, _extra: str, _product: int = 0, _core: int = 0
+    ) -> bool:
         """Check for extra options."""
         # not supported yet
         return False

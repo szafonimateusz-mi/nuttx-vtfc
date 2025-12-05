@@ -79,9 +79,7 @@ class ProcessPerfData:
             if not os.path.exists(folder_path):
                 os.makedirs(folder_path, exist_ok=True)
                 logger.info(f"Create performance-folder: {folder_path}")
-                return (True, folder_path)
-            else:
-                return (True, folder_path)
+            return (True, folder_path)
         except Exception as e:
             logger.error(f"Failed to create performance-folder: {e}")
             return (False, "")
@@ -138,12 +136,11 @@ class ProcessPerfData:
                             f" Csv fp: {csvfp}"
                         )
                     return True
-                else:
-                    logger.error(
-                        "The csvheadlist must contain three fields: board, "
-                        "core, and branch.Please check your csvheadlist field."
-                    )
-                    return False
+                logger.error(
+                    "The csvheadlist must contain three fields: board, "
+                    "core, and branch.Please check your csvheadlist field."
+                )
+                return False
             except Exception as e:
                 logger.error(f"Writing CSV file failed: {str(e)}")
                 return False
@@ -318,7 +315,7 @@ class DataProcess(DBLib):
         logger.info("step-3: insert performance data from csv")
         time.sleep(1)
         try:
-            with open(csvfp, "r") as file:
+            with open(csvfp, "r", encoding="utf-8") as file:
                 reader = csv.reader(file)
                 headers = next(reader)
                 lowercase_headers = [

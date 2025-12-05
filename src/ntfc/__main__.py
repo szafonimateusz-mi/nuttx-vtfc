@@ -22,4 +22,4 @@
 
 from ntfc.cli.main import main
 
-main()
+main()  # pylint: disable=no-value-for-parameter

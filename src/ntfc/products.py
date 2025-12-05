@@ -64,8 +64,6 @@ class ProductsHandler:
                 logger.info(f"sendCommand failed for product {p}")
                 return ret
 
-        from ntfc.device.common import CmdStatus
-
         return CmdStatus.SUCCESS
 
     def sendCommandReadUntilPattern(  # noqa: N802

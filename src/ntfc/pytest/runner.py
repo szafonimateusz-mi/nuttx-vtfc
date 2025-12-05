@@ -74,7 +74,9 @@ class RunnerPlugin:
 
                 # open log files
                 tmp = os.path.join(core_dir, testname + ".console.txt")
-                self._logs[name][core]["console"] = open(tmp, "a")
+                self._logs[name][core]["console"] = open(
+                    tmp, "a", encoding="utf-8"
+                )
                 # start device log collector
                 product.start_log_collect(self._logs[name][core])
 
@@ -89,9 +91,7 @@ class RunnerPlugin:
     @pytest.fixture  # type: ignore
     def switch_to_core(self) -> None:
         """Switch to core."""
-        pass  # pragma: no cover
 
     @pytest.fixture  # type: ignore
     def core(self) -> None:
         """Get active core."""
-        pass  # pragma: no cover

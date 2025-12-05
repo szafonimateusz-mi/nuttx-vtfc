@@ -104,14 +104,8 @@ class DeviceHost(DeviceCommon):
             assert self._child
             return self._child.read_nonblocking(size=5120, timeout=0)
 
-        except pexpect.TIMEOUT:
+        except (pexpect.TIMEOUT, pexpect.EOF):
             return b""
-
-        except pexpect.EOF:
-            return b""
-
-        except BaseException:
-            raise
 
     def _kill_process_group(self, process: pexpect.spawn) -> None:
         """Kill process group."""
@@ -148,7 +142,7 @@ class DeviceHost(DeviceCommon):
         # we need command to reopen file in the case of crash
         self._cmd = cmd
 
-        logger.info("spawn cmd: {}".format("".join(cmd)))
+        logger.info(f"spawn cmd: {''.join(cmd)}")
         self._child = pexpect.spawn(
             "".join(cmd), timeout=10, maxread=20000, cwd=self._cwd
         )
@@ -197,4 +191,4 @@ class DeviceHost(DeviceCommon):
 
     def reboot(self, timeout: int) -> bool:
         """Reboot the device."""
-        return True if self._dev_reopen() else False
+        return bool(self._dev_reopen())

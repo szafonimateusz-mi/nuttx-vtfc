@@ -36,7 +36,7 @@ conf_dir = {
 }
 
 
-def builder_run_command_dummy(cmd, check, env):
+def builder_run_command_dummy(cmd, env):
     pass
 
 

@@ -119,10 +119,11 @@ class CollectorPlugin:
 
     def pytest_collection_finish(self, session: pytest.Session) -> None:
         """Pytest collection finish callback."""
-        pass  # empty for now
 
     def pytest_collection_modifyitems(
-        self, config: pytest.Config, items: list[pytest.Item]
+        self,
+        config: pytest.Config,
+        items: list[pytest.Item],  # pylint: disable=unused-argument
     ) -> None:
         """Modify the `items` list after collection is completed.
 

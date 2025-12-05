@@ -122,9 +122,8 @@ class ElfParser:
         if isinstance(symbol_name, str):
             return any(symbol.name == symbol_name for symbol in self.symbols)
 
-        elif isinstance(symbol_name, re.Pattern):
+        if isinstance(symbol_name, re.Pattern):
             return any(
                 symbol_name.search(symbol.name) for symbol in self.symbols
             )
-        else:
-            raise ValueError("symbol_name must be either str or re.Pattern")
+        raise ValueError("symbol_name must be either str or re.Pattern")

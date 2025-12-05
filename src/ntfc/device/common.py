@@ -73,8 +73,7 @@ class CmdReturn:
 
     def __iter__(self) -> Any:
         """Make the dataclass instance iterable."""
-        for value in astuple(self):
-            yield value
+        yield from astuple(self)
 
 
 ###############################################################################
@@ -293,7 +292,7 @@ class DeviceCommon(ABC):
         self._busy_loop.clear()
 
     def _system_cmd(self, cmd: str) -> None:  # pragma: no cover
-        logger.info("system command:", cmd)
+        logger.info(f"system command: {cmd}")
         subprocess.run(
             cmd,
             shell=True,
@@ -315,17 +314,17 @@ class DeviceCommon(ABC):
     @property
     def busyloop(self) -> bool:
         """Check if the device is in busy loop."""
-        return True if self._busy_loop.is_set() else False
+        return self._busy_loop.is_set()
 
     @property
     def flood(self) -> bool:
         """Check if the device is in flood state."""
-        return True if self._flood.is_set() else False
+        return self._flood.is_set()
 
     @property
     def crash(self) -> bool:
         """Check if the device is crashed."""
-        return True if self._crash.is_set() else False
+        return self._crash.is_set()
 
     @abstractmethod
     def _read(self) -> bytes:

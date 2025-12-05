@@ -101,18 +101,18 @@ def collect_run(pt: MyPytest, ctx: Environment) -> None:
     if ctx.collect == "silent":
         return
 
-    if ctx.collect == "collected" or ctx.collect == "all":
+    if ctx.collect in ("collected", "all"):
         print()
         print("Collected items:")
         # print parsed test cases
         for item in col.items:
             print(item)
 
-    if ctx.collect == "skipped" or ctx.collect == "all":
+    if ctx.collect in ("skipped", "all"):
         # print skipped test cases
         collect_print_skipped(col.skipped)
 
-    if ctx.collect == "modules" or ctx.collect == "all":
+    if ctx.collect in ("modules", "all"):
         collect_print_modules(col.modules)
 
 
@@ -140,13 +140,13 @@ def cli_on_close(ctx: Environment) -> bool:
     conf = None
     logger.info(f"YAML config file {ctx.confjson}")
     assert ctx.confpath is not None
-    with open(ctx.confpath, "r") as f:
+    with open(ctx.confpath, "r", encoding="utf-8") as f:
         conf = yaml.safe_load(f)
 
     conf_json = None
     if ctx.confjson:  # pragma: no cover
         logger.info(f"Module config file {ctx.confjson}")
-        with open(ctx.confjson, "r") as f:
+        with open(ctx.confjson, "r", encoding="utf-8") as f:
             conf_json = json.load(f)
 
     print_yaml_config(conf)

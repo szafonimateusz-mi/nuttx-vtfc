@@ -85,7 +85,7 @@ class DeviceSerial(DeviceCommon):
             }
 
         except Exception as e:
-            raise ValueError(f"Invalid format '{args}': {e}")
+            raise ValueError(f"Invalid format '{args}': {e}") from e
 
     def _dev_is_health_priv(self) -> bool:
         """Check if the serial device is OK."""
