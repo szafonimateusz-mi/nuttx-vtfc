@@ -26,11 +26,8 @@ Common initialization
      git clone https://github.com/szafonimateusz-mi/nuttx-testing external/nuttx-testing
 
 
-Automatically build DTU images
-==============================
-
-The tool allows you to automatically build configurations and run tests on
-the created NuttX image.
+Prepare NuttX boards
+====================
 
 First make sure the configuration is copied to NuttX directory.
 
@@ -64,6 +61,17 @@ For ``QEMU-RISCV64``::
      mkdir boards/risc-v/qemu-rv/rv-virt/configs/ntfc64
      cp docs/boards/qemu-riscv-rv-virt-64/defconfig external/nuttx/boards/risc-v/qemu-rv/rv-virt/configs/ntfc64
 
+For ``NUCLEO-H743ZI``::
+
+     mkdir boards/arm/stm32h7/nucleo-h743zi/configs/ntfc
+     cp ../../docs/boards/nucleo-h743zi/defconfig boards/arm/stm32h7/nucleo-h743zi/configs/ntfc
+
+Automatically build DUT images
+==============================
+
+The tool allows you to automatically build configurations and run tests on
+the created NuttX image.
+
 Then run the ``test`` command that build which will build the image
 and start testing.
 
@@ -92,43 +100,41 @@ For ``QEMU-RISCV64``::
      python -m ntfc test --confpath config/nuttx-qemu-riscv-rv-virt-64.yaml
 
 There is also a configuration available that builds the all available
-QEMU and SIM targets and runs parallel tests on all DTUs::
+QEMU and SIM targets and runs parallel tests on all DUTs::
 
   python -m ntfc test --confpath=./config/nuttx-build-qemu-sim-ntfc.yaml
 
 You can also run ``build`` command that only build image without starting tests.
 
-Creating a DTU image manually
+Automatic build and Flash
+=========================
+
+For ``NUCLEO-H743ZI`` there is availalbe configuration that automatically
+build, flash and test image ::
+
+1. Build image and flash::
+
+     python -m ntfc build --confpath config/nuttx-nucleo-h743zi.yaml
+
+2. Collect test cases without running tests::
+
+     python -m ntfc collect --confpath config/nuttx-nucleo-h743zi.yaml
+
+3. Run test cases::
+
+     python -m ntfc test --confpath config/nuttx-nucleo-h743zi.yaml
+
+Creating a DUT image manually
 =============================
 
-You can then manually build the nuttx image. Currently, such an example
-is available in ``config/nuttx-serial-stlink.yaml``.
+You can always manually build the NuttX image. Currently, such an example
+is available in ``config/nuttx-custom-image.yaml``. Commands are the same
+like before:
 
+1. Collect test cases without running tests::
 
-1. Configure and build NuttX in ``external/nuttx``.
+     python -m ntfc collect --confpath config/nuttx-custom-image.yaml
 
-   A sample configuration for ``nucleo-h743zi`` is available.
-   It demonstrating the use of the serial port to communicate with the DTU.
+2. Run test cases::
 
-   For ``NUCLEO-H743ZI``::
-
-     mkdir boards/arm/stm32h7/nucleo-h743zi/configs/ntfc
-     cp ../../docs/boards/nucleo-h743zi/defconfig boards/arm/stm32h7/nucleo-h743zi/configs/ntfc
-     ./tools/configure.sh nucleo-h743zi/ntfc
-     make -j
-     cd ../..
-
-2. Collect test cases without running tests.
-
-   For ``NUCLEO-H743ZI``::
-
-     python -m ntfc collect --confpath config/nuttx-qemu-serial-stlink.yaml
-
-   When you run NTFC with ``--debug`` option, tests that were detected but
-   the conditions for running them are not met will also be listed.
-
-3. Run test cases.
-
-   For ``NUCLEO-H743ZI``::
-
-     python -m ntfc test --confpath config/nuttx-qemu-serial-stlink.yaml
+     python -m ntfc test --confpath config/nuttx-custom-image.yaml

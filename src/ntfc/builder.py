@@ -150,10 +150,18 @@ class NuttXBuilder:
         """Flash single core image."""
         flash_cmd = cores[core].get("flash", None)
         if flash_cmd:
-            cmd = flash_cmd.split()
             img_path = Path(cores[core]["elf_path"])
+            image_hex = str(img_path.parent) + "/nuttx.hex"
+            image_bin = str(img_path.parent) + "/nuttx.bin"
 
-            cmd.append(str(img_path.parent) + "/nuttx.hex")
+            IMAGE_BIN_STR = "$IMAGE_BIN"
+            IMAGE_HEX_STR = "$IMAGE_HEX"
+
+            flash_cmd = flash_cmd.replace(IMAGE_BIN_STR, image_bin)
+            flash_cmd = flash_cmd.replace(IMAGE_HEX_STR, image_hex)
+
+            cmd = flash_cmd.split()
+
             logger.info(f"flash image cmd: {cmd}")
             self._run_command(cmd, True, None)
 

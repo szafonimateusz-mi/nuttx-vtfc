@@ -7,8 +7,6 @@ product:
   cores:
     core0:
       name: 'main'
-      device: 'serial'
-      exec_path: '/dev/ttyACM0'
-      exec_args: '115200,n,8,1'
+      device: 'sim'
       conf_path: './external/nuttx/.config'
       elf_path: './external/nuttx/nuttx'
