@@ -44,6 +44,7 @@ def cmd_collect(
     testpath: str,
     confpath: str,
     collect: str,
+    rebuild: bool,
 ) -> bool:
     """Collect test cases.
 
@@ -58,5 +59,6 @@ def cmd_collect(
     ctx.testpath = testpath
     ctx.confpath = confpath
     ctx.collect = collect
+    ctx.rebuild = rebuild
 
     return True

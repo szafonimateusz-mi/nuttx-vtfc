@@ -52,6 +52,11 @@ _testenv_options = (
         " variable NTFC_TESTPATH. Default: ./external/nuttx-testing",
         envvar="NTFC_TESTPATH",
     ),
+    click.option(
+        "--rebuild",
+        is_flag=True,
+        help="Always rebuild configuration. Default: True",
+    ),
 )
 
 

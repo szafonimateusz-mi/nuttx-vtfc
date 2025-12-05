@@ -45,8 +45,9 @@ class DEnvironmentData:
     runbuild: bool = False
 
     # commands options
+    rebuild: bool = False
     exitonfail: bool = False
-    noflash: bool = False
+    flash: bool = False
     nologs: bool = False
     collect: Optional[str] = None
     result: Optional[Any] = None

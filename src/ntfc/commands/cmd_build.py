@@ -33,15 +33,17 @@ from ntfc.cli.environment import Environment, pass_environment
 @click.command(name="build")
 @cli_confpath_option
 @click.option(
-    "--noflash",
-    default=False,
+    "--flash/--no-flash",
     is_flag=True,
+    default=True,
+    help="Flash image. Default: True",
 )
 @pass_environment
-def cmd_build(ctx: Environment, confpath: str, noflash: bool) -> bool:
+def cmd_build(ctx: Environment, confpath: str, flash: bool) -> bool:
     """Build only command."""
     ctx.runbuild = True
+    ctx.rebuild = True
     ctx.confpath = confpath
-    ctx.noflash = noflash
+    ctx.flash = flash
 
     return True

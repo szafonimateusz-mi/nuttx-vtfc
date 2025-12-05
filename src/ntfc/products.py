@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 class ProductsHandler:
     """This class implements work-around to run all products at once.
 
-    It can be useful to run tests for many DTU at once.
+    It can be useful to run tests for many DUT at once.
     This implementation is not the best, it needs to be done better
     in the future.
     """

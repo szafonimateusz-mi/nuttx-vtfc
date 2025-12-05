@@ -31,12 +31,16 @@ from ntfc.logger import logger
 class NuttXBuilder:
     """NuttX configuration builder (CMake only)."""
 
-    def __init__(self, config: Dict[str, Any]):
+    IMAGE_BIN_STR = "$IMAGE_BIN"
+    IMAGE_HEX_STR = "$IMAGE_HEX"
+
+    def __init__(self, config: Dict[str, Any], rebuild: bool = True):
         """Initialize NuttX builder."""
         if not isinstance(config, dict):
             raise TypeError("invalid config file type")
 
         self._cfg_values = config
+        self._rebuild = rebuild
 
     def _run_command(
         self, cmd: List[str], check: bool, env: Any
@@ -128,21 +132,30 @@ class NuttXBuilder:
             )
 
             nuttx_dir = os.path.join(cfg_cwd, "nuttx")
+            nuttx_elf_path = os.path.join(build_path, "nuttx")
+            nuttx_conf_path = os.path.join(build_path, ".config")
 
-            # configure build
-            self._run_cmake(
-                source=nuttx_dir,
-                build=build_path,
-                generator="Ninja",
-                defines={"BOARD_CONFIG": build_cfg},
-            )
+            already_build = False
+            if os.path.isfile(nuttx_elf_path) and os.path.isfile(
+                nuttx_conf_path
+            ):
+                already_build = True
 
-            # build
-            self._run_build(build_path)
+            if not already_build or self._rebuild:
+                # configure build
+                self._run_cmake(
+                    source=nuttx_dir,
+                    build=build_path,
+                    generator="Ninja",
+                    defines={"BOARD_CONFIG": build_cfg},
+                )
+
+                # build
+                self._run_build(build_path)
 
             # add elf and conf path
-            cores[core]["elf_path"] = os.path.join(build_path, "nuttx")
-            cores[core]["conf_path"] = os.path.join(build_path, ".config")
+            cores[core]["elf_path"] = nuttx_elf_path
+            cores[core]["conf_path"] = nuttx_conf_path
 
     def _flash_core(
         self, core: str, cores: Dict[str, Any]
@@ -154,11 +167,8 @@ class NuttXBuilder:
             image_hex = str(img_path.parent) + "/nuttx.hex"
             image_bin = str(img_path.parent) + "/nuttx.bin"
 
-            IMAGE_BIN_STR = "$IMAGE_BIN"
-            IMAGE_HEX_STR = "$IMAGE_HEX"
-
-            flash_cmd = flash_cmd.replace(IMAGE_BIN_STR, image_bin)
-            flash_cmd = flash_cmd.replace(IMAGE_HEX_STR, image_hex)
+            flash_cmd = flash_cmd.replace(self.IMAGE_BIN_STR, image_bin)
+            flash_cmd = flash_cmd.replace(self.IMAGE_HEX_STR, image_hex)
 
             cmd = flash_cmd.split()
 

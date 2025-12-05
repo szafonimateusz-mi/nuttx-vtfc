@@ -43,6 +43,7 @@ Options:
   Can be also set with environmentvariable ``NTFC_CONFPATH``.
   Default: ``./external/config.yaml``
 
+* ``--rebuild`` - Always rebuild configuration. Default: True.
 
 ``test`` command
 ----------------
@@ -75,10 +76,16 @@ Options:
 
 * ``--nologs`` - When set, test logs are not saved locally
 
+* ``--rebuild`` - Always rebuild configuration. Default: True.
+
+* ``--flash`` - Flash image. Default: False.
+
 ``build`` command
 ----------------
 
 Build NuttX test image from YAML configuration and try to flash.
+Build command always rebuild configuration and at default try to
+flash image to DUT.
 
 .. code-block:: bash
 
@@ -90,4 +97,4 @@ Options:
   Can be also set with environmentvariable ``NTFC_CONFPATH``.
   Default: ``./external/config.yaml``
 
-* ``--noflash`` - Don't try to flash image to DTU.
+* ``--flash / --no-flash``  Flash image. Default: True.

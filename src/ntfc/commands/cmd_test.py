@@ -40,11 +40,16 @@ HAS_PYTEST_JSON = importlib.util.find_spec("pytest_json") is not None
 @pass_environment
 @cli_testenv_options
 @click.option(
+    "--flash",
+    is_flag=True,
+    default=False,
+    help="Flash image. Default: False",
+)
+@click.option(
     "--jsonconf",
     type=click.Path(resolve_path=False),
     default="",
-    help="Path to test session configuration file."
-    "Default: None",
+    help="Path to test session configuration file." "Default: None",
 )
 @click.option(
     "--nologs",
@@ -71,6 +76,8 @@ def cmd_test(
     ctx: Environment,
     testpath: str,
     confpath: str,
+    rebuild: bool,
+    flash: bool,
     jsonconf: str,
     nologs: bool,
     exitonfail: bool,
@@ -80,6 +87,8 @@ def cmd_test(
     ctx.runtest = True
     ctx.testpath = testpath
     ctx.confpath = confpath
+    ctx.rebuild = rebuild
+    ctx.flash = flash
     ctx.jsonconf = jsonconf
     ctx.nologs = nologs
     ctx.exitonfail = exitonfail

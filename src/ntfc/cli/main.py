@@ -151,10 +151,10 @@ def cli_on_close(ctx: Environment) -> bool:
 
     print_yaml_config(conf)
 
-    builder = NuttXBuilder(conf)
+    builder = NuttXBuilder(conf, ctx.rebuild)
     if builder.need_build():
         builder.build_all()
-        if not ctx.noflash:
+        if ctx.flash:
             builder.flash_all()
 
         # update config

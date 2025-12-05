@@ -138,13 +138,21 @@ def test_main_build(runner, monkeypatch):
     args = [
         "build",
         "--confpath=./tests/resources/nuttx/sim/config_build.yaml",
-        "--noflash",
+        "--no-flash",
     ]
     result = runner.invoke(main, args)
     assert result.exit_code == 0
 
 
 def test_main_test(runner):
+    args = [
+        "test",
+        "--confpath=./tests/resources/nuttx/sim/config.yaml",
+        "--testpath=./tests/resources/tests_collect",
+    ]
+    result = runner.invoke(main, args)
+    assert result.exit_code == 0
+
     args = [
         "test",
         "--confpath=./tests/resources/nuttx/sim/config.yaml",
