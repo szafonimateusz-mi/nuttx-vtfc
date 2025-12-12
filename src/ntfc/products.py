@@ -20,7 +20,8 @@
 
 """Products handler class implementation."""
 
-from typing import TYPE_CHECKING, List, Optional, Union
+from concurrent.futures import ThreadPoolExecutor
+from typing import TYPE_CHECKING, Any, List, Optional, Union, cast
 
 from ntfc.device.common import CmdReturn, CmdStatus
 from ntfc.logger import logger
@@ -37,13 +38,60 @@ class ProductsHandler:
     """This class implements work-around to run all products at once.
 
     It can be useful to run tests for many DUT at once.
-    This implementation is not the best, it needs to be done better
-    in the future.
+    Methods are executed in parallel using threads with result collection.
     """
 
     def __init__(self, products: List["Product"]):
         """Initialize all products handler."""
         self._products = products
+
+    def _run_parallel(
+        self,
+        attr_name: str,
+        *args: Any,
+        **kwargs: Any,
+    ) -> List[Any]:
+        """Run a method/property on all products in parallel.
+
+        Supports both methods (with args) and properties (no args).
+        """
+
+        def worker(index_product: tuple[int, "Product"]) -> tuple[int, Any]:
+            """Call method/property on product and return indexed result.
+
+            :param index_product: Tuple of (index, product)
+            :return: Tuple of (index, result) for ordering preservation
+            """
+            index, product = index_product
+            try:
+                attr = getattr(product, attr_name)
+                # Handle both properties and methods
+                if callable(attr):
+                    result = attr(*args, **kwargs)
+                else:
+                    result = attr
+                return (index, result)
+            except Exception as e:  # pragma: no cover
+                logger.error(
+                    f"Exception in parallel call to {attr_name} "
+                    f"for product {product}: {e}"
+                )
+                return (index, None)
+
+        # Execute all workers in parallel
+        with ThreadPoolExecutor(max_workers=len(self._products)) as executor:
+            indexed_products = list(enumerate(self._products))
+            futures = [
+                executor.submit(worker, item) for item in indexed_products
+            ]
+
+            # Collect results in original order
+            results: List[Any] = [None] * len(self._products)
+            for future in futures:
+                index, result = future.result()
+                results[index] = result
+
+        return results
 
     def sendCommand(  # noqa: N802
         self,
@@ -55,14 +103,24 @@ class ProductsHandler:
         match_all: bool = True,
         regexp: bool = False,
     ) -> CmdStatus:
-        """Send command to all products."""
-        for p in self._products:
-            ret = p.sendCommand(
-                cmd, expects, args, timeout, flag, match_all, regexp
-            )
-            if ret != 0:
-                logger.info(f"sendCommand failed for product {p}")
-                return ret
+        """Send command to all products in parallel."""
+        results = self._run_parallel(
+            "sendCommand",
+            cmd,
+            expects,
+            args,
+            timeout,
+            flag,
+            match_all,
+            regexp,
+        )
+
+        for idx, ret in enumerate(results):
+            if ret != CmdStatus.SUCCESS:
+                logger.info(
+                    f"sendCommand failed for product {self._products[idx]}"
+                )
+                return cast("CmdStatus", ret)
 
         return CmdStatus.SUCCESS
 
@@ -73,63 +131,75 @@ class ProductsHandler:
         args: Optional[Union[str, List[str]]] = None,
         timeout: int = 30,
     ) -> CmdReturn:
-        """Send command to all products."""
-        for p in self._products:
-            ret = p.sendCommandReadUntilPattern(cmd, pattern, args, timeout)
-            if ret.status != 0:
+        """Send command to all products in parallel."""
+        results = self._run_parallel(
+            "sendCommandReadUntilPattern",
+            cmd,
+            pattern,
+            args,
+            timeout,
+        )
+
+        for idx, ret in enumerate(results):
+            if ret.status != CmdStatus.SUCCESS:
                 logger.info(
-                    f"sendCommandReadUntilPattern failed for product {p}"
+                    f"sendCommandReadUntilPattern failed for "
+                    f"product {self._products[idx]}"
                 )
-                return ret
+                return cast("CmdReturn", ret)
 
         return CmdReturn(CmdStatus.SUCCESS)
 
     def sendCtrlCmd(self, ctrl_char: str) -> None:  # noqa: N802
-        """Send ctrl command to all products."""
-        for p in self._products:
-            p.sendCtrlCmd(ctrl_char)
+        """Send ctrl command to all products in parallel."""
+        self._run_parallel("sendCtrlCmd", ctrl_char)
 
     @property
     def busyloop(self) -> bool:
-        """Get busyloop flag from products."""
-        for p in self._products:
-            if p.busyloop:
-                logger.info(f"busyloop for product {p}")
+        """Get busyloop flag from products in parallel."""
+        results = self._run_parallel("busyloop")
+        for idx, result in enumerate(results):
+            if result:
+                logger.info(f"busyloop for product {self._products[idx]}")
                 return True
         return False
 
     @property
     def flood(self) -> bool:
-        """Get flood flag from products."""
-        for p in self._products:
-            if p.flood:
-                logger.info(f"flood for product {p}")
+        """Get flood flag from products in parallel."""
+        results = self._run_parallel("flood")
+        for idx, result in enumerate(results):
+            if result:
+                logger.info(f"flood for product {self._products[idx]}")
                 return True
         return False
 
     @property
     def crash(self) -> bool:
-        """Get crash flag from products."""
-        for p in self._products:
-            if p.crash:
-                logger.info(f"crash for product {p}")
+        """Get crash flag from products in parallel."""
+        results = self._run_parallel("crash")
+        for idx, result in enumerate(results):
+            if result:
+                logger.info(f"crash for product {self._products[idx]}")
                 return True
         return False
 
     @property
     def notalive(self) -> bool:
-        """Get notalive flag from products."""
-        for p in self._products:
-            if p.notalive:
-                logger.info(f"notalive for product {p}")
+        """Get notalive flag from products in parallel."""
+        results = self._run_parallel("notalive")
+        for idx, result in enumerate(results):
+            if result:
+                logger.info(f"notalive for product {self._products[idx]}")
                 return True
         return False
 
     def reboot(self) -> bool:
-        """Run reboot for all products."""
-        for p in self._products:
-            if not p.reboot():
-                logger.info(f"reboot failed for product {p}")
+        """Run reboot for all products in parallel."""
+        results = self._run_parallel("reboot")
+        for idx, result in enumerate(results):
+            if not result:
+                logger.info(f"reboot failed for product {self._products[idx]}")
         return True
 
     @property
