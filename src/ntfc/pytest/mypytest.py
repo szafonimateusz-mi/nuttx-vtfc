@@ -24,7 +24,6 @@ import importlib.util
 import os
 import sys
 from datetime import datetime
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import pytest
@@ -57,6 +56,8 @@ hookimpl = HookimplMarker("pytest")
 
 class MyPytest:
     """Custom wrapper for pytest."""
+
+    NTFC_YAML_FILE = "ntfc.yaml"
 
     def __init__(
         self,
@@ -163,30 +164,48 @@ class MyPytest:
         # run pytest in collection-only mode with our custom plugin
         return pytest.main(opt, plugins=plugins)
 
-    def _module_config(self, path: str) -> None:
+    def _find_config_file(self, testpath: str) -> Optional[str]:
+        """Search for ntfc.yaml in testpath and parent directories.
+
+        :param testpath: starting path for search
+        :return: path to ntfc.yaml if found, None otherwise
+        """
+        current_path = os.path.abspath(testpath)
+
+        # search upwards from testpath
+        while True:
+            config_file = os.path.join(current_path, self.NTFC_YAML_FILE)
+            if os.path.exists(config_file):
+                return str(config_file)
+
+            parent = os.path.dirname(current_path)
+            if parent == current_path:  # reached root
+                break
+            current_path = parent
+
+        return None
+
+    def _module_config(self, path: Optional[str]) -> None:
         """Load test module configuration."""
         self._cfg_module = {}
-        try:
-            logger.info(f"ntfc.conf file {path}")
-            _path = Path(path)
+        if path is None:
+            logger.info(f"no {self.NTFC_YAML_FILE} file found")
+            return
 
-            with open(_path, encoding="utf-8") as f:  # pragma: no cover
+        try:
+            logger.info(f"{self.NTFC_YAML_FILE} file {path}")
+
+            with open(path, encoding="utf-8") as f:  # pragma: no cover
                 self._cfg_module = yaml.safe_load(f)
 
         except TypeError:  # pragma: no cover
             pass
 
-        except NotADirectoryError:
-            logger.info("no ntfc.conf file")
-
-        except FileNotFoundError:
-            logger.info("no ntfc.conf file")
-
     def _init_pytest(self, testpath: str) -> None:
         """Initialize pytest environment."""
         # inject some objects into pytest module
         # load per test module configuration
-        conf_path = os.path.join(testpath, "ntfc.yaml")
+        conf_path = self._find_config_file(testpath)
         self._module_config(conf_path)
 
         # store some objects for later use in pytest context
@@ -195,7 +214,11 @@ class MyPytest:
         pytest.product = ProductsHandler(pytest.products)
         pytest.task = self._config.product_get(product=0)
         pytest.testpath = os.path.abspath(testpath)
-        pytest.testroot = os.path.abspath(testpath)
+
+        if conf_path:
+            pytest.testroot = conf_path.replace(self.NTFC_YAML_FILE, "")
+        else:
+            pytest.testroot = testpath
 
         # python dependencies for test cases module
         dependencies = self._cfg_module.get("dependencies", [])

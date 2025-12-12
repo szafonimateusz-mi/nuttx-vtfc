@@ -46,9 +46,12 @@ class CollectedItem:
         self._path = path
         self._line = line
         self._nodeid = nodeid
-        self._module2 = modname + "_".join(
-            part.capitalize() for part in root.split("/")[:-1]
-        )
+
+        tmp = "_".join(part.capitalize() for part in root.split("/")[:-1])
+        if tmp and tmp[0] != "_":
+            tmp = "_" + tmp
+
+        self._module2 = modname + tmp
 
     def __str__(self) -> str:
         """Get collected item string representation."""
