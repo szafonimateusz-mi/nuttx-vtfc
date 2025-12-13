@@ -53,13 +53,20 @@ def test_product_config():
     assert p.core(1)["device"] == "sim2"
 
     with pytest.raises(AttributeError):
-        p.key_check("aaa", 3)
-
-    with pytest.raises(AttributeError):
         p.cmd_check("aaa", 3)
 
     with pytest.raises(AttributeError):
         p.kv_check("aaa", 3)
+
+    assert p.kv_check("aaa", 0) is False
+    assert p.kv_check("aaa", 1) is False
+    assert p.kv_check("CONFIG_SYSTEM_NSH", 0) is True
+    assert p.kv_check("CONFIG_SYSTEM_NSH", 1) is True
+
+    assert p.cmd_check("aaa", 0) is False
+    assert p.cmd_check("aaa", 1) is False
+    assert p.cmd_check("hello_main", 0) is True
+    assert p.cmd_check("hello_main", 1) is True
 
     conf = {
         "name": "product",
