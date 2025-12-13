@@ -29,7 +29,7 @@ from ntfc.logger import logger
 from .common import DeviceCommon
 
 if TYPE_CHECKING:
-    from ntfc.productconfig import ProductConfig
+    from ntfc.coreconfig import CoreConfig
 
 ###############################################################################
 # Class: DeviceSerial
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 class DeviceSerial(DeviceCommon):
     """This class implements host-based sim emulator."""
 
-    def __init__(self, conf: "ProductConfig"):
+    def __init__(self, conf: "CoreConfig"):
         """Initialize sim emulator device."""
         DeviceCommon.__init__(self, conf)
         self._ser = None
@@ -135,8 +135,8 @@ class DeviceSerial(DeviceCommon):
     def start(self) -> None:
         """Start serial communication."""
         timeout = 0
-        path = self._conf.core()["exec_path"]
-        args = self._conf.core()["exec_args"]
+        path = self._conf.exec_path
+        args = self._conf.exec_args
 
         logger.info(f"serial path: {path}")
         logger.info(f"serial args: {args}")
@@ -172,9 +172,9 @@ class DeviceSerial(DeviceCommon):
 
     def reboot(self, timeout: int = 1) -> bool:
         """Reboot the device."""
-        if "reboot" in self._conf.core():  # pragma: no cover
-            logger.info("reboot device")
-            cmd = self._conf.core()["reboot"]
+        if self._conf.reboot:  # pragma: no cover
+            logger.info("reboot core")
+            cmd = self._conf.reboot
             self._system_cmd(cmd)
 
             # clear fautl flags

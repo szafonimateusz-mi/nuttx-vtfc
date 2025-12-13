@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, List
 from .oscommon import OSCommon
 
 if TYPE_CHECKING:
-    from ntfc.productconfig import ProductConfig
+    from ntfc.coreconfig import CoreConfig
 
 ###############################################################################
 # Class: DeviceNuttx
@@ -44,7 +44,7 @@ class DeviceNuttx(OSCommon):
     _UNAME_RESP = b"NuttX"
     _CRASH_KEYS = [b"Assertion"]
 
-    def __init__(self, conf: "ProductConfig"):
+    def __init__(self, conf: "CoreConfig"):
         """Initialize NuttX OS abstraction."""
         self._conf = conf
         # TODO: login, password etc

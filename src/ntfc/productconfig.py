@@ -84,3 +84,12 @@ class ProductConfig:
             raise AttributeError(f"no data for core {core}")
 
         return self._cores[core].cmd_check(cmd)
+
+    @property
+    def cores_num(self) -> int:
+        """Get number of cores."""
+        return len(self._cores)
+
+    def cfg_core(self, cpu: int) -> CoreConfig:
+        """Get core configuration."""
+        return self._cores[cpu]

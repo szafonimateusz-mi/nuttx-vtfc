@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING
 from .host import DeviceHost
 
 if TYPE_CHECKING:
-    from ntfc.productconfig import ProductConfig
+    from ntfc.coreconfig import CoreConfig
 
 ##############################################################################
 # Class: DeviceQemu
@@ -35,15 +35,15 @@ if TYPE_CHECKING:
 class DeviceQemu(DeviceHost):
     """This class implements host-based QEMU emulator."""
 
-    def __init__(self, conf: "ProductConfig"):
+    def __init__(self, conf: "CoreConfig"):
         """Initialize QEMU emulator device."""
         DeviceHost.__init__(self, conf)
 
     def start(self) -> None:
         """Start QEMU emulator."""
-        elf = self._conf.core(cpu=0)["elf_path"]
-        exec_path = self._conf.core(cpu=0)["exec_path"]
-        exec_args = self._conf.core(cpu=0)["exec_args"]
+        elf = self._conf.elf_path
+        exec_path = self._conf.exec_path
+        exec_args = self._conf.exec_args
 
         if not elf:
             raise IOError
@@ -51,7 +51,7 @@ class DeviceQemu(DeviceHost):
             raise KeyError("no exec_path in configuration file!")
 
         cmd = []
-        uptime = self._conf.core(cpu=0).get("uptime", 3)
+        uptime = self._conf.uptime
         kernel_param = "-kernel " + elf
 
         cmd.append(exec_path)

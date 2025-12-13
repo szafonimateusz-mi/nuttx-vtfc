@@ -34,7 +34,7 @@ from ntfc.logger import logger
 from .getos import get_os
 
 if TYPE_CHECKING:
-    from ntfc.productconfig import ProductConfig
+    from ntfc.coreconfig import CoreConfig
 
 
 ###############################################################################
@@ -86,7 +86,7 @@ class DeviceCommon(ABC):
 
     _BUSY_LOOP_TIMEOUT = 180  # 180 sec with no data read from target
 
-    def __init__(self, conf: "ProductConfig"):
+    def __init__(self, conf: "CoreConfig"):
         """Initialize common device."""
         self._conf = conf
         # get OS abstraction

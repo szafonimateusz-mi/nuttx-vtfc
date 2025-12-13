@@ -27,7 +27,7 @@ from .serial import DeviceSerial
 from .sim import DeviceSim
 
 if TYPE_CHECKING:
-    from ntfc.productconfig import ProductConfig
+    from ntfc.coreconfig import CoreConfig
 
     from .common import DeviceCommon
 
@@ -36,9 +36,9 @@ if TYPE_CHECKING:
 ###############################################################################
 
 
-def get_device(conf: "ProductConfig", cpu: int = 0) -> "DeviceCommon":
+def get_device(conf: "CoreConfig", cpu: int = 0) -> "DeviceCommon":
     """Get device from a given name."""
-    devname = conf.core(cpu).get("device", None)
+    devname = conf.device
 
     if not devname:
         raise ValueError("Unspecified device")

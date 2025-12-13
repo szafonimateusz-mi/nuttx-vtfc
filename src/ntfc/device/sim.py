@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING
 from .host import DeviceHost
 
 if TYPE_CHECKING:
-    from ntfc.productconfig import ProductConfig
+    from ntfc.coreconfig import CoreConfig
 
 ###############################################################################
 # Class: DeviceSim
@@ -35,18 +35,18 @@ if TYPE_CHECKING:
 class DeviceSim(DeviceHost):
     """This class implements host-based sim emulator."""
 
-    def __init__(self, conf: "ProductConfig"):
+    def __init__(self, conf: "CoreConfig"):
         """Initialize sim emulator device."""
         DeviceHost.__init__(self, conf)
 
     def start(self) -> None:
         """Start sim emulator."""
-        elf = self._conf.core(cpu=0)["elf_path"]
+        elf = self._conf.elf_path
         if not elf:
             raise IOError
 
         cmd = [elf]
-        uptime = self._conf.core(cpu=0).get("uptime", 3)
+        uptime = self._conf.uptime
 
         # open host-based emulation
         self.host_open(cmd, uptime)

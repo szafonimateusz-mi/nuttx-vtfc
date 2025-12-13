@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING
 from .nuttx import DeviceNuttx
 
 if TYPE_CHECKING:
-    from ntfc.productconfig import ProductConfig
+    from ntfc.coreconfig import CoreConfig
 
     from .oscommon import OSCommon
 
@@ -34,6 +34,6 @@ if TYPE_CHECKING:
 ###############################################################################
 
 
-def get_os(conf: "ProductConfig") -> "OSCommon":
+def get_os(conf: "CoreConfig") -> "OSCommon":
     """Get OS abstraction."""
     return DeviceNuttx(conf)  # only NuttX supported now

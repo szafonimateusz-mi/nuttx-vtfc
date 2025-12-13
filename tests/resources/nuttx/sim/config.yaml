@@ -17,30 +17,6 @@ product:
       conf_path: './tests/resources/nuttx/sim/kv_config'
       elf_path: './tests/resources/nuttx/sim/nuttx'
 
-    core2:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core3:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core4:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
-    core5:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''
-
 product1:
 
   name: "product1"
@@ -66,9 +42,3 @@ product2:
       device: 'sim'
       conf_path: './tests/resources/nuttx/sim/kv_config'
       elf_path: './tests/resources/nuttx/sim/nuttx'
-
-    core1:
-      name: ''
-      device: ''
-      conf_path: ''
-      elf_path: ''

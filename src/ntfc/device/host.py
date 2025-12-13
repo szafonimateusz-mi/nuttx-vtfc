@@ -33,7 +33,7 @@ from ntfc.logger import logger
 from .common import DeviceCommon
 
 if TYPE_CHECKING:
-    from ntfc.productconfig import ProductConfig
+    from ntfc.coreconfig import CoreConfig
 
 ###############################################################################
 # Class: DeviceHost
@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 class DeviceHost(DeviceCommon):
     """This class implements common interface for host emulated devices."""
 
-    def __init__(self, conf: "ProductConfig"):
+    def __init__(self, conf: "CoreConfig"):
         """Initialize host based device.
 
         :param conf: configuration handler

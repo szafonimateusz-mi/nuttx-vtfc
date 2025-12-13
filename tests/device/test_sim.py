@@ -27,10 +27,10 @@ from ntfc.device.sim import DeviceSim
 
 def test_device_sim_init():
 
-    with patch("ntfc.envconfig.EnvConfig") as mockdevice:
+    with patch("ntfc.coreconfig.CoreConfig") as mockdevice:
         config = mockdevice.return_value
-        config.core.return_value = {"elf_path": ""}
 
+        config.elf_path = ""
         sim = DeviceSim(config)
 
         assert sim.name == "sim"

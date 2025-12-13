@@ -24,13 +24,12 @@ import importlib.util
 import os
 import sys
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import pytest
 import yaml  # type: ignore
 from pluggy import HookimplMarker
 
-from ntfc.device.getdev import get_device
 from ntfc.envconfig import EnvConfig
 from ntfc.logger import logger
 from ntfc.product import Product
@@ -40,10 +39,6 @@ from .collected import Collected
 from .collector import CollectorPlugin
 from .configure import PytestConfigPlugin
 from .runner import RunnerPlugin
-
-if TYPE_CHECKING:
-    from ntfc.device.common import DeviceCommon
-
 
 # required for plugin
 hookimpl = HookimplMarker("pytest")
@@ -64,7 +59,6 @@ class MyPytest:
         config: Dict[str, Any],
         exit_on_fail: bool = False,
         verbose: bool = False,
-        device: Optional[List["DeviceCommon"]] = None,
         confjson: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize pytest wrapper.
@@ -74,7 +68,6 @@ class MyPytest:
         :param verbose: verbose output if set to True
         """
         self._config = EnvConfig(config)
-        self._device = device
         self._opt: List[str] = []
         self._plugins: List[Any] = []
         self._cfg_module: Dict[str, Any] = {}
@@ -115,18 +108,11 @@ class MyPytest:
                 return False, req
         return True, None
 
-    def _create_products(
-        self, config: "EnvConfig", device: Optional[List["DeviceCommon"]]
-    ) -> List[Product]:
+    def _create_products(self, config: "EnvConfig") -> List[Product]:
         """Create products according to configuration."""
         tmp = []
-        for i, prod_config in enumerate(config.product):
-            if not device or not device[i]:
-                dev = get_device(prod_config)
-            else:
-                dev = device[i]
-
-            p = Product(dev, prod_config)
+        for prod_config in config.product:
+            p = Product(prod_config)
 
             # check config requirements
             for core in range(len(p.conf.cores)):
@@ -210,7 +196,7 @@ class MyPytest:
 
         # store some objects for later use in pytest context
         pytest.ntfcyaml = self._cfg_module
-        pytest.products = self._create_products(self._config, self._device)
+        pytest.products = self._create_products(self._config)
         pytest.product = ProductsHandler(pytest.products)
         pytest.task = self._config.product_get(product=0)
         pytest.testpath = os.path.abspath(testpath)
@@ -233,7 +219,7 @@ class MyPytest:
         """Start device to test."""
         for product in pytest.products:
             # start device
-            product.device.start()
+            product.start()
             # finish product initialization
             product.init()
 

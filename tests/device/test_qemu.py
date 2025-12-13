@@ -32,24 +32,22 @@ def host_open_dummy(cmd, uptime):
 
 def test_device_qemu_open():
 
-    with patch("ntfc.envconfig.EnvConfig") as mockdevice:
+    with patch("ntfc.coreconfig.CoreConfig") as mockdevice:
         config = mockdevice.return_value
 
-        config.core.return_value = {
-            "exec_path": "",
-            "exec_args": "",
-            "elf_path": "",
-        }
+        config.exec_path = ""
+        config.exec_args = ""
+        config.elf_path = ""
+
         qemu = DeviceQemu(config)
 
         with pytest.raises(IOError):
             qemu.start()
 
-        config.core.return_value = {
-            "exec_path": "",
-            "exec_args": "",
-            "elf_path": "some/path",
-        }
+        config.exec_path = ""
+        config.exec_args = ""
+        config.elf_path = "some/path"
+
         with pytest.raises(KeyError):
             qemu.start()
 
@@ -57,9 +55,9 @@ def test_device_qemu_open():
 
         qemu.host_open = host_open_dummy
 
-    config.core.return_value = {
-        "exec_path": "some/path",
-        "exec_args": "some args",
-        "elf_path": "some/path",
-    }
-    qemu.start()
+        config.exec_path = "some/path"
+        config.exec_args = "some args"
+        config.elf_path = "some/path"
+        config.uptime = 3
+
+        qemu.start()

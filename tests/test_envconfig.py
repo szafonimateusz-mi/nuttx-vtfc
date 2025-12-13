@@ -56,23 +56,24 @@ def test_envconfig_product():
     assert (
         env.core(cpu=1)["conf_path"] == "./tests/resources/nuttx/sim/kv_config"
     )
-    assert env.core(cpu=2)["conf_path"] == ""
-    assert env.core(cpu=3)["conf_path"] == ""
+
+    with pytest.raises(KeyError):
+        _ = env.core(cpu=2)["conf_path"]
 
     assert env.core(cpu=0)["elf_path"] == "./tests/resources/nuttx/sim/nuttx"
     assert env.core(cpu=1)["elf_path"] == "./tests/resources/nuttx/sim/nuttx"
-    assert env.core(cpu=2)["elf_path"] == ""
-    assert env.core(cpu=3)["elf_path"] == ""
+
+    with pytest.raises(KeyError):
+        _ = env.core(cpu=2)["elf_path"]
 
     assert env.core(cpu=0)["name"] == "main"
     assert env.core(cpu=1)["name"] == "core1"
-    assert env.core(cpu=2)["name"] == ""
-    assert env.core(cpu=3)["name"] == ""
+
+    with pytest.raises(KeyError):
+        _ = env.core(cpu=2)["name"]
 
     assert env.core(cpu=0)["device"] == "sim"
     assert env.core(cpu=1)["device"] == "sim"
-    assert env.core(cpu=2)["device"] == ""
-    assert env.core(cpu=3)["device"] == ""
 
     assert env.core(product=1)["name"] == "product1-main"
     assert env.core(product=1, cpu=0)["name"] == "product1-main"
@@ -82,7 +83,6 @@ def test_envconfig_product():
 
     assert env.core(product=2)["name"] == "product2-main"
     assert env.core(product=2, cpu=0)["name"] == "product2-main"
-    assert env.core(product=2, cpu=1)["name"] == ""
     assert env.core(product=2, cpu=2) == {}
     assert env.core(product=2, cpu=3) == {}
 

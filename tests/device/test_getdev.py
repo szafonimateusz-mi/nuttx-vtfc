@@ -28,21 +28,21 @@ def test_getdev_get_device(envconfig_dummy):
     envconfig_dummy.product_get(0)["cores"]["core0"]["device"] = ""
 
     with pytest.raises(ValueError):
-        get_device(envconfig_dummy.product[0])
+        get_device(envconfig_dummy.product[0].cfg_core(0))
 
     envconfig_dummy.product_get(0)["cores"]["core0"]["device"] = "dummy"
 
     with pytest.raises(ValueError):
-        get_device(envconfig_dummy.product[0])
+        get_device(envconfig_dummy.product[0].cfg_core(0))
 
     envconfig_dummy.product_get(0)["cores"]["core0"]["device"] = "sim"
 
-    _ = get_device(envconfig_dummy.product[0])
+    _ = get_device(envconfig_dummy.product[0].cfg_core(0))
 
     envconfig_dummy.product_get(0)["cores"]["core0"]["device"] = "qemu"
 
-    _ = get_device(envconfig_dummy.product[0])
+    _ = get_device(envconfig_dummy.product[0].cfg_core(0))
 
     envconfig_dummy.product_get(0)["cores"]["core0"]["device"] = "serial"
 
-    _ = get_device(envconfig_dummy.product[0])
+    _ = get_device(envconfig_dummy.product[0].cfg_core(0))

@@ -20,23 +20,21 @@
 
 """Product class implementation."""
 
-import re
 from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
     List,
     Optional,
-    Tuple,
     Union,
 )
 
-from ntfc.device.common import CmdReturn, CmdStatus
-from ntfc.logger import logger
+from ntfc.core import ProductCore
+from ntfc.device.getdev import get_device
 from ntfc.productconfig import ProductConfig
 
 if TYPE_CHECKING:
-    from ntfc.device.common import DeviceCommon
+    from ntfc.device.common import CmdReturn, CmdStatus
 
 
 ###############################################################################
@@ -47,140 +45,57 @@ if TYPE_CHECKING:
 class Product:
     """This class implements product under test."""
 
-    def __init__(self, device: "DeviceCommon", conf: "ProductConfig") -> None:
+    def __init__(self, conf: "ProductConfig") -> None:
         """Initialize product under test.
 
-        :param device: DeviceCommon instance
         :param conf: ProductConfig instance
         """
-        if not device:
-            raise TypeError("Device instance is required")
-
         if not isinstance(conf, ProductConfig):
             raise TypeError("Config instance is required")
 
-        self._device = device
-        self._main_prompt = self._device.prompt
-        self._cur_prompt = (
-            self._main_prompt
-            if isinstance(self._main_prompt, str)
-            else self._main_prompt.decode("utf-8", errors="ignore")
-        )
-        self._uptime = conf.core(cpu=0).get("uptime", 3)
         self._name = conf.name
         self._conf = conf
 
-        # cores info not ready yet, done in self.init() method called when
-        # device is ready
-        self._core0: Optional[str] = None
-        self._cur_core: Optional[str] = None
-        self._cores: Tuple[str, ...] = ()
+        self._cores: List[ProductCore] = []
+        for core in range(conf.cores_num):
+            dev = get_device(conf.cfg_core(core))
+            self._cores.append(ProductCore(dev, conf.cfg_core(core)))
 
     def __str__(self) -> str:
         """Get string for object."""
         return f"Product: {self._name}"
 
-    def _prepare_command(
-        self, cmd: str, args: Optional[Union[str, List[str]]]
-    ) -> str:
-        """Ensure command is valid and include arguments."""
-        if not cmd:
-            raise ValueError("Command cannot be empty.")
-        if args:
-            if not isinstance(args, (list, tuple)):
-                args = [args]
-            cmd = f"{cmd} {' '.join(args)}"
-        return cmd
-
-    def _prepare_pattern(
-        self,
-        cmd: str,
-        expects: Optional[Union[str, List[str]]],
-        flag: str,
-        match_all: bool,
-        regexp: bool,
-    ) -> str:
-        """Build a single regex pattern string."""
-        if expects:
-            expects_list = (
-                expects if isinstance(expects, (list, tuple)) else [expects]
-            )
-            pattern = self._build_expect_pattern(
-                expects_list, match_all, regexp
-            )
-        else:
-            pattern = self._default_prompt_pattern(cmd, flag)
-
-        # Add 'command not found' alternative
-        notfound_pattern = re.escape(
-            f"{cmd.split(' ')[0]}: {self._device.no_cmd}"
-        )
-        # Wrap everything and make sure dot matches newlines
-        full_pattern = f"(?s)({pattern}|{notfound_pattern})"
-        return full_pattern
-
-    def _build_expect_pattern(
-        self, expects: List[str], match_all: bool, regexp: bool
-    ) -> str:
-        """Return a single regex string."""
-        items = expects if regexp else [re.escape(e) for e in expects]
-
-        if match_all:
-            # Build stacked lookaheads for AND semantics
-            return "".join(f"(?=.*{item})" for item in items)
-
-        # OR semantics
-        return rf"({'|'.join(items)})"
-
-    def _default_prompt_pattern(self, cmd: str, flag: str = "") -> str:
-        """Return prompt-based fallback pattern (string)."""
-        prompt = flag if flag else self._cur_prompt
-        return (
-            f"{re.escape(prompt)}(?!.*{cmd})"
-            if cmd not in ["\n"]
-            else re.escape(prompt)
-        )
-
-    def _encode_for_device(
-        self, cmd: str, pattern: Union[str, bytes, List[Union[str, bytes]]]
-    ) -> Tuple[bytes, bytes]:
-        """Encode command and pattern to bytes, merging lists if needed."""
-        cmd_bytes = cmd.encode("utf-8")
-
-        if isinstance(pattern, list):
-            # Combine list into one string pattern (mainly for compatibility)
-            pattern_str = "".join(
-                (
-                    p.decode("utf-8")
-                    if isinstance(p, (bytes, bytearray))
-                    else str(p)
-                )
-                for p in pattern
-            )
-            pattern_bytes = pattern_str.encode("utf-8")
-        elif isinstance(pattern, (bytes, bytearray)):
-            pattern_bytes = bytes(pattern)
-        else:
-            pattern_bytes = str(pattern).encode("utf-8")
-
-        return cmd_bytes, pattern_bytes
-
-    def _match_not_found(self, rematch: Optional[re.Match[Any]]) -> bool:
-        """Check for 'command not found' message."""
-        if not rematch:
-            return False
-        matched = rematch.group().strip()
-        if isinstance(matched, (bytes, bytearray)):
-            matched = matched.decode("utf-8", errors="ignore")
-        return self._device.no_cmd in matched
-
     def init(self) -> None:
-        """Finish product initialization."""
-        cores = self.get_core_info()
-        self._core0 = cores[0] if cores else "core0"
-        self._cur_core = self._core0
-        self._cores = cores if cores else ("core0",)
-        logger.info(f"Current product support cores: {self._cores}")
+        """Initialize all cores."""
+        for core in self._cores:
+            core.init()
+
+    def start(self) -> None:
+        """Start for all cores."""
+        for core in self._cores:
+            core.start()
+
+    @property
+    def cores(self) -> List[str]:
+        """List of cores."""
+        tmp = []
+        for core in self._cores:
+            tmp.append(core.name)
+        return tmp
+
+    @property
+    def conf(self) -> "ProductConfig":
+        """Get product configuration."""
+        return self._conf
+
+    @property
+    def name(self) -> str:
+        """Get product name."""
+        return self._name
+
+    def core(self, cpu: int = 0) -> ProductCore:
+        """Get product core handler."""
+        return self._cores[cpu]
 
     def sendCommand(  # noqa: N802
         self,
@@ -192,41 +107,10 @@ class Product:
         match_all: bool = True,
         regexp: bool = False,
     ) -> "CmdStatus":
-        """Send command and wait for expected response.
-
-        :param cmd: Command to send
-        :param expects: List of expected responses or None
-        :param args: List of additional arguments to append to the command
-         or None
-        :param timeout: Timeout in seconds
-        :param flag: Default _prompt
-        :param match_all: "True" for all responses to match, "False" for any
-         response to match
-        :param regexp: "False" for str to match, "True" for regular
-        expression to match
-        :raises ValueError:
-        :raises DeviceError: Communication error with device
-        :raises TimeoutError: Response timeout
-
-        :return: status : command execution status
-        """
-        cmd = self._prepare_command(cmd, args)
-        pattern = self._prepare_pattern(cmd, expects, flag, match_all, regexp)
-        cmd_bytes, pattern_bytes = self._encode_for_device(cmd, pattern)
-
-        logger.debug(
-            f"Sending command: {cmd}, expecting: "
-            f"{pattern} (timeout={timeout}s)"
+        """Passthrough to core0."""
+        return self.core(0).sendCommand(
+            cmd, expects, args, timeout, flag, match_all, regexp
         )
-
-        cmdret = self._device.send_cmd_read_until_pattern(
-            cmd_bytes, pattern=pattern_bytes, timeout=timeout
-        )
-
-        if cmdret.valid_match() and self._match_not_found(cmdret.rematch):
-            return CmdStatus.NOTFOUND
-
-        return cmdret.status
 
     def sendCommandReadUntilPattern(  # noqa: N802
         self,
@@ -234,267 +118,51 @@ class Product:
         pattern: Optional[Union[str, bytes, List[Union[str, bytes]]]] = None,
         args: Optional[Union[str, List[str]]] = None,
         timeout: int = 30,
-    ) -> CmdReturn:
-        """Send command to device and read until a specific pattern.
-
-        :param cmd: (str or list of strs) command to send to device
-        :param pattern: (str, bytes, or list of (str, bytes)) String or regex
-         pattern to look for. If a list, patterns will be concatenated
-         with '.*'. The pattern will be converted to bytes for matching.
-        :param args: List of additional arguments to append to the command
-         or None
-        :param timeout: (int) timeout value in seconds, default 30s.
-
-        :return: CmdReturn : command return data
-        """
-        cmd = self._prepare_command(cmd, args)
-        pattern = self._default_prompt_pattern(cmd) if not pattern else pattern
-        cmd_bytes, pattern_bytes = self._encode_for_device(cmd, pattern)
-
-        logger.debug(
-            f"Sending command: {cmd}, expecting pattern: "
-            f"{pattern.decode() if isinstance(pattern, bytes) else pattern} "
-            f"(timeout={timeout}s)"
-        )
-        return self._device.send_cmd_read_until_pattern(
-            cmd_bytes, pattern=pattern_bytes, timeout=timeout
+    ) -> "CmdReturn":
+        """Passthrough to core0."""
+        return self.core(0).sendCommandReadUntilPattern(
+            cmd, pattern, args, timeout
         )
 
     def sendCtrlCmd(self, ctrl_char: str) -> None:  # noqa: N802
-        """Send a control character command (e.g., Ctrl+C).
-
-        :param ctrl_char: Control character to send
-        """
-        if len(ctrl_char) != 1:
-            raise ValueError(
-                "ctrl_char must be a single alphabetic character."
-            )
-
-        if self._device.send_ctrl_cmd(ctrl_char) == CmdStatus.SUCCESS:
-            logger.info(f"Successfully sent Ctrl+{ctrl_char}")
-        else:
-            logger.warning(f"Failed to send Ctrl+{ctrl_char}")
-
-    # REVISIT: no proc/rpmsg in nuttx/upstream!
-    def get_core_info(self) -> Tuple[str, ...]:
-        """Retrieve CPU core information from the device.
-
-        :return: Tuple containing Local CPU as first element followed by Remote
-                 CPUs. Returns empty tuple on failure.
-        """
-        cmd_rpmsg = b"cat proc/rpmsg"
-        timeout = 5
-        nonuttx_core = ["dsp"]  # Non-NuttX core (extend this list as needed)
-
-        # Send command and get raw output
-        cmdret = self._device.send_cmd_read_until_pattern(
-            cmd_rpmsg, pattern=self._main_prompt, timeout=timeout
-        )
-
-        if cmdret.status != 0:
-            logger.error(f"Command failed with return code: {cmdret.status}")
-            return ()
-
-        # Parse output
-        decoded_output = cmdret.output
-        lines = [line.strip() for line in decoded_output.splitlines()]
-
-        # Find header location
-        header_index = next(
-            (
-                i
-                for i, line in enumerate(lines)
-                if "Local CPU" in line and "Remote CPU" in line
-            ),
-            -1,
-        )
-
-        # Early return if header not found
-        if header_index == -1:
-            logger.warning("CPU information header not found in output")
-            return ()
-
-        # Process data rows
-        core_data = []
-        for line in lines[header_index + 1 :]:  # pragma: no cover
-            prompt = self._device.prompt.decode()
-            if line.startswith(prompt):
-                break  # Stop at next prompt
-
-            parts = line.split()
-            if len(parts) >= 2:
-                core_data.append((parts[0], parts[1]))
-
-        # Validate and format results
-        if not core_data:
-            logger.warning("No valid CPU data found after header")
-            return ()
-
-        # Extract unique Local CPU (default single value)
-        local_cpu = core_data[0][0]
-
-        # Create result tuple (Local CPU + all Remote CPUs)
-        return (
-            local_cpu,
-            *(cpu[1] for cpu in core_data if cpu[1] not in nonuttx_core),
-        )
-
-    def switch_core(self, target_core: str = "") -> int:
-        """Switch the target core of the device.
-
-        :param target_core: Core to switch to.
-
-        :return: 0 on success, -1 on failure
-        """
-        if not self._core0 and not self._cur_core and not self._cores:
-            raise ValueError("Product not initialized!")
-
-        if not target_core:
-            logger.debug(
-                "The target_core has no value and cannot be switched."
-            )
-            return CmdStatus.NOTFOUND
-
-        if self._core0 and target_core.lower() == self._core0.lower():
-            logger.warning(
-                "The target core is the main core, and the core"
-                " is not switched."
-            )
-            return CmdStatus.SUCCESS
-
-        logger.info(f"Attempting to switch to core: {target_core}")
-
-        if target_core.lower() not in tuple(
-            core.lower() for core in self._cores
-        ):
-            logger.debug(f"There is no {target_core} core in the device")
-            return CmdStatus.NOTFOUND
-
-        cmd = f"cu -l /dev/tty{target_core.upper()}\n\n"
-        pattern = f"{target_core}>"
-        rc = self.sendCommand(cmd, pattern, match_all=False, timeout=5)
-        if rc == CmdStatus.SUCCESS:
-            logger.info(f"Core switch to {target_core} succeeded")
-
-        return rc
-
-    def get_current_prompt(self) -> str:
-        """Dynamically obtain the device current prompt.
-
-        :return: The current prompt (e.g., ap>) (str)
-                 or None: If the current prompt cannot be determined
-        """
-        core_pattern = rb"(\S+)>"
-        matches: List[str] = []
-
-        for _ in range(5):
-            cmdret = self._device.send_cmd_read_until_pattern(
-                b"\n", core_pattern, 1
-            )
-
-            if cmdret.valid_match() and cmdret.rematch:
-                # Extract the matched core name
-                core_name = (
-                    cmdret.rematch.group(1).decode("utf-8", errors="ignore")
-                    + ">"
-                )
-                matches.append(core_name)
-
-        # Check whether two or more of the three results are consistent
-        if len(matches) >= 2 and len(set(matches)) == 1:
-            logger.info(f"The current prompt is {matches[0]}")
-            return matches[0]
-
-        logger.error("Failed to get current prompt, use default prompt.")
-        return ">"
+        """Passthrough to core0."""
+        return self.core(0).sendCtrlCmd(ctrl_char)
 
     def reboot(self, timeout: int = 30) -> bool:
-        """Reboot the device by calling the device's reboot function.
-
-        :param timeout: (int) Timeout in seconds for the reboot operation.
-         Default is 30 seconds.
-
-        :return: (bool) True if the reboot was successful, False otherwise.
-        """
-        logger.info(
-            f"Attempting to reboot the device with " f"timeout: {timeout}s"
-        )
-
-        success = self._device.reboot(timeout=timeout)
-
-        if success:
-            logger.info("Device rebooted successfully.")
-        else:
-            logger.error("Failed to reboot the device.")
-
-        return success
+        """Passthrough to core0."""
+        return self.core(0).reboot(timeout)
 
     @property
     def busyloop(self) -> bool:
-        """Check if the device is in busy loop."""
-        return self._device.busyloop
+        """Passthrough to core0."""
+        return self.core(0).busyloop
 
     @property
     def flood(self) -> bool:
-        """Check if flood condition was detected."""
-        return self._device.flood
+        """Passthrough to core0."""
+        return self.core(0).flood
 
     @property
     def crash(self) -> bool:
-        """Check if the device is crashed."""
-        return self._device.crash
+        """Passthrough to core0."""
+        return self.core(0).crash
 
     @property
     def notalive(self) -> bool:
-        """Check if the device is dead."""
-        return self._device.notalive
+        """Passthrough to core0."""
+        return self.core(0).notalive
 
     @property
     def cur_core(self) -> Optional[str]:
-        """Get current core."""
-        return self._cur_core
-
-    @property
-    def cores(self) -> Tuple[str, ...]:
-        """Get cores."""
-        return self._cores
-
-    @property
-    def device_status(self) -> str:
-        """Check device status with all failure mode detection.
-
-        :return: "CRASH", "BUSYLOOP", "NORMAL", "NOTALIVE"
-        """
-        if self.crash:
-            return "CRASH"
-
-        if self.busyloop:
-            return "BUSYLOOP"
-
-        if self.notalive:
-            return "NOTALIVE"
-
-        return "NORMAL"
-
-    @property
-    def device(self) -> "DeviceCommon":
-        """Get underlying device."""
-        return self._device
-
-    @property
-    def name(self) -> str:
-        """Get product name."""
-        return self._name
-
-    @property
-    def conf(self) -> "ProductConfig":
-        """Get product configuration."""
-        return self._conf
+        """Passthrough to core0."""
+        return self.core(0).cur_core
 
     def start_log_collect(self, logs: Dict[str, Any]) -> None:
-        """Start device log collector."""
-        self._device.start_log_collect(logs)
+        """Start log collection for product."""
+        for core in self._cores:
+            core.start_log_collect(logs)
 
     def stop_log_collect(self) -> None:
-        """Stop device log collector."""
-        self._device.stop_log_collect()
+        """Stop log collection for product."""
+        for core in self._cores:
+            core.stop_log_collect()

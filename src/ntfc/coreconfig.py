@@ -62,6 +62,41 @@ class CoreConfig:
 
                     self._kv_values[name] = val_parsed
 
+    @property
+    def uptime(self) -> Any:
+        """Return core uptime."""
+        return self._config.get("uptime", 3)
+
+    @property
+    def device(self) -> Any:
+        """Return core device."""
+        return self._config.get("device", None)
+
+    @property
+    def name(self) -> Any:
+        """Return core name."""
+        return self._config.get("name", "unknown_name")
+
+    @property
+    def elf_path(self) -> Any:
+        """Return core elf path."""
+        return self._config.get("elf_path", "")
+
+    @property
+    def exec_path(self) -> Any:
+        """Return core exec path."""
+        return self._config.get("exec_path", "")
+
+    @property
+    def exec_args(self) -> Any:
+        """Return core exec args."""
+        return self._config.get("exec_args", "")
+
+    @property
+    def reboot(self) -> Any:
+        """Return core reboot command."""
+        return self._config.get("reboot", "")
+
     def kv_check(self, cfg: str) -> bool:
         """Check Kconfig option."""
         if not self._kv_values:
