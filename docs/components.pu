@@ -1,0 +1,17 @@
+@startuml
+
+component "Test Scenario" {
+        component "Products" {
+                component "Product0" {
+
+                        component "Cores" {
+                                component "Core0" {
+                                        component "Communication Interface"
+                                }
+                                collections "CoreY"
+                        }
+                }
+                collections "ProductX"
+        }
+}
+@enduml
