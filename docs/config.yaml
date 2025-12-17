@@ -26,6 +26,9 @@ product:                          # many products can be supported in tests (pro
       defconfig: ''               # (optional) path to build config if NTFC is used for building
       flash: ''                   # (optional) flash command if NTFC is used for flashing
       reboot: ''                  # (optional) System command to reset DUT, eg 'st-flash reset'
+      dcmake:                     # (optional) Defines passed to CMake build
+        - ["DEFINE1", "VALUE1"]
+        - ["DEFINE2", "VALUE2"]
 
 
     core1:                        # (optional) Aux core 1  AMP test cases)

@@ -142,14 +142,20 @@ class NuttXBuilder:
             ):
                 already_build = True  # pragma: no cover
 
-            # pragam: no cover
+            # get defines passed to cmake
+            defines = {"BOARD_CONFIG": build_cfg}
+            custom_defines = cores[core].get("dcmake", [])
+
+            for d in custom_defines:
+                defines[d[0]] = d[1]  # pragma: no cover
+
             if not already_build or self._rebuild:
                 # configure build
                 self._run_cmake(
                     source=nuttx_dir,
                     build=build_path,
                     generator="Ninja",
-                    defines={"BOARD_CONFIG": build_cfg},
+                    defines=defines,
                 )
 
                 # build

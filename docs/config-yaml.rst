@@ -117,6 +117,14 @@ NTFC can automatically builds NuttX with CMake when core configuration has:
 
    defconfig: 'path/to/nuttx/defconfig'
 
+You can specify additional defines passed to CMake with:
+
+.. code-block:: yaml
+
+   dcmake:
+     - ["DEFINE1", "VALUE1"]
+     - ["DEFINE2", "VALUE2"]
+
 Build directory and path to NuttX repositories must be specified in global
 configuration section:
 
@@ -193,3 +201,5 @@ Core Configuration Fields
      - System command to flash firmware (work in progress)
    * - ``reboot``
      - System command to reboot device
+   * - ``dcmake``
+     - Defines passed to CMake build
