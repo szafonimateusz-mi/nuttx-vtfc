@@ -47,12 +47,16 @@ class DeviceNuttx(OSCommon):
     def __init__(self, conf: "CoreConfig"):
         """Initialize NuttX OS abstraction."""
         self._conf = conf
+
+        # custom prompt
+        self._prompt = conf.prompt.encode() if conf.prompt else self._PROMPT
+
         # TODO: login, password etc
 
     @property
     def prompt(self) -> bytes:
         """Get prompt."""
-        return self._PROMPT
+        return self._prompt
 
     @property
     def no_cmd(self) -> str:

@@ -30,9 +30,9 @@ class DeviceHost2(DeviceHost):
         pass
 
 
-def test_device_host_open():
+def test_device_host_open(envconfig_dummy):
 
-    conf = {}
+    conf = envconfig_dummy.product[0].cfg_core(0)
     path = "./tests/resources/nuttx/sim/nuttx"
     dev = DeviceHost2(conf)
 
@@ -94,9 +94,9 @@ def test_device_host_open():
     dev.start()
 
 
-def test_device_host_command():
+def test_device_host_command(envconfig_dummy):
 
-    conf = {}
+    conf = envconfig_dummy.product[0].cfg_core(0)
     path = "./tests/resources/nuttx/sim/nuttx"
     dev = DeviceHost2(conf)
 

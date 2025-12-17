@@ -78,6 +78,11 @@ class CoreConfig:
         return self._config.get("name", "unknown_name")
 
     @property
+    def prompt(self) -> Any:
+        """Return core prompt."""
+        return self._config.get("prompt", None)
+
+    @property
     def elf_path(self) -> Any:
         """Return core elf path."""
         return self._config.get("elf_path", "")
