@@ -41,11 +41,12 @@ def test_product_properties(envconfig_dummy):
     def dummy_reboot(timeout):
         return True
 
-    p._cores[0]._device.reboot = dummy_reboot
-    p._cores[0]._cur_core = "test"
+    p._cores.core(0)._device.reboot = dummy_reboot
+    p._cores.core(0)._cur_core = "test"
 
     assert p.sendCommand("test")
     assert p.sendCommandReadUntilPattern("test")
     assert p.sendCtrlCmd("C") is None
     assert p.reboot()
     assert p.cur_core == "test"
+    assert p.core(0) is not None

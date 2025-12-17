@@ -58,6 +58,7 @@ class RunnerPlugin:
 
         testname = request.node.name
 
+        # prepare log files
         for product in pytest.products:
             name = product.name
             product_dir = os.path.join(pytest.result_dir, name)
@@ -77,8 +78,12 @@ class RunnerPlugin:
                 self._logs[name][core]["console"] = open(
                     tmp, "a", encoding="utf-8"
                 )
-                # start device log collector
-                product.start_log_collect(self._logs[name][core])
+
+        # start logging for all products
+        for product in pytest.products:
+            name = product.name
+            # start device log collector
+            product.start_log_collect(self._logs[name])
 
     @pytest.fixture(scope="function", autouse=True)  # type: ignore
     def prepare_test(self, request: Any) -> None:

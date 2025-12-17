@@ -29,11 +29,11 @@ from typing import (
     Union,
 )
 
-from ntfc.core import ProductCore
-from ntfc.device.getdev import get_device
+from ntfc.cores import CoresHandler
 from ntfc.productconfig import ProductConfig
 
 if TYPE_CHECKING:
+    from ntfc.core import ProductCore
     from ntfc.device.common import CmdReturn, CmdStatus
 
 
@@ -55,11 +55,7 @@ class Product:
 
         self._name = conf.name
         self._conf = conf
-
-        self._cores: List[ProductCore] = []
-        for core in range(conf.cores_num):
-            dev = get_device(conf.cfg_core(core))
-            self._cores.append(ProductCore(dev, conf.cfg_core(core)))
+        self._cores = CoresHandler(conf)
 
     def __str__(self) -> str:
         """Get string for object."""
@@ -67,21 +63,16 @@ class Product:
 
     def init(self) -> None:
         """Initialize all cores."""
-        for core in self._cores:
-            core.init()
+        self._cores.init()
 
     def start(self) -> None:
         """Start for all cores."""
-        for core in self._cores:
-            core.start()
+        self._cores.start()
 
     @property
     def cores(self) -> List[str]:
         """List of cores."""
-        tmp = []
-        for core in self._cores:
-            tmp.append(core.name)
-        return tmp
+        return self._cores.cores
 
     @property
     def conf(self) -> "ProductConfig":
@@ -93,9 +84,9 @@ class Product:
         """Get product name."""
         return self._name
 
-    def core(self, cpu: int = 0) -> ProductCore:
+    def core(self, cpu: int = 0) -> "ProductCore":
         """Get product core handler."""
-        return self._cores[cpu]
+        return self._cores.core(cpu)
 
     def sendCommand(  # noqa: N802
         self,
@@ -107,8 +98,8 @@ class Product:
         match_all: bool = True,
         regexp: bool = False,
     ) -> "CmdStatus":
-        """Passthrough to core0."""
-        return self.core(0).sendCommand(
+        """Call for all cores."""
+        return self._cores.sendCommand(
             cmd, expects, args, timeout, flag, match_all, regexp
         )
 
@@ -119,50 +110,48 @@ class Product:
         args: Optional[Union[str, List[str]]] = None,
         timeout: int = 30,
     ) -> "CmdReturn":
-        """Passthrough to core0."""
-        return self.core(0).sendCommandReadUntilPattern(
+        """Call for all cores."""
+        return self._cores.sendCommandReadUntilPattern(
             cmd, pattern, args, timeout
         )
 
     def sendCtrlCmd(self, ctrl_char: str) -> None:  # noqa: N802
-        """Passthrough to core0."""
-        return self.core(0).sendCtrlCmd(ctrl_char)
+        """Call for all cores."""
+        return self._cores.sendCtrlCmd(ctrl_char)
 
     def reboot(self, timeout: int = 30) -> bool:
-        """Passthrough to core0."""
-        return self.core(0).reboot(timeout)
+        """Call for all cores."""
+        return self._cores.reboot(timeout)
 
     @property
     def busyloop(self) -> bool:
-        """Passthrough to core0."""
-        return self.core(0).busyloop
+        """Call for all cores."""
+        return self._cores.busyloop
 
     @property
     def flood(self) -> bool:
-        """Passthrough to core0."""
-        return self.core(0).flood
+        """Call for all cores."""
+        return self._cores.flood
 
     @property
     def crash(self) -> bool:
-        """Passthrough to core0."""
-        return self.core(0).crash
+        """Call for all cores."""
+        return self._cores.crash
 
     @property
     def notalive(self) -> bool:
-        """Passthrough to core0."""
-        return self.core(0).notalive
+        """Call for all cores."""
+        return self._cores.notalive
 
     @property
     def cur_core(self) -> Optional[str]:
-        """Passthrough to core0."""
-        return self.core(0).cur_core
+        """Call for all cores."""
+        return self._cores.cur_core
 
     def start_log_collect(self, logs: Dict[str, Any]) -> None:
         """Start log collection for product."""
-        for core in self._cores:
-            core.start_log_collect(logs)
+        self._cores.start_log_collect(logs)
 
     def stop_log_collect(self) -> None:
         """Stop log collection for product."""
-        for core in self._cores:
-            core.stop_log_collect()
+        self._cores.stop_log_collect()

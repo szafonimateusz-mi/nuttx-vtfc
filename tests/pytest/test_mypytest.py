@@ -26,7 +26,7 @@ from ntfc.pytest.mypytest import MyPytest
 
 def test_collector_collect_file(config_sim, device_dummy):
 
-    with patch("ntfc.product.get_device", return_value=device_dummy):
+    with patch("ntfc.cores.get_device", return_value=device_dummy):
 
         p = MyPytest(config_sim)
         path = "./tests/resources/tests_collect/test_test1.py"
@@ -57,7 +57,7 @@ def test_collector_collect_file(config_sim, device_dummy):
 
 def test_collector_collect_dir(config_sim, device_dummy):
 
-    with patch("ntfc.product.get_device", return_value=device_dummy):
+    with patch("ntfc.cores.get_device", return_value=device_dummy):
 
         p = MyPytest(config_sim)
         path = "./tests/resources/tests_collect"
@@ -85,7 +85,7 @@ def test_collector_collect_dir(config_sim, device_dummy):
 
 def test_collector_collect_manydirs(config_sim, device_dummy):
 
-    with patch("ntfc.product.get_device", return_value=device_dummy):
+    with patch("ntfc.cores.get_device", return_value=device_dummy):
 
         p = MyPytest(config_sim)
         path = "./tests/resources/tests_dirs"
@@ -102,7 +102,7 @@ def test_collector_collect_manydirs(config_sim, device_dummy):
 
 def test_runner_module_exclude(config_sim, device_dummy):
 
-    with patch("ntfc.product.get_device", return_value=device_dummy):
+    with patch("ntfc.cores.get_device", return_value=device_dummy):
 
         path = "./tests/resources/nuttx/sim/module_exclude.json"
         with open(path, "r") as f:
@@ -120,7 +120,7 @@ def test_runner_module_exclude(config_sim, device_dummy):
 
 def test_runner_module_include(config_sim, device_dummy):
 
-    with patch("ntfc.product.get_device", return_value=device_dummy):
+    with patch("ntfc.cores.get_device", return_value=device_dummy):
 
         path = "./tests/resources/nuttx/sim/module_include.json"
         with open(path, "r") as f:
@@ -138,7 +138,7 @@ def test_runner_module_include(config_sim, device_dummy):
 
 def test_runner_run_exitcode(config_dummy, device_dummy):
 
-    with patch("ntfc.product.get_device", return_value=device_dummy):
+    with patch("ntfc.cores.get_device", return_value=device_dummy):
 
         p = MyPytest(config_dummy)
 
