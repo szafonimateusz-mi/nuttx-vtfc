@@ -92,16 +92,16 @@ Creating a DUT image manually
 =============================
 
 You can always manually build the NuttX image. Currently, such an example
-is available in ``config/nuttx-custom-image.yaml``. Commands are the same
-like before:
+is available in ``config/nuttx-custom-sim.yaml`` and
+``config/nuttx-custom-serial.yaml``. Commands are the same like before:
 
 1. Collect test cases without running tests::
 
-     python -m ntfc collect --confpath config/nuttx-custom-image.yaml
+     python -m ntfc collect --confpath config/nuttx-custom-sim.yaml
 
 2. Run test cases::
 
-     python -m ntfc test --confpath config/nuttx-custom-image.yaml
+     python -m ntfc test --confpath config/nuttx-custom-sim.yaml
 
 Running specific test cases
 ===========================

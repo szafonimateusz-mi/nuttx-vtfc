@@ -1,12 +1,15 @@
 config:
   cwd: './external'
+  build_dir: './build'
 
 product:
 
-  name: "product"
+  name: "custom"
   cores:
     core0:
       name: 'main'
-      device: 'sim'
+      device: 'serial'
+      exec_path: '/dev/ttyACM0'
+      exec_args: '115200,n,8,1'
       conf_path: './external/nuttx/.config'
       elf_path: './external/nuttx/nuttx'

@@ -1,0 +1,12 @@
+config:
+  cwd: './external'
+
+product:
+
+  name: "custom"
+  cores:
+    core0:
+      name: 'main'
+      device: 'sim'
+      conf_path: './external/nuttx/.config'
+      elf_path: './external/nuttx/nuttx'
