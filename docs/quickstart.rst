@@ -25,46 +25,10 @@ Common initialization
      git clone https://github.com/apache/nuttx-apps.git external/nuttx-apps
      git clone https://github.com/szafonimateusz-mi/nuttx-testing external/nuttx-testing
 
+5. Cherry-pick NTFC configurations::
 
-Prepare NuttX boards
-====================
-
-First make sure the configuration is copied to NuttX directory.
-
-For ``SIMULATOR``::
-
-     mkdir external/nuttx/boards/sim/sim/sim/configs/ntfc
-     cp docs/boards/sim/defconfig external/nuttx/boards/sim/sim/sim/configs/ntfc
-
-For ``QEMU-X86_64``::
-
-     mkdir external/nuttx/boards/x86_64/intel64/qemu-intel64/configs/ntfc
-     cp docs/boards/qemu-intel64/defconfig external/nuttx/boards/x86_64/intel64/qemu-intel64/configs/ntfc
-
-For ``QEMU-ARMV7A``::
-
-     mkdir external/nuttx/boards/arm/qemu/qemu-armv7a/configs/ntfc
-     cp docs/boards/qemu-armv7a/defconfig external/nuttx/boards/arm/qemu/qemu-armv7a/configs/ntfc
-
-For ``QEMU-ARMV7R``::
-
-     mkdir external/nuttx/boards/arm/qemu/qemu-armv7r/configs/ntfc
-     cp docs/boards/qemu-armv7r/defconfig external/nuttx/boards/arm/qemu/qemu-armv7r/configs/ntfc
-
-For ``QEMU-ARMV8A``::
-
-     mkdir external/nuttx/boards/arm64/qemu/qemu-armv8a/configs/ntfc
-     cp docs/boards/qemu-armv8a/defconfig external/nuttx/boards/arm64/qemu/qemu-armv8a/configs/ntfc
-
-For ``QEMU-RISCV64``::
-
-     mkdir boards/risc-v/qemu-rv/rv-virt/configs/ntfc64
-     cp docs/boards/qemu-riscv-rv-virt-64/defconfig external/nuttx/boards/risc-v/qemu-rv/rv-virt/configs/ntfc64
-
-For ``NUCLEO-H743ZI``::
-
-     mkdir boards/arm/stm32h7/nucleo-h743zi/configs/ntfc
-     cp ../../docs/boards/nucleo-h743zi/defconfig boards/arm/stm32h7/nucleo-h743zi/configs/ntfc
+     git fetch https://github.com/raiden00pl/nuttx.git vtfc_configs
+     git rebase FETCH_HEAD
 
 Automatically build DUT images
 ==============================
