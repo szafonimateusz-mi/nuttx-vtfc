@@ -102,3 +102,14 @@ like before:
 2. Run test cases::
 
      python -m ntfc test --confpath config/nuttx-custom-image.yaml
+
+Running specific test cases
+===========================
+
+You can narrow down the tests you run by specifying the exact path to the test
+cases with the ``--testpath`` option. In the example below, we only run tests
+dedicated to NSH::
+
+     python -m ntfc test --confpath=./config/nuttx-build-qemu-sim-ntfc.yaml \
+     --testpath ./external/nuttx-testing/arch/nsh
+

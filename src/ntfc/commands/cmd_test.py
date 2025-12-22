@@ -49,7 +49,7 @@ HAS_PYTEST_JSON = importlib.util.find_spec("pytest_json") is not None
     "--jsonconf",
     type=click.Path(resolve_path=False),
     default="",
-    help="Path to test session configuration file." "Default: None",
+    help="Path to test session configuration file. Default: None",
 )
 @click.option(
     "--nologs",

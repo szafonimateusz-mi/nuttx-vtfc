@@ -37,7 +37,11 @@ Options:
 
 * ``--testpath PATH`` - Path to test cases.
   Can be also set with environment variable ``NTFC_TESTPATH``.
-  Default: ``./external/nuttx-testing``
+  Default: ``./external/nuttx-testing``.
+
+  With this option you can also narrow down the tests
+  to run by specifying the path to the test sub-module,
+  example: ``--testpath ./external/nuttx-testing/arch/nsh``
 
 * ``--confpath PATH`` - Path to test configuration file.
   Can be also set with environmentvariable ``NTFC_CONFPATH``.

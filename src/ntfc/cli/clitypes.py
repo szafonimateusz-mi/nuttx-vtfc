@@ -48,8 +48,11 @@ _testenv_options = (
         "--testpath",
         type=click.Path(resolve_path=False),
         default="./external/nuttx-testing",
-        help="Path to test cases. Can be also set with environment"
-        " variable NTFC_TESTPATH. Default: ./external/nuttx-testing",
+        help="Path to test cases. Can be also set with environment "
+        " variable NTFC_TESTPATH. Default: ./external/nuttx-testing.\n"
+        "With this option you can also narrow down the tests "
+        "to run by specifying the path to the test sub-module, "
+        "example: --testpath ./external/nuttx-testing/arch/nsh",
         envvar="NTFC_TESTPATH",
     ),
     click.option(
