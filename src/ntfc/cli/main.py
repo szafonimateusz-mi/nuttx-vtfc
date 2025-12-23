@@ -116,11 +116,11 @@ def collect_run(pt: MyPytest, ctx: Environment) -> None:
         collect_print_modules(col.modules)
 
 
-def test_run(pt: MyPytest, ctx: Environment) -> None:
+def test_run(pt: MyPytest, ctx: Environment) -> Any:
     """Run tests."""
     assert ctx.testpath is not None
     assert ctx.result is not None
-    pt.runner(ctx.testpath, ctx.result, ctx.nologs)
+    return pt.runner(ctx.testpath, ctx.result, ctx.nologs)
 
 
 def print_yaml_config(config: Dict[str, Any]) -> None:
@@ -164,15 +164,15 @@ def cli_on_close(ctx: Environment) -> bool:
     if ctx.runbuild:
         return True
 
-    # TODO: open confjson here !
-
     pt = MyPytest(conf, ctx.exitonfail, ctx.verbose, conf_json)
 
     if ctx.runcollect:
         collect_run(pt, ctx)
 
     if ctx.runtest:
-        test_run(pt, ctx)
+        ret = test_run(pt, ctx)
+        if ret != 0:
+            exit(1)
 
     return True
 

@@ -184,10 +184,10 @@ def test_main_test(runner):
 
 def test_main_build_test(runner, monkeypatch):
 
-    def fake_run_command(pt, ctx):
-        return
+    def fake_run_command1(pt, ctx):
+        return 0
 
-    monkeypatch.setattr("ntfc.cli.main.test_run", fake_run_command)
+    monkeypatch.setattr("ntfc.cli.main.test_run", fake_run_command1)
 
     args = [
         "test",
@@ -196,3 +196,16 @@ def test_main_build_test(runner, monkeypatch):
     ]
     result = runner.invoke(main, args)
     assert result.exit_code == 0
+
+    def fake_run_command2(pt, ctx):
+        return 1
+
+    monkeypatch.setattr("ntfc.cli.main.test_run", fake_run_command2)
+
+    args = [
+        "test",
+        "--confpath=./tests/resources/nuttx/sim/config_build.yaml",
+        "--testpath=./tests/resources/tests_collect",
+    ]
+    result = runner.invoke(main, args)
+    assert result.exit_code == 1
