@@ -41,7 +41,7 @@ class DeviceSerial(DeviceCommon):
 
     def __init__(self, conf: "CoreConfig"):
         """Initialize sim emulator device."""
-        DeviceCommon.__init__(self, conf)
+        DeviceCommon.__init__(self, conf, echo=False)
         self._ser = None
 
     def _decode_exec_args(self, args: str) -> Dict[str, Any]:

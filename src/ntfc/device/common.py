@@ -86,7 +86,7 @@ class DeviceCommon(ABC):
 
     _BUSY_LOOP_TIMEOUT = 180  # 180 sec with no data read from target
 
-    def __init__(self, conf: "CoreConfig"):
+    def __init__(self, conf: "CoreConfig", echo: bool = True):
         """Initialize common device."""
         self._conf = conf
         # get OS abstraction
@@ -103,6 +103,7 @@ class DeviceCommon(ABC):
         self.clear_fault_flags()
 
         self._read_all_sleep = 0.1
+        self._has_echo = echo
 
     def _console_log(self, data: bytes) -> None:
         """Log console output."""
@@ -192,8 +193,11 @@ class DeviceCommon(ABC):
         _ = self._read_all(timeout=0)
         self._console_log(_)
 
+        # log written command if echo is not supported by DTU
+        if not self._has_echo:
+            self._console_log(cmd)
+
         # write command and get response
-        self._console_log(cmd)
         self._write(cmd)
         rsp = self._read_all(timeout=timeout)
 
@@ -236,6 +240,7 @@ class DeviceCommon(ABC):
             chunk = self._read_all(0.1)
             output += chunk
             output_all += chunk
+            self._console_log(chunk)
 
             # limit output data to process, otherwise re.search can stack
             # REVISIT: its possible to miss some pattern in output
@@ -266,9 +271,8 @@ class DeviceCommon(ABC):
             if len(chunk) > 0:
                 self._flood.set()
             output_all += chunk
+            self._console_log(chunk)
 
-        # log console output and return
-        self._console_log(output_all)
         return CmdReturn(ret, _match, output.decode("utf-8"))
 
     def send_ctrl_cmd(self, ctrl_char: str) -> CmdStatus:
