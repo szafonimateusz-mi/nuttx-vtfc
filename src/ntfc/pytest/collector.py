@@ -54,7 +54,7 @@ class CollectorPlugin:
         """Create collected item."""
         path, lineno, name = item.location
         lineno = lineno or 0
-        abs_path = os.path.abspath(path)
+        abs_path = os.path.abspath(item.path)
         directory = os.path.dirname(abs_path)
         module = abs_path.replace(pytest.testroot, "")
         root = module.replace(pytest.testroot, "")
