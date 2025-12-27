@@ -55,7 +55,6 @@ class DEnvironmentData:
     # files
     testpath: Optional[str] = None
     confpath: Optional[str] = None
-    confjson: Optional[str] = None
     jsonconf: Optional[str] = None
 
 

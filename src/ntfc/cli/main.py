@@ -124,8 +124,15 @@ def test_run(pt: MyPytest, ctx: Environment) -> Any:
 
 
 def print_yaml_config(config: Dict[str, Any]) -> None:
-    """Print configuration."""
+    """Print YAML configuration."""
     print("YAML config:")
+    pp = pprint.PrettyPrinter()
+    pp.pprint(config)
+
+
+def print_json_config(config: Dict[str, Any]) -> None:
+    """Print JSON configuration."""
+    print("JSON config:")
     pp = pprint.PrettyPrinter()
     pp.pprint(config)
 
@@ -138,18 +145,19 @@ def cli_on_close(ctx: Environment) -> bool:
         return True
 
     conf = None
-    logger.info(f"YAML config file {ctx.confjson}")
+    logger.info(f"YAML config file {ctx.confpath}")
     assert ctx.confpath is not None
     with open(ctx.confpath, "r", encoding="utf-8") as f:
         conf = yaml.safe_load(f)
 
-    conf_json = None
-    if ctx.confjson:  # pragma: no cover
-        logger.info(f"Module config file {ctx.confjson}")
-        with open(ctx.confjson, "r", encoding="utf-8") as f:
+    conf_json = {}
+    if ctx.jsonconf:  # pragma: no cover
+        logger.info(f"Module config file {ctx.jsonconf}")
+        with open(ctx.jsonconf, "r", encoding="utf-8") as f:
             conf_json = json.load(f)
 
     print_yaml_config(conf)
+    print_json_config(conf_json)
 
     builder = NuttXBuilder(conf, ctx.rebuild)
     if builder.need_build():
