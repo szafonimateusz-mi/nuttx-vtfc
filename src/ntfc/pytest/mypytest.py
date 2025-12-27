@@ -139,7 +139,7 @@ class MyPytest:
         plugins.extend(extra_plugins)
 
         # override tox.ini configuration from package root
-        opt.extend(["--override-ini", "addopts="])
+        opt.extend(["--color=yes", "--override-ini", "addopts="])
 
         # don't generate __pycache__ for test cases
         # this can break modules logic when we change testpath
